@@ -1,30 +1,31 @@
-import { NotificationEntity } from 'src/entities';
-
 export class NotificationCreateDto {
-  lstEmployeeId?: string[];
   lstUserId?: string[];
   title: string;
   content: string;
-  type?: string;
+  notificationType?: string;
+  relatedEntity?: string;
+  relatedId?: string;
   priority?: string;
-  targetAudience?: string;
-  classId?: string;
-  expiryDate?: Date;
-  attachments?: string;
+  actionUrl?: string;
+  expiresAt?: Date;
 }
 
 export class NotificationCreateAdminDto {
   title: string;
   content: string;
-  type?: string;
+  notificationType?: string;
+  relatedEntity?: string;
+  relatedId?: string;
   priority?: string;
-  targetAudience?: string;
-  classId?: string;
-  expiryDate?: Date;
-  attachments?: string;
+  actionUrl?: string;
+  expiresAt?: Date;
 }
 
-export class NotificationWithRecipient extends NotificationEntity {
-  isRead?: boolean;
-  readAt?: Date;
+export class UpdateNotificationSettingDto {
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  smsNotifications?: boolean;
+  promotionNotifications?: boolean;
+  bookingNotifications?: boolean;
+  recommendationNotifications?: boolean;
 }

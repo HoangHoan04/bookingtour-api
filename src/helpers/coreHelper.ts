@@ -207,6 +207,22 @@ class CoreHelper {
 
     return dateObj.format(format);
   };
+
+  normalizePhoneNumber(phone: string): string {
+    // Nếu bắt đầu bằng 0 thì thay bằng 84
+    if (phone.startsWith('0')) {
+      return '84' + phone.slice(1);
+    }
+    // Nếu đã có 84 thì giữ nguyên
+    if (phone.startsWith('84')) {
+      return phone;
+    }
+    if (phone.startsWith('+84')) {
+      return phone;
+    }
+    // Nếu không có 0 hoặc 84 ở đầu thì thêm 84 vào
+    return '84' + phone;
+  }
 }
 
 export const coreHelper = new CoreHelper();

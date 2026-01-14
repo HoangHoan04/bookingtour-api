@@ -33,4 +33,4 @@ async function createDatabase() {
   }
 }
 
-createDatabase();
+void createDatabase();

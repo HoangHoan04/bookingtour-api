@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import {
-  NotificationRecipientRepository,
   NotificationRepository,
+  NotificationSettingRepository,
   UserRepository,
 } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
@@ -15,7 +15,7 @@ import { NotificationService } from './notification.service';
   imports: [
     TypeOrmExModule.forCustomRepository([
       NotificationRepository,
-      NotificationRecipientRepository,
+      NotificationSettingRepository,
       UserRepository,
     ]),
   ],

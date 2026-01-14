@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAuthGuard } from 'src/common/guards';
 import { PaginationDto, UserDto } from 'src/dto';
+import { UpdateNotificationSettingDto } from './dto/notification.dto';
 import { NotificationService } from './notification.service';
 
 @ApiTags('Notify')
@@ -37,5 +38,20 @@ export class NotificationController {
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async pagination(@CurrentUser() user: UserDto, @Body() body: PaginationDto) {
     return await this.service.pagination(user, body);
+  }
+
+  @Post('get-settings')
+  @ApiOperation({ summary: 'Lấy cài đặt thông báo của user' })
+  async getSettings(@CurrentUser() user: UserDto) {
+    return await this.service.getSettings(user.id);
+  }
+
+  @Post('update-settings')
+  @ApiOperation({ summary: 'Cập nhật cài đặt thông báo' })
+  async updateSettings(
+    @CurrentUser() user: UserDto,
+    @Body() body: UpdateNotificationSettingDto,
+  ) {
+    return await this.service.updateSettings(user.id, body);
   }
 }

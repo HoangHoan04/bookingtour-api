@@ -3,17 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { enumData } from 'src/common/constants';
 import { PaginationDto, UserDto } from 'src/dto';
 import { RoleEntity } from 'src/entities';
-import {
-  PermissionRepository,
-  RolePermissionRepository,
-  RoleRepository,
-  UserRoleRepository,
-} from 'src/repositories';
+import { RoleRepository, UserRoleRepository } from 'src/repositories';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { enumData } from '../../constants';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { AssignPermissionDto, CreateRoleDto, UpdateRoleDto } from './dto';
@@ -22,36 +17,27 @@ import { AssignPermissionDto, CreateRoleDto, UpdateRoleDto } from './dto';
 export class RoleService {
   constructor(
     private readonly repo: RoleRepository,
-    private readonly rolePermRepo: RolePermissionRepository,
-    private readonly permRepo: PermissionRepository,
     private readonly actionLogService: ActionLogService,
     private readonly userRoleRepo: UserRoleRepository,
   ) {}
 
   async findAll() {
-    return await this.repo.find({ order: { createdAt: 'DESC' } });
+    return await this.repo.find({
+      where: { isDeleted: false },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOne(id: string) {
     const role = await this.repo.findOne({ where: { id } });
     if (!role) throw new NotFoundException('Không tìm thấy vai trò');
 
-    const rolePerms = await this.rolePermRepo.find({
-      where: { roleId: id },
-      relations: {
-        permission: true,
-      },
-    });
-
-    const result = {
-      ...role,
-      permissionIds: rolePerms.map((rp) => rp.permissionId),
-      permissions: rolePerms.map((rp) => rp.permission),
-    };
-
     return {
       message: 'Lấy thông tin vai trò thành công',
-      data: result,
+      data: {
+        ...role,
+        permissions: role.permissions || [],
+      },
     };
   }
 
@@ -67,7 +53,8 @@ export class RoleService {
     role.name = data.name;
     role.code = data.code;
     role.description = data.description;
-    role.isSystem = false;
+    role.permissions = [];
+    role.isActive = true;
     role.createdBy = user.id;
     role.createdAt = new Date();
 
@@ -95,8 +82,7 @@ export class RoleService {
   async update(user: UserDto, updateDto: UpdateRoleDto) {
     const role = await this.repo.findOne({ where: { id: updateDto.id } });
     if (!role) throw new NotFoundException('Không tìm thấy vai trò');
-    if (role.isSystem)
-      throw new BadRequestException('Không thể chỉnh sửa vai trò hệ thống');
+
     if (role.code !== updateDto.code || role.name !== updateDto.name) {
       const exist = await this.repo.findOne({
         where: [{ code: updateDto.code }, { name: updateDto.name }],
@@ -137,30 +123,14 @@ export class RoleService {
   async assignPermissions(user: UserDto, data: AssignPermissionDto) {
     const role = await this.repo.findOne({ where: { id: data.roleId } });
     if (!role) throw new NotFoundException('Không tìm thấy vai trò');
-    if (role.isSystem)
-      throw new BadRequestException(
-        'Không thể thay đổi quyền của vai trò hệ thống',
-      );
 
-    const oldPermissions = await this.rolePermRepo.find({
-      where: { roleId: data.roleId },
+    const oldPermissions = role.permissions || [];
+
+    await this.repo.update(data.roleId, {
+      permissions: data.permissionIds || [],
+      updatedBy: user.id,
+      updatedAt: new Date(),
     });
-    const oldPermissionIds = oldPermissions.map((p) => p.permissionId);
-
-    await this.rolePermRepo.delete({ roleId: data.roleId });
-
-    if (data.permissionIds && data.permissionIds.length > 0) {
-      const rolePerms = data.permissionIds.map((permId) => {
-        return this.rolePermRepo.create({
-          roleId: data.roleId,
-          permissionId: permId,
-          scope: enumData.DataScope.OWN.code,
-          createdAt: new Date(),
-          createdBy: user.id,
-        });
-      });
-      await this.rolePermRepo.save(rolePerms);
-    }
 
     const actionLogDto: ActionLogCreateDto = {
       functionId: data.roleId,
@@ -169,8 +139,8 @@ export class RoleService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      oldData: JSON.stringify({ permissionIds: oldPermissionIds }),
-      newData: JSON.stringify({ permissionIds: data.permissionIds }),
+      oldData: JSON.stringify({ permissions: oldPermissions }),
+      newData: JSON.stringify({ permissions: data.permissionIds }),
       description: `Cập nhật quyền hạn cho vai trò: ${role.code}`,
     };
 
@@ -182,10 +152,12 @@ export class RoleService {
   async delete(user: UserDto, id: string) {
     const role = await this.repo.findOne({ where: { id } });
     if (!role) throw new NotFoundException('Vai trò không tồn tại');
-    if (role.isSystem)
-      throw new BadRequestException('Không được xóa vai trò hệ thống');
 
-    await this.repo.delete(id);
+    await this.repo.update(id, {
+      isDeleted: true,
+      updatedBy: user.id,
+      updatedAt: new Date(),
+    });
 
     const actionLogDto: ActionLogCreateDto = {
       functionId: id,
@@ -194,9 +166,9 @@ export class RoleService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      oldData: '{}',
+      oldData: JSON.stringify(role),
       newData: '{}',
-      description: `Xóa vai trò với ID: ${id}`,
+      description: `Xóa vai trò: ${role.code}`,
     };
 
     await this.actionLogService.create(actionLogDto);
@@ -209,8 +181,6 @@ export class RoleService {
 
     if (data.where.code) whereCon.code = ILike(`%${data.where.code}%`);
     if (data.where.name) whereCon.name = ILike(`%${data.where.name}%`);
-    if (data.where.isSystem !== undefined)
-      whereCon.isSystem = data.where.isSystem;
     if ([true, false].includes(data.where.isDeleted))
       whereCon.isDeleted = data.where.isDeleted;
 
@@ -228,7 +198,7 @@ export class RoleService {
 
   async selectBox() {
     const res: any[] = await this.repo.find({
-      where: { isDeleted: false },
+      where: { isDeleted: false, isActive: true },
       select: {
         id: true,
         code: true,
@@ -244,21 +214,21 @@ export class RoleService {
       where: { roleId },
       relations: {
         user: {
-          employee: {
-            position: true,
-            avatar: true,
-          },
+          customer: true,
         },
       },
     });
 
-    const employees = userRoles
-      .map((ur) => ur.user?.employee)
-      .filter((emp) => emp !== null);
+    const users = userRoles
+      .map((ur) => ({
+        ...ur.user,
+        customer: ur.user?.customer,
+      }))
+      .filter((user) => user !== null);
 
     return {
-      message: 'Lấy danh sách nhân viên theo vai trò thành công',
-      data: employees,
+      message: 'Lấy danh sách người dùng theo vai trò thành công',
+      data: users,
     };
   }
 }

@@ -10,7 +10,8 @@ import { AllExceptionsFilter } from './common/filters';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = configService.get<string>('PORT');
+
+  const port = configService.get<number>('PORT') || 4300;
 
   app.setGlobalPrefix('api');
 
@@ -23,19 +24,19 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const options = new DocumentBuilder()
-    .setTitle('Document API hRM')
+    .setTitle('BookingTour API')
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options);
 
+  const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api-docs', app, document);
 
-  const server: Server = await app.listen(port || 3300);
+  const server: Server = await app.listen(port);
   server.setTimeout(10 * 60 * 1000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(
-    `Swagger documentation available at: ${await app.getUrl()}/api-docs`,
-  );
+
+  console.log(`🚀 Server running at: ${await app.getUrl()}`);
+  console.log(`📘 Swagger: ${await app.getUrl()}/api-docs`);
 }
+
 bootstrap();

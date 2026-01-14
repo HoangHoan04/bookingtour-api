@@ -1,7 +1,10 @@
 import { DynamicModule, Provider } from '@nestjs/common';
+import {
+  DATA_SOURCE,
+  TYPEORM_EX_CUSTOM_REPOSITORY,
+} from 'src/common/constants';
 import { DatabaseModule } from 'src/database/database.module';
 import { DataSource } from 'typeorm';
-import { DATA_SOURCE, TYPEORM_EX_CUSTOM_REPOSITORY } from '../constants';
 
 export class TypeOrmExModule {
   public static forCustomRepository<T extends new (...args: any[]) => any>(

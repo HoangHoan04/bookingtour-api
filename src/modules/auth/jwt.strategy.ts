@@ -17,7 +17,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  /** Xác thực token jwt */
   async validate(payload: { uid: string; isRefreshToken?: boolean }) {
     if (payload.isRefreshToken)
       throw new UnauthorizedException(
@@ -27,13 +26,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.userRepo.findOne({
       where: { id: payload.uid, isDeleted: false },
       relations: {
-        employee: true,
         userRoles: {
-          role: {
-            rolePermissions: {
-              permission: true,
-            },
-          },
+          role: true,
         },
       },
     });
@@ -46,12 +40,30 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Tài khoản đã bị ngưng hoạt động');
     }
 
+    // Lấy danh sách roles
+    const roles = user.userRoles?.map((ur) => ur.role) || [];
+
+    // Lấy danh sách permissions từ tất cả các roles (merge từ JSON)
+    const permissionSet = new Set<string>();
+    user.userRoles?.forEach((ur) => {
+      if (ur.role?.permissions && Array.isArray(ur.role.permissions)) {
+        ur.role.permissions.forEach((permission) => {
+          permissionSet.add(permission);
+        });
+      }
+    });
+
+    const permissions = Array.from(permissionSet);
+
     const enhancedUser = {
-      ...user,
-      roles: user.userRoles?.map((ur) => ur.role),
-      permissions: user.userRoles
-        ?.flatMap((ur) => ur.role.rolePermissions?.map((rp) => rp.permission))
-        .filter(Boolean),
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isActive: user.isActive,
+      customerId: user.customerId,
+      roles,
+      permissions,
     };
 
     return enhancedUser;

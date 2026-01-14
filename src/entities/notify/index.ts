@@ -1,2 +1,2 @@
 export * from './notification.entity';
-export * from './notification_recipient.entity';
+export * from './notification_setting.entity';

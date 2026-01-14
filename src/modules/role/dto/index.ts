@@ -40,8 +40,12 @@ export class AssignPermissionDto {
   @IsNotEmpty()
   roleId: string;
 
-  @ApiProperty({ description: 'Danh sách ID quyền được chọn', type: [String] })
+  @ApiProperty({
+    description: 'Danh sách permission codes (từ Permission enum)',
+    type: [String],
+    example: ['TOUR_VIEW', 'TOUR_CREATE', 'BOOKING_VIEW'],
+  })
   @IsArray()
-  @IsUUID('4', { each: true })
+  @IsString({ each: true })
   permissionIds: string[];
 }

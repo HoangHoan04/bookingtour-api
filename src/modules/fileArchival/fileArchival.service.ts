@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UploadFileEntity } from 'src/entities';
-import { UploadFileRepository } from 'src/repositories/base.repository';
+import { FileArchivalEntity } from 'src/entities';
+import { FileArchivalRepository } from 'src/repositories';
 import { v4 as uuidv4 } from 'uuid';
 import { DeleteKeyFile, FileArchivalCreateDto } from './dto';
 
 @Injectable()
 export class FileArchivalService {
-  constructor(private repo: UploadFileRepository) {}
+  constructor(private repo: FileArchivalRepository) {}
 
   async create(dto: FileArchivalCreateDto): Promise<void> {
-    const fileArchival = new UploadFileEntity();
+    const fileArchival = new FileArchivalEntity();
     fileArchival.id = uuidv4();
     fileArchival.fileUrl = dto.fileUrl;
     fileArchival.fileName = dto.fileName;
@@ -22,8 +22,8 @@ export class FileArchivalService {
     await this.repo.insert(fileArchival);
   }
 
-  async save(dto: FileArchivalCreateDto): Promise<UploadFileEntity> {
-    const fileArchival = new UploadFileEntity();
+  async save(dto: FileArchivalCreateDto): Promise<FileArchivalEntity> {
+    const fileArchival = new FileArchivalEntity();
     fileArchival.id = uuidv4();
     fileArchival.fileUrl = dto.fileUrl;
     fileArchival.fileName = dto.fileName;
@@ -39,7 +39,7 @@ export class FileArchivalService {
   async createMany(files: FileArchivalCreateDto[]): Promise<void> {
     const fileInserts: any[] = [];
     for (const file of files) {
-      const fileArchival = new UploadFileEntity();
+      const fileArchival = new FileArchivalEntity();
       fileArchival.id = uuidv4();
       fileArchival.fileUrl = file.fileUrl;
       fileArchival.fileName = file.fileName;

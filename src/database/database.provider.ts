@@ -1,5 +1,5 @@
+import { DATA_SOURCE } from 'src/common/constants';
 import { dataSource } from 'src/typeorm';
-import { DATA_SOURCE } from '../constants';
 
 export const databaseProvider = {
   provide: DATA_SOURCE,

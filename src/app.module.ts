@@ -1,59 +1,73 @@
-import { HttpModule } from '@nestjs/axios';
-import { CacheModule } from '@nestjs/cache-manager';
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config/dist/config.module';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { DatabaseModule } from './database/database.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { BranchModule } from './modules/branch/branch.module';
-import { ChatModule } from './modules/chat/chat.module';
-import { ChatbotModule } from './modules/chatbot/chatbot.module';
-import { CompanyModule } from './modules/company/company.module';
-import { DepartmentTypeModule } from './modules/department-type/department-type.module';
-import { DepartmentModule } from './modules/department/department.module';
-import { EmployeeModule } from './modules/employee/employee.module';
-import { FileArchivalModule } from './modules/fileArchival/fileArchival.module';
-import { NotificationModule } from './modules/notification/notification.module';
-import { PartMasterModule } from './modules/part-master/part-master.module';
-import { PartModule } from './modules/part/part.module';
-import { PermissionModule } from './modules/permission/permission.module';
-import { PositionMasterModule } from './modules/position-master/position-master.module';
-import { PositionModule } from './modules/position/position.module';
-import { RoleModule } from './modules/role/role.module';
-import { TranslationsModule } from './modules/translations/translations.module';
-import { UploadFileModule } from './modules/uploadFile/uploadFile.module';
-import { TypeOrmExModule } from './typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
+// import { redisStore } from 'cache-manager-ioredis-yet';
+
+import { ContextMiddleware, LoggerMiddleware } from 'src/middlewares';
+import * as allModules from 'src/modules';
+import { AppController } from './app.controller';
+import { CustomThrottlerGuard } from './common/guards';
+
+const globalModules = [
+  // ❌ Tắt Redis Cache
+  // CacheModule.registerAsync({
+  //   useFactory: async () => ({
+  //     store: redisStore,
+  //     host: process.env.REDIS_HOST,
+  //     port: Number(process.env.REDIS_PORT),
+  //     ttl: 60 * 1000,
+  //   }),
+  // }),
+
+  // Throttler vẫn giữ, không cần redis
+  ThrottlerModule.forRoot([
+    {
+      name: 'short',
+      ttl: 1000,
+      limit: Number(process.env.LIMIT_RQ_PER_SECOND_PER_IP) || 10,
+    },
+    {
+      name: 'long',
+      ttl: 60000,
+      limit: Number(process.env.LIMIT_RQ_PER_MINUTE_PER_IP) || 100,
+    },
+  ]),
+];
+
+const modules = Object.values(allModules);
 
 @Module({
   imports: [
+    ...globalModules,
+    ...modules,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ScheduleModule.forRoot(),
-    HttpModule,
-    CacheModule.register(),
-    DatabaseModule,
-    TypeOrmExModule,
-    AuthModule,
-    EmployeeModule,
-    BranchModule,
-    CompanyModule,
-    FileArchivalModule,
-    NotificationModule,
-    RoleModule,
-    PermissionModule,
-    DepartmentTypeModule,
-    DepartmentModule,
-    PartModule,
-    PartMasterModule,
-    PositionModule,
-    PositionMasterModule,
-    UploadFileModule,
-    TranslationsModule,
-    ChatbotModule,
-    ChatModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CustomCacheInterceptor,
+    // },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ContextMiddleware, LoggerMiddleware)
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
+  }
+}

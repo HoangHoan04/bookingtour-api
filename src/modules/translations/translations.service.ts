@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { enumData } from 'src/constants';
 import { PaginationDto, UserDto } from 'src/dto';
 import { TranslationEntity } from 'src/entities';
 import { TranslationRepository } from 'src/repositories';
@@ -12,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { CreateTranslationDto, UpdateTranslationDto } from './dto';
+import { enumData } from 'src/common/constants';
 
 @Injectable()
 export class TranslationsService {

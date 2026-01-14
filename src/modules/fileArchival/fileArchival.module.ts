@@ -1,10 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { UploadFileRepository } from 'src/repositories/base.repository';
+import { FileArchivalRepository } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
 import { FileArchivalService } from './fileArchival.service';
 
 @Module({
-  imports: [TypeOrmExModule.forCustomRepository([UploadFileRepository])],
+  imports: [TypeOrmExModule.forCustomRepository([FileArchivalRepository])],
   controllers: [],
   providers: [FileArchivalService],
   exports: [FileArchivalService],

@@ -1,22 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationDto, UserDto } from 'src/dto';
-import { NotificationEntity, NotificationRecipientEntity } from 'src/entities';
+import { NotificationEntity, NotificationSettingEntity } from 'src/entities';
 import {
-  NotificationRecipientRepository,
   NotificationRepository,
+  NotificationSettingRepository,
   UserRepository,
 } from 'src/repositories';
 import { In } from 'typeorm';
 import {
   NotificationCreateAdminDto,
   NotificationCreateDto,
+  UpdateNotificationSettingDto,
 } from './dto/notification.dto';
 
 @Injectable()
 export class NotificationService {
   constructor(
     private notificationRepo: NotificationRepository,
-    private recipientRepo: NotificationRecipientRepository,
+    private notificationSettingRepo: NotificationSettingRepository,
     private userRepo: UserRepository,
   ) {}
 
@@ -25,49 +26,41 @@ export class NotificationService {
     if (data.lstUserId && data.lstUserId.length > 0) {
       whereCon.id = In(data.lstUserId);
     }
-    if (data.lstEmployeeId && data.lstEmployeeId.length > 0) {
-      whereCon.employeeId = In(data.lstEmployeeId);
-    }
 
     const lstUser = await this.userRepo.find({
       where: whereCon,
-      select: { id: true, employeeId: true },
+      select: { id: true, customerId: true },
     });
 
     if (lstUser.length === 0) {
       throw new NotFoundException('Không tìm thấy người nhận');
     }
 
-    const notification = new NotificationEntity();
-    notification.title = data.title;
-    notification.content = data.content;
-    notification.type = data.type || 'thông báo';
-    notification.priority = data.priority || 'normal';
-    notification.senderId = senderId;
-    notification.targetAudience = data.targetAudience || 'specific';
-    notification.classId = data.classId;
-    notification.status = 'published';
-    notification.publishDate = new Date();
-    notification.expiryDate = data.expiryDate;
-    notification.attachments = data.attachments;
-    notification.createdBy = senderId;
+    const notifications: NotificationEntity[] = [];
+    for (const user of lstUser) {
+      if (!user.customerId) continue;
 
-    const savedNotification = await this.notificationRepo.save(notification);
+      const notification = new NotificationEntity();
+      notification.customerId = user.customerId;
+      notification.title = data.title;
+      notification.content = data.content;
+      notification.notificationType = data.notificationType || 'general';
+      if (data.relatedEntity) notification.relatedEntity = data.relatedEntity;
+      if (data.relatedId) notification.relatedId = data.relatedId;
+      notification.priority = data.priority || 'normal';
+      if (data.actionUrl) notification.actionUrl = data.actionUrl;
+      if (data.expiresAt) notification.expiresAt = data.expiresAt;
+      notification.isRead = false;
+      notification.createdBy = senderId;
 
-    const recipients = lstUser.map((user) => {
-      const recipient = new NotificationRecipientEntity();
-      recipient.notificationId = savedNotification.id;
-      recipient.userId = user.id;
-      recipient.isRead = false;
-      recipient.createdBy = senderId;
-      return recipient;
-    });
+      notifications.push(notification);
+    }
 
-    await this.recipientRepo.insert(recipients);
+    const savedNotifications = await this.notificationRepo.save(notifications);
 
     return {
       message: 'Tạo thông báo thành công',
-      data: savedNotification,
+      data: savedNotifications,
     };
   }
 
@@ -77,76 +70,78 @@ export class NotificationService {
   ): Promise<any> {
     const lstUserAdmin = await this.userRepo.find({
       where: { isAdmin: true, isDeleted: false, isActive: true },
-      select: { id: true },
+      select: { id: true, customerId: true },
     });
 
     if (lstUserAdmin.length === 0) {
       return;
     }
 
-    const notification = new NotificationEntity();
-    Object.assign(notification, {
-      title: data.title,
-      content: data.content,
-      type: data.type || 'thông báo hệ thống',
-      priority: data.priority || 'normal',
-      senderId: senderId,
-      targetAudience: data.targetAudience || 'admins',
-      classId: data.classId,
-      status: 'published',
-      publishDate: new Date(),
-      expiryDate: data.expiryDate,
-      attachments: data.attachments,
-      createdBy: senderId,
-      createdAt: new Date(),
-    });
+    const notifications: NotificationEntity[] = [];
+    for (const user of lstUserAdmin) {
+      if (!user.customerId) continue;
 
-    const savedNotification = await this.notificationRepo.save(notification);
+      const notification = new NotificationEntity();
+      notification.customerId = user.customerId;
+      notification.title = data.title;
+      notification.content = data.content;
+      notification.notificationType = data.notificationType || 'system';
+      if (data.relatedEntity) notification.relatedEntity = data.relatedEntity;
+      if (data.relatedId) notification.relatedId = data.relatedId;
+      notification.priority = data.priority || 'high';
+      if (data.actionUrl) notification.actionUrl = data.actionUrl;
+      if (data.expiresAt) notification.expiresAt = data.expiresAt;
+      notification.isRead = false;
+      notification.createdBy = senderId;
 
-    const recipients = lstUserAdmin.map((user) => {
-      const recipient = new NotificationRecipientEntity();
-      recipient.notificationId = savedNotification.id;
-      recipient.userId = user.id;
-      recipient.isRead = false;
-      recipient.createdBy = senderId;
-      recipient.createdAt = new Date();
-      return recipient;
-    });
+      notifications.push(notification);
+    }
 
-    await this.recipientRepo.insert(recipients);
+    const savedNotifications = await this.notificationRepo.save(notifications);
 
     return {
       message: 'Gửi thông báo tới admin thành công',
-      data: savedNotification,
+      data: savedNotifications,
     };
   }
 
   async updateSeenAll(user: UserDto) {
-    await this.recipientRepo.update(
-      { userId: user.id, isRead: false },
+    if (!user.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    await this.notificationRepo.update(
+      { customerId: user.customerId, isRead: false },
       { isRead: true, readAt: new Date(), updatedBy: user.id },
     );
+
     return { message: 'Đánh dấu tất cả đã đọc thành công', status_code: 200 };
   }
 
   async updateSeenListNotify(user: UserDto, data: { lstId: string[] }) {
-    await this.recipientRepo.update(
-      { userId: user.id, notificationId: In(data.lstId), isRead: false },
+    if (!user.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    await this.notificationRepo.update(
+      { customerId: user.customerId, id: In(data.lstId), isRead: false },
       { isRead: true, readAt: new Date(), updatedBy: user.id },
     );
+
     return { message: 'Đánh dấu đã đọc thành công', status_code: 200 };
   }
 
   async findCountNotiNotSeen(user: UserDto) {
-    if (!user) return { countAll: 0 };
-    const count = await this.recipientRepo.count({
+    if (!user || !user.customerId) return { countAll: 0 };
+
+    const count = await this.notificationRepo.count({
       where: {
-        userId: user.id,
+        customerId: user.customerId,
         isRead: false,
-        notification: { status: 'published', isDeleted: false },
+        isDeleted: false,
       },
-      relations: { notification: true },
     });
+
     return { countAll: count };
   }
 
@@ -154,17 +149,22 @@ export class NotificationService {
     user: UserDto,
     { where, skip, take }: PaginationDto,
   ): Promise<any> {
-    const queryBuilder = this.recipientRepo
-      .createQueryBuilder('recipient')
-      .leftJoinAndSelect('recipient.notification', 'notification')
-      .leftJoin('notification.sender', 'sender')
-      .addSelect(['sender.id', 'sender.username', 'sender.email'])
-      .where('recipient.userId = :userId', { userId: user.id })
-      .andWhere('notification.status = :status', { status: 'published' })
+    if (!user.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    const queryBuilder = this.notificationRepo
+      .createQueryBuilder('notification')
+      .leftJoinAndSelect('notification.customer', 'customer')
+      .where('notification.customerId = :customerId', {
+        customerId: user.customerId,
+      })
       .andWhere('notification.isDeleted = :isDeleted', { isDeleted: false });
 
-    if (where?.type) {
-      queryBuilder.andWhere('notification.type = :type', { type: where.type });
+    if (where?.notificationType) {
+      queryBuilder.andWhere('notification.notificationType = :type', {
+        type: where.notificationType,
+      });
     }
 
     if (where?.priority) {
@@ -173,18 +173,17 @@ export class NotificationService {
       });
     }
 
-    const [recipients, total] = await queryBuilder
-      .orderBy('notification.publishDate', 'DESC')
+    if (where?.isRead !== undefined) {
+      queryBuilder.andWhere('notification.isRead = :isRead', {
+        isRead: where.isRead,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .orderBy('notification.createdAt', 'DESC')
       .skip(skip)
       .take(take)
       .getManyAndCount();
-
-    const data = recipients.map((item) => ({
-      ...item.notification,
-      isRead: item.isRead,
-      readAt: item.readAt,
-      recipients: undefined,
-    }));
 
     return {
       data,
@@ -193,13 +192,24 @@ export class NotificationService {
   }
 
   async deleteNotification(userId: string, notificationId: string) {
-    const recipient = await this.recipientRepo.findOne({
-      where: { userId, notificationId },
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: { customerId: true },
     });
 
-    if (!recipient) throw new NotFoundException('Không tìm thấy thông báo');
+    if (!user?.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
 
-    await this.recipientRepo.delete({ userId, notificationId });
+    const notification = await this.notificationRepo.findOne({
+      where: { id: notificationId, customerId: user.customerId },
+    });
+
+    if (!notification) {
+      throw new NotFoundException('Không tìm thấy thông báo');
+    }
+
+    await this.notificationRepo.softDelete(notificationId);
 
     return {
       message: 'Xóa thông báo thành công',
@@ -208,35 +218,123 @@ export class NotificationService {
   }
 
   async getNotificationDetail(userId: string, notificationId: string) {
-    const recipient = await this.recipientRepo.findOne({
-      where: { userId, notificationId },
-      relations: ['notification', 'notification.sender'],
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: { customerId: true },
     });
 
-    if (!recipient || recipient.notification.isDeleted) {
+    if (!user?.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    const notification = await this.notificationRepo.findOne({
+      where: {
+        id: notificationId,
+        customerId: user.customerId,
+        isDeleted: false,
+      },
+      relations: ['customer'],
+    });
+
+    if (!notification) {
       throw new NotFoundException('Không tìm thấy thông báo');
     }
 
-    if (!recipient.isRead) {
-      await this.recipientRepo.update(recipient.id, {
-        isRead: true,
-        readAt: new Date(),
-        updatedBy: userId,
-      });
-      recipient.isRead = true;
-      recipient.readAt = new Date();
+    if (!notification.isRead) {
+      notification.isRead = true;
+      notification.readAt = new Date();
+      notification.updatedBy = userId;
+      await this.notificationRepo.save(notification);
     }
 
     return {
-      data: {
-        ...recipient.notification,
-        isRead: recipient.isRead,
-        readAt: recipient.readAt,
-        sender: {
-          id: recipient.notification.sender?.id,
-          username: recipient.notification.sender?.username,
-        },
-      },
+      data: notification,
+    };
+  }
+
+  async getSettings(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: { customerId: true },
+    });
+
+    if (!user?.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    let setting = await this.notificationSettingRepo.findOne({
+      where: { customerId: user.customerId },
+    });
+
+    // Nếu chưa có setting thì tạo mới với giá trị mặc định
+    if (!setting) {
+      setting = new NotificationSettingEntity();
+      setting.customerId = user.customerId;
+      setting.emailNotifications = true;
+      setting.pushNotifications = true;
+      setting.smsNotifications = false;
+      setting.promotionNotifications = true;
+      setting.bookingNotifications = true;
+      setting.recommendationNotifications = true;
+      setting.createdBy = userId;
+      setting = await this.notificationSettingRepo.save(setting);
+    }
+
+    return {
+      data: setting,
+    };
+  }
+
+  async updateSettings(
+    userId: string,
+    data: UpdateNotificationSettingDto,
+  ): Promise<any> {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: { customerId: true },
+    });
+
+    if (!user?.customerId) {
+      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+    }
+
+    let setting = await this.notificationSettingRepo.findOne({
+      where: { customerId: user.customerId },
+    });
+
+    // Nếu chưa có setting thì tạo mới
+    if (!setting) {
+      setting = new NotificationSettingEntity();
+      setting.customerId = user.customerId;
+      setting.createdBy = userId;
+    }
+
+    // Update các trường nếu có trong data
+    if (data.emailNotifications !== undefined) {
+      setting.emailNotifications = data.emailNotifications;
+    }
+    if (data.pushNotifications !== undefined) {
+      setting.pushNotifications = data.pushNotifications;
+    }
+    if (data.smsNotifications !== undefined) {
+      setting.smsNotifications = data.smsNotifications;
+    }
+    if (data.promotionNotifications !== undefined) {
+      setting.promotionNotifications = data.promotionNotifications;
+    }
+    if (data.bookingNotifications !== undefined) {
+      setting.bookingNotifications = data.bookingNotifications;
+    }
+    if (data.recommendationNotifications !== undefined) {
+      setting.recommendationNotifications = data.recommendationNotifications;
+    }
+
+    setting.updatedBy = userId;
+    await this.notificationSettingRepo.save(setting);
+
+    return {
+      message: 'Cập nhật cài đặt thông báo thành công',
+      data: setting,
     };
   }
 }
