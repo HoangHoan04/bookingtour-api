@@ -1,16 +1,16 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators';
-import { JwtAuthGuard } from 'src/common/guards';
+import { JwtAuthGuard, PermissionGuard } from 'src/common/guards';
 import { IdDto, PaginationDto, UserDto } from 'src/dto';
-import { CreateTranslationDto, UpdateTranslationDto } from './dto';
-import { TranslationsService } from './translations.service';
+import { CreateTranslationDto, UpdateTranslationDto } from '../dto';
+import { TranslationsService } from '../translations.service';
 
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
-@ApiTags('Translations')
+@ApiTags('Admin - Customer')
+@UseGuards(JwtAuthGuard, PermissionGuard)
 @Controller('translations')
-export class TranslationsController {
+export class AdminTranslationsController {
   constructor(private readonly service: TranslationsService) {}
 
   @ApiOperation({ summary: 'Hàm phân trang' })

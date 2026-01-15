@@ -11,7 +11,7 @@ import { UpdateCustomerDto } from '../dto/updateCustomer.dto';
 @ApiTags('Admin - Customer')
 @UseGuards(JwtAuthGuard, PermissionGuard)
 @Controller('customer')
-export class CustomerAdminController {
+export class AdminCustomerController {
   constructor(private readonly service: CustomerService) {}
 
   @ApiOperation({ summary: 'Tạo mới khách hàng' })

@@ -1,15 +1,16 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Param, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators';
-import { JwtAuthGuard } from 'src/common/guards';
 import { PaginationDto, UserDto } from 'src/dto';
-import { UpdateNotificationSettingDto } from './dto/notification.dto';
-import { NotificationService } from './notification.service';
+import {
+  MarkReadListDto,
+  UpdateNotificationSettingDto,
+} from '../dto/notification.dto';
+import { NotificationService } from '../notification.service';
 
-@ApiTags('Notify')
-@UseGuards(JwtAuthGuard)
+@ApiTags('User - Notify')
 @Controller('notify')
-export class NotificationController {
+export class UserNotificationController {
   constructor(private readonly service: NotificationService) {}
 
   @Post('update-seen-all')
@@ -22,7 +23,7 @@ export class NotificationController {
   @ApiOperation({ summary: 'Đánh dấu danh sách thông báo là đã đọc' })
   async updateSeenListNotify(
     @CurrentUser() user: UserDto,
-    @Body() body: { lstId: string[] },
+    @Body() body: MarkReadListDto,
   ) {
     return await this.service.updateSeenListNotify(user, body);
   }
@@ -34,10 +35,15 @@ export class NotificationController {
   }
 
   @Post('pagination')
-  @ApiOperation({ summary: 'Lấy danh sách với bộ lọc' })
-  @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
+  @ApiOperation({ summary: 'Lấy danh sách thông báo với phân trang và filter' })
   async pagination(@CurrentUser() user: UserDto, @Body() body: PaginationDto) {
     return await this.service.pagination(user, body);
+  }
+
+  @Post('detail/:id')
+  @ApiOperation({ summary: 'Lấy chi tiết thông báo' })
+  async getDetail(@CurrentUser() user: UserDto, @Param('id') id: string) {
+    return await this.service.getNotificationDetail(user.id, id);
   }
 
   @Post('get-settings')

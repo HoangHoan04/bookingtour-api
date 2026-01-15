@@ -20,11 +20,20 @@ export class NotificationEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   content: string;
 
-  @ApiProperty({ description: 'Loại thông báo' })
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @ApiProperty({
+    description: 'Loại thông báo (system/booking/payment/promotion/general)',
+  })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    default: 'general',
+  })
   notificationType: string;
 
-  @ApiProperty({ description: 'Loại entity liên quan (booking/payment...)' })
+  @ApiProperty({
+    description: 'Loại entity liên quan (booking/payment/tour...)',
+  })
   @Column({ type: 'varchar', length: 50, nullable: true })
   relatedEntity: string;
 
@@ -33,15 +42,20 @@ export class NotificationEntity extends BaseEntity {
   relatedId: string;
 
   @ApiProperty({ description: 'Đã đọc chưa' })
-  @Column({ type: 'boolean', default: 0 })
+  @Column({ type: 'boolean', default: false })
   isRead: boolean;
 
   @ApiProperty({ description: 'Thời gian đọc' })
   @Column({ type: 'timestamp', nullable: true })
   readAt: Date;
 
-  @ApiProperty({ description: 'Độ ưu tiên' })
-  @Column({ type: 'varchar', length: 20 })
+  @ApiProperty({ description: 'Độ ưu tiên (low/normal/high/urgent)' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+    default: 'normal',
+  })
   priority: string;
 
   @ApiProperty({ description: 'Link hành động (deep link)' })
@@ -51,4 +65,12 @@ export class NotificationEntity extends BaseEntity {
   @ApiProperty({ description: 'Thời gian hết hạn' })
   @Column({ type: 'timestamp', nullable: true })
   expiresAt: Date;
+
+  @ApiProperty({ description: 'Icon của thông báo' })
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  icon: string;
+
+  @ApiProperty({ description: 'Màu sắc của thông báo' })
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  color: string;
 }

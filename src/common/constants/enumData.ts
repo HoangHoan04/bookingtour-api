@@ -84,172 +84,62 @@ export const enumData = {
     FACEBOOK: 'FACEBOOK',
   },
 
-  PERMISSION_ACTION: {
-    ADD: { code: 'isAdd', name: 'Thêm mới' },
-    VIEW: { code: 'isView', name: 'Xem' },
-    EDIT: { code: 'isEdit', name: 'Chỉnh sửa' },
-    DELETED: { code: 'isDeleted', name: 'Xóa' },
-    ACTIVATED: { code: 'isActivated', name: 'Kích hoạt' },
-    EXPORT: { code: 'isExport', name: 'Xuất' },
-    IMPORT: { code: 'isImport', name: 'Nhập' },
-    APPROVED: { code: 'isApproved', name: 'Duyệt' },
-    REJECT: { code: 'isReject', name: 'Từ chối' },
-    ASSIGN: { code: 'isAssign', name: 'Gán' },
-    SEND_APPROVED: { code: 'isSendApproved', name: 'Gửi duyệt' },
-    CANCELLED: { code: 'isCancelled', name: 'Hủy' },
-    COMPLETED: { code: 'isCompleted', name: 'Hoàn thành' },
+  // Trạng thái booking
+  BOOKING_STATUS: {
+    PENDING: { code: 'PENDING', name: 'Chờ xác nhận', color: 'yellow' },
+    CONFIRMED: { code: 'CONFIRMED', name: 'Đã xác nhận', color: 'blue' },
+    COMPLETED: { code: 'COMPLETED', name: 'Hoàn thành', color: 'green' },
+    CANCELLED: { code: 'CANCELLED', name: 'Đã hủy', color: 'red' },
+    EXPIRED: { code: 'EXPIRED', name: 'Hết hạn', color: 'gray' },
   },
 
-  PERMISSIONS: {
-    REPORT: {
-      KEY: 'REPORT',
-      OVERVIEW: 'REPORT-OVERVIEW',
-      INVENTORY: 'REPORT-INVENTORY',
-    },
+  // Trạng thái payment
+  PAYMENT_STATUS: {
+    PENDING: { code: 'PENDING', name: 'Chờ xử lý', color: 'yellow' },
+    SUCCESS: { code: 'SUCCESS', name: 'Thành công', color: 'green' },
+    FAILED: { code: 'FAILED', name: 'Thất bại', color: 'red' },
+    EXPIRED: { code: 'EXPIRED', name: 'Hết hạn', color: 'gray' },
+    CANCELLED: { code: 'CANCELLED', name: 'Đã hủy', color: 'red' },
+  },
 
-    ACCOUNTING: {
-      KEY: 'ACCOUNTING',
-      DEBT_SUPPLIER: 'ACCOUNTING-DEBT-SUPPLIER',
-      MISA_PAYMENT: 'ACCOUNTING-MISA-PAYMENT',
-      CHECKING_INVENTORY: 'ACCOUNTING-CHECKING-INVENTORY',
-      DISBURSEMENT: 'ACCOUNTING-DISBURSEMENT',
-    },
+  // Phương thức thanh toán
+  PAYMENT_METHOD: {
+    VNPAY: { code: 'VNPAY', name: 'VNPAY' },
+    MOMO: { code: 'MOMO', name: 'MOMO' },
+    BANK_TRANSFER: { code: 'BANK_TRANSFER', name: 'Chuyển khoản ngân hàng' },
+    CASH: { code: 'CASH', name: 'Tiền mặt' },
+    CREDIT_CARD: { code: 'CREDIT_CARD', name: 'Thẻ tín dụng' },
+  },
 
-    SALE_IPOS: {
-      KEY: 'SALE-IPOS',
-      SALES_POWER: 'SALE-IPOS-SALES-POWER',
-      UPLOAD_SALES: 'SALE-IPOS-UPLOAD-SALES',
-      DESTRUCTIVE_LIST: 'SALE-IPOS-DESTRUCTIVE-LIST',
-      UPLOAD_DESTRUCTIVE: 'SALE-IPOS-UPLOAD-DESTRUCTIVE',
-    },
+  // Trạng thái review
+  REVIEW_STATUS: {
+    PENDING: { code: 'PENDING', name: 'Chờ duyệt', color: 'yellow' },
+    APPROVED: { code: 'APPROVED', name: 'Đã duyệt', color: 'green' },
+    REJECTED: { code: 'REJECTED', name: 'Từ chối', color: 'red' },
+  },
 
-    PURCHASING: {
-      KEY: 'PURCHASING',
-      PLAN_TYPE: 'PURCHASING-PLAN-TYPE',
-      PLAN: 'PURCHASING-PLAN',
-      DISBURSEMENT: 'PURCHASING-DISBURSEMENT-DISBURSEMENT',
-      MISA_EXPORT: 'PURCHASING-DISBURSEMENT-MISA-EXPORT',
-      SUMMARY_ORDER: 'PURCHASING-ORDER-SUMMARY-ORDER',
-      ORDER: 'PURCHASING-ORDER-ORDER',
-      CREATE: 'PURCHASING-REQUEST-CREATE',
-      LIST: 'PURCHASING-REQUEST-LIST',
-    },
+  // Trạng thái blog
+  BLOG_STATUS: {
+    DRAFT: { code: 'DRAFT', name: 'Bản nháp' },
+    PUBLISHED: { code: 'PUBLISHED', name: 'Đã xuất bản' },
+    ARCHIVED: { code: 'ARCHIVED', name: 'Lưu trữ' },
+  },
 
-    PRICE_MAKING: {
-      KEY: 'PRICE-MAKING',
-      SUPPLIER: 'PRICE-MAKING-SUPPLIER',
-      ITEM: 'PRICE-MAKING-ITEM',
-      EQUIPMENT: 'PRICE-MAKING-EQUIPMENT',
-      MATERIAL: 'PRICE-MAKING-MATERIAL',
-      PROPERTY: 'PRICE-MAKING-PROPERTY',
-    },
+  // Loại notification
+  NOTIFICATION_TYPE: {
+    BOOKING: { code: 'BOOKING', name: 'Đặt chỗ' },
+    PAYMENT: { code: 'PAYMENT', name: 'Thanh toán' },
+    PROMOTION: { code: 'PROMOTION', name: 'Khuyến mãi' },
+    SYSTEM: { code: 'SYSTEM', name: 'Hệ thống' },
+    RECOMMENDATION: { code: 'RECOMMENDATION', name: 'Gợi ý' },
+  },
 
-    INVENTORY: {
-      KEY: 'INVENTORY',
-      DELIVERY_NOTE: 'INVENTORY-DELIVERY-NOTE',
-      RECEIVE: 'INVENTORY-RECEIVE',
-      MISA_GROUP: 'INVENTORY-MISA-GROUP', // Nhóm Misa trong kho
-      RETURN: 'INVENTORY-RETURN',
-      OUTBOUND: 'INVENTORY-OUTBOUND',
-      STOCK: 'INVENTORY-STOCK',
-      TRANSFER_WAREHOUSE: 'INVENTORY-TRANSFER-WAREHOUSE',
-      CHECK: 'INVENTORY-CHECK',
-      CANCEL: 'INVENTORY-CANCEL',
-      LIQUIDATION: 'INVENTORY-LIQUIDATION',
-      BRANCH_REQUISITION: 'INVENTORY-BRANCH-REQUISITION',
-      BRANCH_RETURN: 'INVENTORY-BRANCH-RETURN',
-    },
-
-    MANUFACTURE_PRODUCTION: {
-      KEY: 'MANUFACTURE-PRODUCTION',
-      RECIPE: 'MANUFACTURE-PRODUCTION-RECIPE',
-      RECIPE_TEST: 'MANUFACTURE-PRODUCTION-RECIPE-TEST',
-      ITEM_CODE: 'MANUFACTURE-PRODUCTION-ITEM-CODE',
-      PLAN_CREATE: 'MANUFACTURE-PRODUCTION-PLAN-CREATE',
-      PLAN_LIST: 'MANUFACTURE-PRODUCTION-PLAN-LIST',
-      PROCESS_LINE: 'MANUFACTURE-PRODUCTION-PROCESS-LINE',
-    },
-    MANUFACTURE_PREPARATION: {
-      KEY: 'MANUFACTURE-PREPARATION',
-      SETTING: 'MANUFACTURE-PREPARATION-SETTING',
-      EXECUTE: 'MANUFACTURE-PREPARATION-EXECUTE',
-    },
-
-    SETTING_GENERAL: {
-      KEY: 'SETTING-GENERAL',
-      COMPANY: 'SETTING-GENERAL-COMPANY',
-      BRAND: 'SETTING-GENERAL-BRAND',
-      BRANCH: 'SETTING-GENERAL-BRANCH',
-      DEPARTMENT: 'SETTING-GENERAL-DEPARTMENT',
-      PART: 'SETTING-GENERAL-PART',
-      EMPLOYEE: 'SETTING-GENERAL-EMPLOYEE',
-    },
-    SETTING_PRODUCT: {
-      KEY: 'SETTING-PRODUCT',
-      UNIT: 'SETTING-PRODUCT-UNIT',
-      ITEM: 'SETTING-PRODUCT-ITEM',
-      ITEM_GROUP: 'SETTING-PRODUCT-ITEM-GROUP',
-      ITEM_INDUSTRY: 'SETTING-PRODUCT-ITEM-INDUSTRY',
-      ITEM_GROUP_SELL: 'SETTING-PRODUCT-ITEM-GROUP-SELL',
-      PROPERTY: 'SETTING-PRODUCT-PROPERTY',
-      PROPERTY_TYPE: 'SETTING-PRODUCT-PROPERTY-TYPE',
-      EQUIPMENT: 'SETTING-PRODUCT-EQUIPMENT',
-      EQUIPMENT_TYPE: 'SETTING-PRODUCT-EQUIPMENT-TYPE',
-      MATERIAL: 'SETTING-PRODUCT-MATERIAL',
-      MATERIAL_TYPE: 'SETTING-PRODUCT-MATERIAL-TYPE',
-      STANDARDS: 'SETTING-PRODUCT-STANDARDS',
-      VTTH_STANDARDS: 'SETTING-PRODUCT-VTTH-STANDARDS',
-    },
-    SETTING_PERMISSION: {
-      KEY: 'SETTING-PERMISSION',
-      ROLE: 'SETTING-PERMISSION-ROLE',
-      ASSIGN: 'SETTING-PERMISSION-ASSIGN',
-    },
-    SETTING_DYNAMIC: {
-      KEY: 'SETTING-DYNAMIC',
-      CONFIG: 'SETTING-DYNAMIC-CONFIG',
-    },
-
-    //#region mobile
-    MOBILE: {
-      KEY: 'MOBILE',
-      ORDER_TAB: {
-        code: 'ORDERTAB',
-        controller: 'ORDER_TAB',
-      },
-      LIQUIDATION_ITEM_TAB: {
-        code: 'LIQUIDATIONITEMTAB',
-        controller: 'LIQUIDATION_ITEM_TAB',
-      },
-      REQUEST_PRODUCTS_TAB: {
-        code: 'REQUESTPRODUCTSTAB',
-        controller: 'REQUEST_PRODUCTS_TAB',
-      },
-      GIVE_ITEM_TAB: {
-        code: 'GIVEITEMTAB',
-        controller: 'GIVE_ITEM_TAB',
-      },
-      RECEIVED_ITEM_TAB: {
-        code: 'RECEIVEDITEMTAB',
-        controller: 'RECEIVED_ITEM_TAB',
-      },
-      CANCEL_ITEM_TAB: {
-        code: 'CANCELITEMTAB',
-        controller: 'CANCEL_ITEM_TAB',
-      },
-      INVENTORY_TAB: {
-        code: 'INVENTORYTAB',
-        controller: 'INVENTORY_TAB',
-      },
-      WAREHOUSE_TRANSFER_TAB: {
-        code: 'WAREHOUSETRANSFERTAB',
-        controller: 'WAREHOUSE_TRANSFER_TAB',
-      },
-      INVENTORY_CHECK_TAB: {
-        code: 'INVENTORYCHECKTAB',
-        controller: 'INVENTORY_CHECK_TAB',
-      },
-    },
+  // Độ ưu tiên notification
+  NOTIFICATION_PRIORITY: {
+    LOW: { code: 'LOW', name: 'Thấp' },
+    MEDIUM: { code: 'MEDIUM', name: 'Trung bình' },
+    HIGH: { code: 'HIGH', name: 'Cao' },
+    URGENT: { code: 'URGENT', name: 'Khẩn cấp' },
   },
 };
 

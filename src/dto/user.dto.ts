@@ -18,12 +18,6 @@ export class UserDto {
   name: string;
 
   @ApiProperty({
-    description: 'Id nhân viên',
-    example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-  })
-  employeeId: string;
-
-  @ApiProperty({
     description: 'Id khách hàng',
     example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
   })

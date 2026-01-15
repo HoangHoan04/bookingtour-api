@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TranslationRepository } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
-import { TranslationsController } from './translations.controller';
 import { TranslationsService } from './translations.service';
 
 @Module({
@@ -11,7 +10,7 @@ import { TranslationsService } from './translations.service';
     ActionLogModule,
   ],
   exports: [TranslationsService],
-  controllers: [TranslationsController],
+  controllers: [],
   providers: [TranslationsService],
 })
 export class TranslationsModule implements NestModule {

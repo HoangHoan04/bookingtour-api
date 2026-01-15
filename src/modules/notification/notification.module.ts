@@ -5,13 +5,12 @@ import {
   UserRepository,
 } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
-import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
 
 @Module({
   providers: [NotificationService],
   exports: [NotificationService],
-  controllers: [NotificationController],
+  controllers: [],
   imports: [
     TypeOrmExModule.forCustomRepository([
       NotificationRepository,

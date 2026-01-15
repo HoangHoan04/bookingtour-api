@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { BannerEntity } from './blogs/banner.entity';
+import { NewsEntity } from './blogs/new.entity';
 import { ReviewEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
 
@@ -39,4 +41,18 @@ export class FileArchivalEntity extends BaseEntity {
   @ManyToOne(() => ReviewEntity, (p) => p.images)
   @JoinColumn({ name: 'reviewId' })
   review: Promise<ReviewEntity>;
+
+  /** Id tin tức (new) */
+  @Column({ type: 'varchar', nullable: true })
+  newId: string;
+  @ManyToOne(() => NewsEntity, (p) => p.images)
+  @JoinColumn({ name: 'newId', referencedColumnName: 'id' })
+  new: Promise<NewsEntity>;
+
+  /** Id banner */
+  @Column({ type: 'varchar', nullable: true })
+  bannerId: string;
+  @OneToOne(() => BannerEntity, (p) => p.image)
+  @JoinColumn({ name: 'bannerId', referencedColumnName: 'id' })
+  banner: Promise<BannerEntity>;
 }
