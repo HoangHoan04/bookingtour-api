@@ -17,6 +17,14 @@ import { RoleModule } from '../role/role.module';
 import { TourModule } from '../tour/tour.module';
 import { AdminTranslationsController } from '../translations/controller/admin-translations.controller';
 import { TranslationsModule } from '../translations/translations.module';
+import { AdminTourController } from '../tour/controller/admin-tour.controller';
+import { TourItinerariesModule } from '../tour-itineraries/tour-itineraries.module';
+import { AdminTourItinerariesController } from '../tour-itineraries/controller/admin-tour-itineraries.controller';
+import { TourPriceModule } from '../tour-price/tour-price.module';
+import { TourDetailModule } from '../tour-detail/tour-detail.module';
+import { Admin } from 'typeorm';
+import { AdminTourDetailController } from '../tour-detail/controller/admin-tour-detail.controller';
+import { AdminTourPriceController } from '../tour-price/controller/admin-tour-price.controller';
 
 @ChildModule({
   prefix: PREFIX_MODULE.admin,
@@ -28,6 +36,10 @@ import { TranslationsModule } from '../translations/translations.module';
     AdminBlogController,
     AdminTranslationsController,
     AdminNotificationController,
+    AdminTourController,
+    AdminTourItinerariesController,
+    AdminTourDetailController,
+    AdminTourPriceController,
   ],
   imports: [
     AuthModule,
@@ -39,6 +51,10 @@ import { TranslationsModule } from '../translations/translations.module';
     TourModule,
     TranslationsModule,
     NotificationModule,
+    TourModule,
+    TourPriceModule,
+    TourItinerariesModule,
+    TourDetailModule,
   ],
   exports: [],
 })

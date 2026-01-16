@@ -75,8 +75,8 @@ export class TourEntity extends BaseEntity {
   status: string;
 
   @ApiProperty({ description: 'Chi tiết tour' })
-  @OneToOne(() => TourDetailEntity, (tourDetails) => tourDetails.tour)
-  tourDetails: Promise<TourDetailEntity>;
+  @OneToMany(() => TourDetailEntity, (tourDetails) => tourDetails.tour)
+  tourDetails: Promise<TourDetailEntity[]>;
 
   @ApiProperty({ description: 'Review của khách hàng' })
   @OneToMany(() => ReviewEntity, (p) => p.booking)

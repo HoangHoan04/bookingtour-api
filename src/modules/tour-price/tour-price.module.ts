@@ -8,6 +8,7 @@ import {
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
 import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { TourPriceService } from './tour-price.service';
 
 @Module({
   imports: [
@@ -20,9 +21,9 @@ import { FileArchivalModule } from '../fileArchival/fileArchival.module';
     ActionLogModule,
     FileArchivalModule,
   ],
-  exports: [],
+  exports: [TourPriceService],
   controllers: [],
-  providers: [],
+  providers: [TourPriceService],
 })
 export class TourPriceModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {}

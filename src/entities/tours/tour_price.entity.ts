@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { BookingDetailEntity } from './booking_detail.entity';
 import { TourDetailEntity } from './tour_details.entity';
@@ -29,7 +36,7 @@ export class TourPriceEntity extends BaseEntity {
   @ApiProperty({ description: 'Mã chi tiết tour' })
   @Column({ type: 'uuid', nullable: true })
   tourDetailId?: string;
-  @OneToOne(() => TourDetailEntity, (td) => td.tourPrice)
+  @ManyToOne(() => TourDetailEntity, (td) => td.tourPrice)
   @JoinColumn({ name: 'tourDetailId' })
   tourDetail?: TourDetailEntity;
 }

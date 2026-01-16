@@ -8,7 +8,8 @@ import {
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
 import { FileArchivalModule } from '../fileArchival/fileArchival.module';
-import { TourService } from './tour.service';
+import { TourService } from '../tour/tour.service';
+import { TourItinerarieService } from './tour-inineraries.service';
 
 @Module({
   imports: [
@@ -21,10 +22,10 @@ import { TourService } from './tour.service';
     ActionLogModule,
     FileArchivalModule,
   ],
-  exports: [TourService],
+  exports: [TourItinerarieService, TourService],
   controllers: [],
-  providers: [TourService],
+  providers: [TourService, TourItinerarieService],
 })
-export class TourModule implements NestModule {
+export class TourItinerariesModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {}
 }

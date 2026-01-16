@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { BookingDetailEntity } from './booking_detail.entity';
 import { TourEntity } from './tour.entity';
@@ -11,7 +18,7 @@ export class TourDetailEntity extends BaseEntity {
   @ApiProperty({ description: 'Mã tour' })
   @Column({ type: 'uuid', nullable: true })
   tourId?: string;
-  @OneToOne(() => TourEntity, (tour) => tour.tourDetails)
+  @ManyToOne(() => TourEntity, (tour) => tour.tourDetails)
   @JoinColumn({ name: 'tourId' })
   tour?: TourEntity;
 
@@ -44,12 +51,12 @@ export class TourDetailEntity extends BaseEntity {
   status: string;
 
   @ApiProperty({ description: 'Chi tiết giá tour' })
-  @OneToOne(() => TourPriceEntity, (tourPrice) => tourPrice.tourDetail)
-  tourPrice: Promise<TourPriceEntity>;
+  @OneToMany(() => TourPriceEntity, (tourPrice) => tourPrice.tourDetail)
+  tourPrice: Promise<TourPriceEntity[]>;
 
   @ApiProperty({ description: 'Lịch trình tour' })
-  @OneToOne(() => TourItinerarieEntity, (ti) => ti.tourDetail)
-  tourItinerarie: Promise<TourItinerarieEntity>;
+  @OneToMany(() => TourItinerarieEntity, (ti) => ti.tourDetail)
+  tourItinerarie: Promise<TourItinerarieEntity[]>;
 
   @ApiProperty({ description: 'Chi tiết đặt chỗ' })
   @OneToMany(() => BookingDetailEntity, (bd) => bd.tourDetail)
