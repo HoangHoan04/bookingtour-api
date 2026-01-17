@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import { FileDto } from 'src/dto';
 
 export class CreateBannerDto {
@@ -8,39 +8,43 @@ export class CreateBannerDto {
   @IsOptional()
   url?: string;
 
-  @ApiProperty({
-    description: 'Thứ tự hiển thị banner trong loại (1, 2, 3...)',
-  })
-  @IsNumber()
-  displayOrderByType: number;
-
   @ApiProperty({ description: 'Tiêu đề banner' })
+  @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty({ description: 'Tiêu đề banner (EN)' })
+  @IsString()
+  @IsOptional()
   titleEn: string;
 
-  @ApiProperty({
-    nullable: false,
-    required: true,
-    description: 'Ngày bắt đầu hiệu lực của banner',
-  })
+  @ApiProperty({ description: 'Thứ tự hiển thị banner' })
+  @IsOptional()
+  displayOrder?: number;
+
+  @ApiProperty({ description: 'Trạng thái hiển thị banner' })
+  @IsNotEmpty()
+  isVisible: boolean;
+
+  @ApiProperty({ description: 'Ngày bắt đầu hiệu lực của banner' })
   effectiveStartDate: Date;
 
   @ApiProperty({ description: 'Ngày kết thúc hiệu lực của banner' })
   effectiveEndDate?: Date;
 
-  @ApiProperty({ description: 'Hình ảnh của banner' })
-  image: FileDto;
-
-  @ApiProperty({ description: 'Trạng thái hiển thị banner' })
-  isVisible: boolean;
-
   @ApiProperty({ description: 'Loại banner' })
   @IsOptional()
   type?: string;
 
+  @ApiProperty({ description: 'Trạng thái banner' })
+  @IsNotEmpty()
+  status: string;
+
   @ApiProperty({ description: 'Trang banner sẽ hiển thị' })
   @IsOptional()
   site?: string;
+
+  @ApiProperty({ description: 'Danh sách ảnh của banner' })
+  @IsOptional()
+  image?: FileDto[];
 }

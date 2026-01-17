@@ -1,18 +1,21 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
+import { IdDto } from 'src/dto/id.dto';
+import { PaginationDto } from 'src/dto/pagination.dto';
 import { TourService } from '../tour.service';
-import { Post, Body, Param, Put, Get } from '@nestjs/common';
-import { CreateTourDto, UpdateTourDto } from '../dto';
 
 @Controller('tours')
 export class UserTourController {
-  constructor(private readonly tourService: TourService) {}
-  @Get()
-  findAll() {
-    return this.tourService.findAll();
+  constructor(private readonly service: TourService) {}
+
+  @Post('pagination')
+  async pagination(@Body() data: PaginationDto) {
+    return await this.service.pagination(data);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tourService.findOne(id);
+  @ApiOperation({ summary: 'Chi tiết tour' })
+  @Post('find-by-id')
+  async findById(@Body() body: IdDto) {
+    return await this.service.findOne(body.id);
   }
 }

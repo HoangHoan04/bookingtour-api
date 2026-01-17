@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ReviewEntity } from './review.entity';
 import { TourDetailEntity } from './tour_details.entity';
@@ -8,7 +8,7 @@ import { TourDetailEntity } from './tour_details.entity';
 export class TourEntity extends BaseEntity {
   @ApiProperty({ description: 'Mã tour' })
   @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
-  code: string;
+  code?: string;
 
   @ApiProperty({ description: 'Tiêu đề tour' })
   @Column({ type: 'varchar', length: 100, unique: true })
@@ -36,15 +36,15 @@ export class TourEntity extends BaseEntity {
 
   @ApiProperty({ description: 'Điểm nổi bật của tour' })
   @Column({ type: 'varchar', length: 255, nullable: true })
-  highlights: string;
+  highlights?: string;
 
   @ApiProperty({ description: 'Những gì đã bao gồm trong tour' })
   @Column({ type: 'text', nullable: true })
-  included: string;
+  included?: string;
 
   @ApiProperty({ description: 'Những gì chưa bao gồm trong tour' })
   @Column({ type: 'text', nullable: true })
-  excluded: string;
+  excluded?: string;
 
   @ApiProperty({ description: 'Đánh giá trung bình của tour' })
   @Column({ type: 'float', default: 0 })
@@ -64,11 +64,11 @@ export class TourEntity extends BaseEntity {
 
   @ApiProperty({ description: 'Danh mục tour' })
   @Column({ type: 'varchar', length: 100, nullable: true })
-  category: string;
+  category?: string;
 
   @ApiProperty({ description: 'Tags tìm kiếm' })
   @Column({ type: 'text', nullable: true })
-  tags: string[];
+  tags?: string[];
 
   @ApiProperty({ description: 'Trạng thái tour' })
   @Column({ type: 'varchar', length: 50, nullable: false })

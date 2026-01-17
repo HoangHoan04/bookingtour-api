@@ -46,13 +46,13 @@ export class FileArchivalEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   newId: string;
   @ManyToOne(() => NewsEntity, (p) => p.images)
-  @JoinColumn({ name: 'newId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'newId' })
   new: Promise<NewsEntity>;
 
   /** Id banner */
   @Column({ type: 'varchar', nullable: true })
   bannerId: string;
   @OneToOne(() => BannerEntity, (p) => p.image)
-  @JoinColumn({ name: 'bannerId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'bannerId' })
   banner: Promise<BannerEntity>;
 }

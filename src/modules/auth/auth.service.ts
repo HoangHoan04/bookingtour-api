@@ -322,7 +322,7 @@ export class AuthService {
       if (!user) {
         const customer = new CustomerEntity();
         customer.id = uuidv4();
-        customer.code = `GOOGLE_${googleUser.sub.substring(0, 20)}`;
+        customer.code = `GOOGLE_${googleUser.sub.substring(0, 10)}`;
         customer.name = googleUser.name || 'Người dùng Google';
         customer.email =
           googleUser.email || `google_${googleUser.sub}@temporary.com`;
@@ -331,7 +331,8 @@ export class AuthService {
         customer.gender = 'OTHER';
         customer.birthday = new Date('2000-01-01');
         customer.nationality = 'VN';
-        customer.identityCard = `GOOGLE_${googleUser.sub.substring(0, 12)}`;
+        customer.identityCard = '';
+        customer.passportNumber = '';
         customer.createdAt = new Date();
         customer.createdBy = 'google-oauth';
 

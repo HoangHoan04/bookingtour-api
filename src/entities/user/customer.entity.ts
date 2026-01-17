@@ -27,24 +27,24 @@ export class CustomerEntity extends BaseEntity {
   email: string;
 
   @ApiProperty({ description: 'Địa chỉ' })
-  @Column({ type: 'varchar', length: 250, nullable: false })
-  address: string;
+  @Column({ type: 'varchar', length: 250, nullable: true })
+  address?: string;
 
   @ApiProperty({ description: 'Giới tính (MALE, FEMALE)' })
-  @Column({ type: 'varchar', length: 10, nullable: false })
-  gender: string;
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  gender?: string;
 
   @ApiProperty({ description: 'Ngày sinh' })
   @Column({ type: 'timestamptz', nullable: false })
   birthday: Date;
 
   @ApiProperty({ description: 'Quốc tịch' })
-  @Column({ type: 'varchar', length: 12, nullable: false })
-  nationality: string;
+  @Column({ type: 'varchar', length: 12, nullable: true })
+  nationality?: string;
 
   @ApiProperty({ description: 'Số căn cước công dân/CMND' })
-  @Column({ type: 'varchar', length: 12, nullable: false, unique: true })
-  identityCard: string;
+  @Column({ type: 'varchar', length: 12, nullable: true, unique: true })
+  identityCard?: string;
 
   @ApiProperty({ description: 'Số hộ chiếu' })
   @Column({ type: 'varchar', length: 20, nullable: true, unique: true })

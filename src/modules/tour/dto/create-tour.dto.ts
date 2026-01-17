@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString, IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { FileDto } from 'src/dto';
 
 export class CreateTourDto {
   @ApiProperty({ description: 'Mã tour', required: false })
@@ -63,4 +64,9 @@ export class CreateTourDto {
   @ApiProperty({ description: 'Trạng thái tour' })
   @IsString()
   status: string;
+
+  @ApiProperty({ description: 'Hình ảnh tour' })
+  @IsOptional()
+  @IsString()
+  images?: FileDto[];
 }
