@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { enumData } from 'src/common/constants';
 
 export class CreateTourPriceDto {
   @ApiProperty({ description: 'Mã giá tour', required: false })
@@ -13,10 +8,13 @@ export class CreateTourPriceDto {
   @IsString()
   code?: string;
 
-  @ApiProperty({ description: 'Loại giá (người lớn, trẻ em, VIP...)' })
+  @ApiProperty({
+    description: 'Loại giá (người lớn, trẻ em, VIP...)',
+    default: enumData.Tour_Price_Type.ADULT.code,
+  })
   @IsString()
-  @IsNotEmpty()
-  priceType: string;
+  @IsOptional()
+  priceType?: string;
 
   @ApiProperty({ description: 'Giá tour' })
   @IsNumber()

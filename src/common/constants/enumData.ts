@@ -141,6 +141,33 @@ export const enumData = {
     HIGH: { code: 'HIGH', name: 'Cao' },
     URGENT: { code: 'URGENT', name: 'Khẩn cấp' },
   },
+
+  TOUR_STATUS: {
+    DRAFT: { code: 'DRAFT', name: 'Bản nháp' },
+    ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động' },
+    INACTIVE: { code: 'INACTIVE', name: 'Ngưng hoạt động' },
+  },
+
+  TOUR_DETAIL_STATUS: {
+    ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động' },
+    INACTIVE: { code: 'INACTIVE', name: 'Ngưng hoạt động' },
+  },
+
+  TOUR_ITINERARIE_STATUS: {
+    ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động' },
+    INACTIVE: { code: 'INACTIVE', name: 'Ngưng hoạt động' },
+  },
+
+  TOUR_PRICE_STATUS: {
+    ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động' },
+    INACTIVE: { code: 'INACTIVE', name: 'Ngưng hoạt động' },
+  },
+  Tour_Price_Type: {
+    ADULT: { code: 'ADULT', name: 'Người lớn' },
+    CHILD: { code: 'CHILD', name: 'Trẻ em' },
+    INFANT: { code: 'INFANT', name: 'Em bé' },
+    VIP: { code: 'VIP', name: 'VIP' },
+  },
 };
 
 export const millisecondInDay = 86400000;
