@@ -41,10 +41,6 @@ export class BannerEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: true, length: 40 })
   type?: string;
 
-  @ApiProperty({ description: 'Trang banner sẽ hiển thị' })
-  @Column({ type: 'varchar', nullable: true, length: 40 })
-  site?: string;
-
   @OneToOne(() => FileArchivalEntity, (file) => file.banner)
   image: FileArchivalEntity;
 }

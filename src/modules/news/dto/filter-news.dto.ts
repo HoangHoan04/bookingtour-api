@@ -17,11 +17,6 @@ export class FilterNewsDto {
   @IsString()
   types?: string;
 
-  @ApiPropertyOptional({ description: 'Trang web hiển thị' })
-  @IsOptional()
-  @IsString()
-  site?: string;
-
   @ApiPropertyOptional({
     description: 'Ngày bắt đầu hiệu lực',
   })

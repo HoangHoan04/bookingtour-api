@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { FileArchivalRepository } from 'src/repositories';
 import {
   BlogCommentRepository,
   BlogPostRepository,
@@ -13,6 +14,7 @@ import { BlogService } from './blog.service';
     TypeOrmExModule.forCustomRepository([
       BlogPostRepository,
       BlogCommentRepository,
+      FileArchivalRepository,
     ]),
     ActionLogModule,
     FileArchivalModule,

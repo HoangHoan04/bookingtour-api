@@ -54,6 +54,7 @@ export const enumData = {
       name: 'Ngưng hoạt động',
       type: 'NgungHoatDong',
     },
+    RESTORE: { code: 'RESTORE', name: 'Khôi phục', type: 'KhoiPhuc' },
   },
 
   OTPSendMethod: {
@@ -140,6 +141,18 @@ export const enumData = {
     MEDIUM: { code: 'MEDIUM', name: 'Trung bình' },
     HIGH: { code: 'HIGH', name: 'Cao' },
     URGENT: { code: 'URGENT', name: 'Khẩn cấp' },
+  },
+
+  BANNER_STATUS: {
+    FRESHLY_CREATED: { code: 'FRESHLY_CREATED', name: 'Mới tạo' },
+    IN_EFFECT: { code: 'IN_EFFECT', name: 'Đang hiệu lực' },
+    EXPIRED: { code: 'EXPIRED', name: 'Hết hiệu lực' },
+  },
+
+  NEW_STATUS: {
+    FRESHLY_CREATED: { code: 'FRESHLY_CREATED', name: 'Mới tạo' },
+    IN_EFFECT: { code: 'IN_EFFECT', name: 'Đang hiệu lực' },
+    EXPIRED: { code: 'EXPIRED', name: 'Hết hiệu lực' },
   },
 };
 

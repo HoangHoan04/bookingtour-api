@@ -22,10 +22,10 @@ export class BlogCommentEntity extends BaseEntity {
 
   @ApiProperty({ description: 'ID bình luận cha (nếu có)' })
   @Column({ type: 'uuid', nullable: true })
-  parentId: string;
+  parentId?: string;
   @ManyToOne(() => BlogCommentEntity, (comment) => comment.replies)
   @JoinColumn({ name: 'parentId' })
-  parent: BlogCommentEntity;
+  parent?: BlogCommentEntity;
 
   @ApiProperty({ description: 'Bình luận trả lời' })
   @OneToMany(() => BlogCommentEntity, (comment) => comment.parent)

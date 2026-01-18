@@ -12,7 +12,6 @@ import { ActionLogCreateDto } from '../actionLog/dto';
 import { FileArchivalCreateDto } from '../fileArchival/dto';
 import { FileArchivalService } from '../fileArchival/fileArchival.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto';
-
 @Injectable()
 export class BannerService {
   constructor(
@@ -31,13 +30,13 @@ export class BannerService {
     });
 
     if (!result) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+      throw new NotFoundException('Không tìm thấy banner');
     }
 
     const data = transformKeys(result);
 
     return {
-      message: 'Tìm kiếm khách hàng thành công',
+      message: 'Tìm kiếm banner thành công',
       data,
     };
   }
@@ -86,8 +85,7 @@ export class BannerService {
     banner.isVisible = createDto.isVisible;
     banner.effectiveStartDate = createDto.effectiveStartDate;
     banner.effectiveEndDate = createDto.effectiveEndDate;
-    banner.status = createDto.status;
-    banner.site = createDto.site;
+    banner.status = enumData.BANNER_STATUS.FRESHLY_CREATED.code;
     banner.createdBy = user.id;
     banner.createdAt = new Date();
 
@@ -128,7 +126,7 @@ export class BannerService {
     };
   }
 
-  async update(user: UserDto, updateDto: UpdateBannerDto) {
+  async update(updateDto: UpdateBannerDto, user: UserDto) {
     const banner = await this.repo.findOne({ where: { id: updateDto.id } });
     if (!banner) {
       throw new NotFoundException('Không tìm thấy banner');
@@ -154,7 +152,6 @@ export class BannerService {
     if (updateDto.effectiveEndDate !== undefined)
       bannerUpdateData.effectiveEndDate = updateDto.effectiveEndDate;
     if (updateDto.status) bannerUpdateData.status = updateDto.status;
-    if (updateDto.site) bannerUpdateData.site = updateDto.site;
 
     if (Object.prototype.hasOwnProperty.call(updateDto, 'image')) {
       await this.fileArchivalRepo.delete({ bannerId: updateDto.id });

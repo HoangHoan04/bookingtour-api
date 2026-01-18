@@ -10,35 +10,35 @@ export class NewsEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 10, unique: true })
   code: string;
 
-  @ApiProperty({ description: 'Tiêu đề tin tức bằng tiếng Việt' })
+  @ApiProperty({ description: 'Tiêu đề tin tức ' })
   @Column({
     type: 'varchar',
-    comment: 'Tiêu đề tin tức bằng tiếng Việt',
+    comment: 'Tiêu đề tin tức ',
     length: 255,
     nullable: false,
   })
   titleVI: string;
 
-  @ApiProperty({ description: 'Tiêu đề tin tức bằng tiếng Anh' })
+  @ApiProperty({ description: 'Tiêu đề tin tức ' })
   @Column({
     type: 'varchar',
-    comment: 'Tiêu đề tin tức bằng tiếng Việt',
+    comment: 'Tiêu đề tin tức ',
     length: 255,
     nullable: false,
   })
   titleEN: string;
 
-  @ApiProperty({ description: 'Nội dung tin tức bằng tiếng Việt' })
+  @ApiProperty({ description: 'Nội dung tin tức ' })
   @Column({
     type: 'text',
-    comment: 'Nội dung tin tức bằng tiếng Việt',
+    comment: 'Nội dung tin tức ',
   })
   contentVI: string;
 
-  @ApiProperty({ description: 'Nội dung tin tức bằng tiếng Anh' })
+  @ApiProperty({ description: 'Nội dung tin tức ' })
   @Column({
     type: 'text',
-    comment: 'Nội dung tin tức bằng tiếng Anh',
+    comment: 'Nội dung tin tức ',
   })
   contentEN: string;
 
@@ -50,16 +50,6 @@ export class NewsEntity extends BaseEntity {
     unique: false,
   })
   url: string;
-
-  @ApiProperty({ description: 'Trang web mà bài viết được đăng' })
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    comment: 'Trang web mà bài viết được đăng',
-    default: 'CUSTOMER',
-  })
-  site: string;
 
   @ApiProperty({ description: 'Loại tin tức' })
   @Column({
@@ -103,14 +93,9 @@ export class NewsEntity extends BaseEntity {
     nullable: true,
     comment: 'Xếp hạng nổi bật bài viết',
   })
-  rank: number;
+  rank?: number;
 
-  @ApiProperty({
-    type: 'boolean',
-    nullable: false,
-    description: 'Trạng thái hiển thị của tin tức',
-    default: true,
-  })
+  @ApiProperty({ description: 'Trạng thái hiển thị của tin tức' })
   @Column({
     type: 'boolean',
     nullable: false,

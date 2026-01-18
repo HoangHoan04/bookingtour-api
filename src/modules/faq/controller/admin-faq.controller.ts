@@ -3,26 +3,25 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAuthGuard, PermissionGuard } from 'src/common/guards';
 import { IdDto, PaginationDto, UserDto } from 'src/dto';
-import { FilterCustomerDto } from 'src/modules/customer/dto/filterCustomer.dto';
-import { CreateNewsDto, UpdateNewsDto } from '../dto';
-import { NewsService } from '../news.service';
+import { CreateFaqDto, FilterFaqDto, UpdateFaqDto } from '../dto';
+import { FaqService } from '../faq.service';
 
 @ApiBearerAuth()
-@ApiTags('Admin - News')
+@ApiTags('Admin - FAQ')
 @UseGuards(JwtAuthGuard, PermissionGuard)
-@Controller('news')
-export class AdminNewsController {
-  constructor(private readonly service: NewsService) {}
+@Controller('faq')
+export class AdminFaqController {
+  constructor(private readonly service: FaqService) {}
 
-  @ApiOperation({ summary: 'Tạo mới tin tức' })
+  @ApiOperation({ summary: 'Tạo mới FAQ' })
   @Post('create')
-  async create(@Body() data: CreateNewsDto, @CurrentUser() user: UserDto) {
+  async create(@Body() data: CreateFaqDto, @CurrentUser() user: UserDto) {
     return await this.service.create(data, user);
   }
 
   @Post('pagination')
-  @ApiOperation({ summary: 'Lấy danh sách tin tức với bộ lọc' })
-  async pagination(@Body() body: PaginationDto<FilterCustomerDto>) {
+  @ApiOperation({ summary: 'Lấy danh sách FAQ với bộ lọc' })
+  async pagination(@Body() body: PaginationDto<FilterFaqDto>) {
     return await this.service.pagination(body);
   }
 
@@ -31,25 +30,25 @@ export class AdminNewsController {
     return await this.service.selectBox();
   }
 
-  @ApiOperation({ summary: 'Cập nhật thông tin tin tức' })
+  @ApiOperation({ summary: 'Cập nhật thông tin FAQ' })
   @Post('update')
-  async update(@Body() data: UpdateNewsDto, @CurrentUser() user: UserDto) {
+  async update(@Body() data: UpdateFaqDto, @CurrentUser() user: UserDto) {
     return await this.service.update(data, user);
   }
 
-  @ApiOperation({ summary: 'Ngưng hoạt động tin tức' })
+  @ApiOperation({ summary: 'Ngưng hoạt động FAQ' })
   @Post('deactivate')
   async deactivate(@Body() body: IdDto, @CurrentUser() user: UserDto) {
     return await this.service.deactivate(user, body.id);
   }
 
-  @ApiOperation({ summary: 'Kích hoạt tin tức' })
+  @ApiOperation({ summary: 'Kích hoạt FAQ' })
   @Post('activate')
   async activate(@Body() body: IdDto, @CurrentUser() user: UserDto) {
     return await this.service.activate(user, body.id);
   }
 
-  @ApiOperation({ summary: 'Chi tiết tin tức' })
+  @ApiOperation({ summary: 'Chi tiết FAQ' })
   @Post('find-by-id')
   async findById(@Body() body: IdDto) {
     return await this.service.findById(body.id);

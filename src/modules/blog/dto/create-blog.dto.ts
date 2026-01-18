@@ -1,34 +1,65 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { FileDto } from 'src/dto';
+
 export class CreateBlogDto {
-  @ApiProperty({ description: 'Họ và tên khách hàng' })
+  @ApiProperty({ description: 'Tiêu đề bài viết' })
   @IsString()
-  @IsNotEmpty({ message: 'Tên khách hàng không được để trống' })
-  @MaxLength(100)
-  name: string;
+  @IsNotEmpty({ message: 'Tiêu đề không được để trống' })
+  @MaxLength(255)
+  title: string;
 
-  @ApiProperty({ description: 'Số điện thoại khách hàng' })
+  @ApiProperty({ description: 'URL slug' })
   @IsString()
-  @IsNotEmpty({ message: 'Số điện thoại không được để trống' })
-  @MaxLength(20)
-  phone: string;
+  @IsNotEmpty({ message: 'Slug không được để trống' })
+  @MaxLength(255)
+  slug: string;
 
-  @ApiProperty({ description: 'Giới tính khách hàng', required: false })
+  @ApiProperty({ description: 'Tóm tắt ngắn', required: false })
   @IsOptional()
   @IsString()
-  gender?: string;
+  @MaxLength(500)
+  excerpt?: string;
 
-  @ApiProperty({ description: 'Email khách hàng', required: false })
+  @ApiProperty({ description: 'Nội dung đầy đủ (HTML/Markdown)' })
   @IsString()
-  @MaxLength(100)
-  @IsNotEmpty()
-  email: string;
+  @IsNotEmpty({ message: 'Nội dung không được để trống' })
+  content: string;
 
-  @ApiProperty({
-    description: 'URL avatar của khách hàng',
-    required: false,
-  })
+  @ApiProperty({ description: 'Ảnh đại diện bài viết', required: false })
   @IsOptional()
-  avatar?: FileDto[];
+  @IsString()
+  @MaxLength(500)
+  featuredImage?: string;
+
+  @ApiProperty({ description: 'Danh mục bài viết', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  category?: string;
+
+  @ApiProperty({ description: 'Tags bài viết', required: false })
+  @IsOptional()
+  tags?: string[];
+
+  @ApiProperty({ description: 'Trạng thái xuất bản' })
+  @IsString()
+  @IsNotEmpty({ message: 'Trạng thái không được để trống' })
+  @MaxLength(50)
+  status: string;
+
+  @ApiProperty({ description: 'Tiêu đề SEO', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  seoTitle?: string;
+
+  @ApiProperty({ description: 'Mô tả SEO', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  seoDescription?: string;
+
+  @ApiProperty({ description: 'Thời gian xuất bản', required: false })
+  @IsOptional()
+  publishedAt?: Date;
 }

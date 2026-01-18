@@ -2,126 +2,38 @@ import { ApiProperty } from '@nestjs/swagger';
 import { FileDto } from 'src/dto';
 
 export class CreateNewsDto {
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    maxLength: 10,
-    minLength: 1,
-    required: true,
-    description: 'Mã tin tức, do người dùng nhập',
-  })
+  @ApiProperty({ description: 'Mã tin tức' })
   code: string;
 
-  @ApiProperty({
-    type: 'string',
-    description: 'Tiêu đề tin tức',
-    nullable: false,
-    required: true,
-    maxLength: 255,
-  })
+  @ApiProperty({ description: 'Tiêu đề tin tức' })
   titleVI: string;
 
-  @ApiProperty({
-    type: 'string',
-    description: 'Tiêu đề tin tức',
-    nullable: false,
-    required: true,
-    maxLength: 255,
-  })
+  @ApiProperty({ description: 'Tiêu đề tin tức' })
   titleEN: string;
 
-  @ApiProperty({
-    type: 'string',
-    description: 'Nội dung tin tức',
-    nullable: false,
-    required: true,
-  })
+  @ApiProperty({ description: 'Nội dung tin tức' })
   contentVI: string;
 
-  @ApiProperty({
-    type: 'string',
-    description: 'Nội dung tin tức',
-    nullable: false,
-    required: true,
-  })
+  @ApiProperty({ description: 'Nội dung tin tức' })
   contentEN: string;
 
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    required: true,
-    description: 'Link bài viết',
-  })
+  @ApiProperty({ description: 'Link bài viết' })
   url: string;
 
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    required: true,
-    description: 'Loại tin tức',
-  })
+  @ApiProperty({ description: 'Loại tin tức' })
   type: string;
 
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    required: true,
-    description: 'Trang tin tức sẽ hiển thị',
-  })
-  site: string;
-
-  @ApiProperty({
-    nullable: false,
-    required: true,
-    description: 'Ngày bắt đầu hiệu lực của bài viết',
-  })
+  @ApiProperty({ description: 'Ngày bắt đầu hiệu lực của bài viết' })
   effectiveStartDate: Date;
 
-  @ApiProperty({
-    nullable: false,
-    required: true,
-    description: 'Ngày kết thúc hiệu lực của bài viết',
-  })
+  @ApiProperty({ description: 'Ngày kết thúc hiệu lực của bài viết' })
   effectiveEndDate: Date;
 
-  @ApiProperty({
-    type: 'boolean',
-    nullable: false,
-    required: true,
-    description: 'Trạng thái hiển thị của tin tức',
-    default: true,
-  })
+  @ApiProperty({ description: 'Trạng thái hiển thị của tin tức' })
   isVisible: boolean;
 
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    required: true,
-    description: 'Trạng thái bài viết',
-  })
-  status: 'FRESHLY_CREATED' | 'IN_EFFECT' | 'EXPIRED';
-
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    description: 'Tên tiếng Việt đầy đủ của trạng thái bài viết',
-  })
-  statusName: string;
-
-  @ApiProperty({
-    type: 'string',
-    nullable: false,
-    description: 'Màu sắc của trạng thái bài viết',
-  })
-  statusColor: string;
-
-  @ApiProperty({
-    type: 'boolean',
-    nullable: false,
-    description: 'Có phải là bài viết hay không',
-    default: false,
-  })
-  isPost: boolean;
+  @ApiProperty({ description: 'Trạng thái bài viết' })
+  status: string;
 
   @ApiProperty({
     description:
@@ -129,8 +41,6 @@ export class CreateNewsDto {
   })
   rank?: number;
 
-  @ApiProperty({
-    description: 'Danh sách hình ảnh của bài viết',
-  })
+  @ApiProperty({ description: 'Danh sách hình ảnh của bài viết' })
   images: FileDto[];
 }
