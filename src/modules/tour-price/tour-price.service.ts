@@ -6,6 +6,8 @@ import { UserDto } from 'src/dto';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { enumData } from 'src/common/constants/enumData';
 import { ActionLogService } from '../actionLog/actionLog.service';
+import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
+import { CodeType } from 'src/helpers/generateCode.config';
 
 @Injectable()
 export class TourPriceService {
@@ -24,10 +26,11 @@ export class TourPriceService {
       throw new NotFoundException('Chi tiết tour không tồn tại');
     }
 
-    console.log('dto', user);
-
     const price = new TourPriceEntity();
-    price.code = dto.code || '';
+    price.code = await GenerateCodeHelper.generate(
+      CodeType.PRICE,
+      this.tourPriceRepo,
+    );
     price.priceType = dto.priceType ?? enumData.Tour_Price_Type.ADULT.code;
 
     price.price = dto.price;

@@ -15,6 +15,10 @@ import { UserTourDetailController } from '../tour-detail/controller/user-tour-de
 import { TourDetailModule } from '../tour-detail/tour-detail.module';
 import { TourPriceModule } from '../tour-price/tour-price.module';
 import { UserTourPriceController } from '../tour-price/controller/user-tour-price.controller';
+import { UserBookingController } from '../booking/controller/user-booking.controller';
+import { BookingModule } from '../booking/booking.module';
+import { UserPaymentController } from '../payment/controller/user-payment.controller';
+import { PaymentModule } from '../payment/payment.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.user,
@@ -26,6 +30,8 @@ import { UserTourPriceController } from '../tour-price/controller/user-tour-pric
     UserTourItinerariesController,
     UserTourDetailController,
     UserTourPriceController,
+    UserBookingController,
+    UserPaymentController,
   ],
   imports: [
     AuthModule,
@@ -35,6 +41,8 @@ import { UserTourPriceController } from '../tour-price/controller/user-tour-pric
     TourPriceModule,
     TourItinerariesModule,
     TourDetailModule,
+    BookingModule,
+    PaymentModule,
   ],
   exports: [],
 })

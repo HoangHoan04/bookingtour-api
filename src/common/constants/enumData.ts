@@ -93,9 +93,15 @@ export const enumData = {
     EXPIRED: { code: 'EXPIRED', name: 'Hết hạn', color: 'gray' },
   },
 
+  BOOKING_DETAIL_STATUS: {
+    ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động', color: 'green' },
+    CANCELLED: { code: 'CANCELLED', name: 'Đã hủy', color: 'red' },
+  },
+
   // Trạng thái payment
   PAYMENT_STATUS: {
     PENDING: { code: 'PENDING', name: 'Chờ xử lý', color: 'yellow' },
+    CONFIRMED: { code: 'CONFIRMED', name: 'Đã xác nhận', color: 'blue' },
     SUCCESS: { code: 'SUCCESS', name: 'Thành công', color: 'green' },
     FAILED: { code: 'FAILED', name: 'Thất bại', color: 'red' },
     EXPIRED: { code: 'EXPIRED', name: 'Hết hạn', color: 'gray' },
