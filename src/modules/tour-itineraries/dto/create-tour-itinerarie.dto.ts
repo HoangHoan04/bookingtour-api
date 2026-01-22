@@ -12,7 +12,7 @@ export class CreateTourItinerarieDto {
   @IsUUID()
   tourDetailId: string;
 
-  @ApiProperty({ description: 'Mã lịch trình', required: false })
+  @ApiProperty({ description: 'Mã lịch trình' })
   @IsOptional()
   @IsString()
   code?: string;

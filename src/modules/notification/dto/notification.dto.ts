@@ -11,7 +11,6 @@ import {
   MaxLength,
 } from 'class-validator';
 
-// Enums cho notification
 export enum NotificationType {
   SYSTEM = 'system',
   BOOKING = 'booking',
@@ -34,7 +33,6 @@ export enum RelatedEntityType {
   USER = 'user',
 }
 
-// DTO để tạo notification (dùng cho admin gửi cho user cụ thể)
 export class NotificationCreateDto {
   @ApiProperty({
     description:
@@ -51,7 +49,7 @@ export class NotificationCreateDto {
     description: 'Tiêu đề thông báo',
     example: 'Thông báo quan trọng',
   })
-  @IsNotEmpty({ message: 'Tiêu đề không được để trống' })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(255)
   title: string;
@@ -60,7 +58,7 @@ export class NotificationCreateDto {
     description: 'Nội dung thông báo',
     example: 'Đây là nội dung thông báo',
   })
-  @IsNotEmpty({ message: 'Nội dung không được để trống' })
+  @IsNotEmpty()
   @IsString()
   content: string;
 
@@ -82,7 +80,7 @@ export class NotificationCreateDto {
   @IsEnum(RelatedEntityType)
   relatedEntity?: RelatedEntityType;
 
-  @ApiProperty({ description: 'ID của entity liên quan', required: false })
+  @ApiProperty({ description: 'ID của entity liên quan' })
   @IsOptional()
   @IsUUID('4')
   relatedId?: string;
@@ -96,40 +94,39 @@ export class NotificationCreateDto {
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
 
-  @ApiProperty({ description: 'Link hành động', required: false })
+  @ApiProperty({ description: 'Link hành động' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   actionUrl?: string;
 
-  @ApiProperty({ description: 'Thời gian hết hạn', required: false })
+  @ApiProperty({ description: 'Thời gian hết hạn' })
   @IsOptional()
   @IsDateString()
   expiresAt?: Date;
 
-  @ApiProperty({ description: 'Icon của thông báo', required: false })
+  @ApiProperty({ description: 'Icon của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   icon?: string;
 
-  @ApiProperty({ description: 'Màu sắc của thông báo', required: false })
+  @ApiProperty({ description: 'Màu sắc của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(50)
   color?: string;
 }
 
-// DTO để admin tạo thông báo gửi cho admin khác
 export class NotificationCreateAdminDto {
   @ApiProperty({ description: 'Tiêu đề thông báo' })
-  @IsNotEmpty({ message: 'Tiêu đề không được để trống' })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(255)
   title: string;
 
   @ApiProperty({ description: 'Nội dung thông báo' })
-  @IsNotEmpty({ message: 'Nội dung không được để trống' })
+  @IsNotEmpty()
   @IsString()
   content: string;
 
@@ -151,7 +148,7 @@ export class NotificationCreateAdminDto {
   @IsEnum(RelatedEntityType)
   relatedEntity?: RelatedEntityType;
 
-  @ApiProperty({ description: 'ID của entity liên quan', required: false })
+  @ApiProperty({ description: 'ID của entity liên quan' })
   @IsOptional()
   @IsUUID('4')
   relatedId?: string;
@@ -165,72 +162,70 @@ export class NotificationCreateAdminDto {
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
 
-  @ApiProperty({ description: 'Link hành động', required: false })
+  @ApiProperty({ description: 'Link hành động' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   actionUrl?: string;
 
-  @ApiProperty({ description: 'Thời gian hết hạn', required: false })
+  @ApiProperty({ description: 'Thời gian hết hạn' })
   @IsOptional()
   @IsDateString()
   expiresAt?: Date;
 
-  @ApiProperty({ description: 'Icon của thông báo', required: false })
+  @ApiProperty({ description: 'Icon của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   icon?: string;
 
-  @ApiProperty({ description: 'Màu sắc của thông báo', required: false })
+  @ApiProperty({ description: 'Màu sắc của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(50)
   color?: string;
 }
 
-// DTO để cập nhật notification setting
 export class UpdateNotificationSettingDto {
-  @ApiProperty({ description: 'Nhận thông báo qua email', required: false })
+  @ApiProperty({ description: 'Nhận thông báo qua email' })
   @IsOptional()
   @IsBoolean()
   emailNotifications?: boolean;
 
-  @ApiProperty({ description: 'Nhận push notification', required: false })
+  @ApiProperty({ description: 'Nhận push notification' })
   @IsOptional()
   @IsBoolean()
   pushNotifications?: boolean;
 
-  @ApiProperty({ description: 'Nhận thông báo qua SMS', required: false })
+  @ApiProperty({ description: 'Nhận thông báo qua SMS' })
   @IsOptional()
   @IsBoolean()
   smsNotifications?: boolean;
 
-  @ApiProperty({ description: 'Nhận thông báo khuyến mãi', required: false })
+  @ApiProperty({ description: 'Nhận thông báo khuyến mãi' })
   @IsOptional()
   @IsBoolean()
   promotionNotifications?: boolean;
 
-  @ApiProperty({ description: 'Nhận thông báo đặt tour', required: false })
+  @ApiProperty({ description: 'Nhận thông báo đặt tour' })
   @IsOptional()
   @IsBoolean()
   bookingNotifications?: boolean;
 
-  @ApiProperty({ description: 'Nhận gợi ý tour', required: false })
+  @ApiProperty({ description: 'Nhận gợi ý tour' })
   @IsOptional()
   @IsBoolean()
   recommendationNotifications?: boolean;
 }
 
-// DTO để update notification
 export class UpdateNotificationDto {
-  @ApiProperty({ description: 'Tiêu đề thông báo', required: false })
+  @ApiProperty({ description: 'Tiêu đề thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(255)
   title?: string;
 
-  @ApiProperty({ description: 'Nội dung thông báo', required: false })
+  @ApiProperty({ description: 'Nội dung thông báo' })
   @IsOptional()
   @IsString()
   content?: string;
@@ -253,29 +248,28 @@ export class UpdateNotificationDto {
   @IsEnum(NotificationPriority)
   priority?: NotificationPriority;
 
-  @ApiProperty({ description: 'Link hành động', required: false })
+  @ApiProperty({ description: 'Link hành động' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   actionUrl?: string;
 
-  @ApiProperty({ description: 'Icon của thông báo', required: false })
+  @ApiProperty({ description: 'Icon của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   icon?: string;
 
-  @ApiProperty({ description: 'Màu sắc của thông báo', required: false })
+  @ApiProperty({ description: 'Màu sắc của thông báo' })
   @IsOptional()
   @IsString()
   @MaxLength(50)
   color?: string;
 }
 
-// DTO để đánh dấu đã đọc danh sách notification
 export class MarkReadListDto {
   @ApiProperty({ description: 'Danh sách ID notification', type: [String] })
-  @IsNotEmpty({ message: 'Danh sách ID không được để trống' })
+  @IsNotEmpty()
   @IsArray()
   @IsUUID('4', { each: true })
   lstId: string[];

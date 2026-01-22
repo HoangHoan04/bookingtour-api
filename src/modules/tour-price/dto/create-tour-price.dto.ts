@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateTourPriceDto {
-  @ApiProperty({ description: 'Mã giá tour', required: false })
+  @ApiProperty({ description: 'Mã giá tour' })
   @IsOptional()
   @IsString()
   code?: string;

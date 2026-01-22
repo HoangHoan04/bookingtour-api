@@ -19,7 +19,7 @@ export interface ContactEmailData {
 
 export class SendContactDto {
   @ApiProperty({ description: 'Họ và tên người liên hệ' })
-  @IsNotEmpty({ message: 'Tên không được để trống' })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   name: string;

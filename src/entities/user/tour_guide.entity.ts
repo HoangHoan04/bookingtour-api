@@ -33,7 +33,7 @@ export class TourGuideEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 250, nullable: true })
   address?: string;
 
-  @ApiProperty({ description: 'Giới tính (MALE, FEMALE, OTHER)' })
+  @ApiProperty({ description: 'Giới tính (MALE, FEMALE)' })
   @Column({ type: 'varchar', length: 10, nullable: true })
   gender?: string;
 

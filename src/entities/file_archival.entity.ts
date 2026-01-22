@@ -4,6 +4,7 @@ import { BaseEntity } from './base.entity';
 import { BlogPostEntity } from './blogs';
 import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
+import { TravelHintEntity } from './blogs/travel-hint.entity';
 import { ReviewEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
 import { TourGuideEntity } from './user/tour_guide.entity';
@@ -71,4 +72,11 @@ export class FileArchivalEntity extends BaseEntity {
   @OneToOne(() => BlogPostEntity, (p) => p.featuredImage)
   @JoinColumn({ name: 'blogPostId' })
   blogPost: Promise<BlogPostEntity>;
+
+  /** Id travel hint */
+  @Column({ type: 'varchar', nullable: true })
+  travelHintId: string;
+  @ManyToOne(() => TravelHintEntity, (p) => p.images)
+  @JoinColumn({ name: 'travelHintId' })
+  travelHint: Promise<TravelHintEntity>;
 }

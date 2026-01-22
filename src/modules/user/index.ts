@@ -25,6 +25,8 @@ import { UserTourPriceController } from '../tour-price/controller/user-tour-pric
 import { TourPriceModule } from '../tour-price/tour-price.module';
 import { UserTourController } from '../tour/controller/user-tour.controller';
 import { TourModule } from '../tour/tour.module';
+import { UserTravelHintController } from '../travel-hint/controller/user-travel-hint.controller';
+import { TravelHintModule } from '../travel-hint/travel-hint.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.user,
@@ -41,6 +43,7 @@ import { TourModule } from '../tour/tour.module';
     UserNewsController,
     UserNewsletterController,
     UserTourGuideController,
+    UserTravelHintController,
   ],
   imports: [
     AuthModule,
@@ -55,6 +58,7 @@ import { TourModule } from '../tour/tour.module';
     NewsModule,
     NewsletterModule,
     TourGuideModule,
+    TravelHintModule,
   ],
   exports: [],
 })

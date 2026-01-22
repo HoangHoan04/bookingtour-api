@@ -34,6 +34,8 @@ import { AdminTourController } from '../tour/controller/admin-tour.controller';
 import { TourModule } from '../tour/tour.module';
 import { AdminTranslationsController } from '../translations/controller/admin-translations.controller';
 import { TranslationsModule } from '../translations/translations.module';
+import { AdminTravelHintController } from '../travel-hint/controller/admin-travel-hint.controller';
+import { TravelHintModule } from '../travel-hint/travel-hint.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.admin,
@@ -55,6 +57,7 @@ import { TranslationsModule } from '../translations/translations.module';
     AdminDestinationController,
     AdminFaqController,
     AdminTourGuideController,
+    AdminTravelHintController,
   ],
   imports: [
     AuthModule,
@@ -75,6 +78,7 @@ import { TranslationsModule } from '../translations/translations.module';
     FaqModule,
     DestinationModule,
     TourGuideModule,
+    TravelHintModule,
   ],
   exports: [],
 })

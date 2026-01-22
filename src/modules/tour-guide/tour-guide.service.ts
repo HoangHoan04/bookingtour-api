@@ -89,6 +89,40 @@ export class TourGuideService {
       data,
     };
   }
+
+  async findBySlug(slug: string) {
+    const result = await this.repo.findOne({
+      where: { slug },
+      relations: {
+        avatar: true,
+        user: true,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
+    }
+    const userEntity = await result.user;
+    let safeUser: any = null;
+    if (userEntity) {
+      const tempUser = { ...userEntity };
+      delete (tempUser as any).password;
+      delete (tempUser as any).refreshToken;
+      safeUser = tempUser;
+    }
+    const finalData = {
+      ...result,
+      user: safeUser,
+    };
+
+    const data = transformKeys(finalData);
+
+    return {
+      message: 'Tìm kiếm hướng dẫn viên thành công',
+      data,
+    };
+  }
+
   async findByPhoneEmail(phone: string, email: string, user: UserDto) {
     const res = await this.repo.find({
       where: [
@@ -206,6 +240,9 @@ export class TourGuideService {
 
     const [tourGuides, total] = await this.repo.findAndCount({
       where: whereCon,
+      relations: {
+        avatar: true,
+      },
       skip: data.skip,
       take: data.take,
       order: { createdAt: 'DESC' },
@@ -228,12 +265,53 @@ export class TourGuideService {
     tourGuide.code = this.genCodeTourGuide();
     tourGuide.name = createDto.name;
     tourGuide.phone = createDto.phone;
+    tourGuide.slug = coreHelper.generateSlug(tourGuide.name);
+    let isUnique = false;
+    let attempt = 0;
+    const maxAttempts = 5;
+    while (!isUnique && attempt < maxAttempts) {
+      const existing = await this.repo.findOne({
+        where: { slug: tourGuide.slug },
+      });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        tourGuide.slug = `${coreHelper.generateSlug(tourGuide.name)}-${customAlphabet('0123456789', 3)()}`;
+        attempt++;
+      }
+    }
+
+    if (!isUnique) {
+      tourGuide.slug = `hdv-${tourGuide.code.toLowerCase()}`;
+    }
     tourGuide.email = createDto.email;
-    tourGuide.address = '';
-    tourGuide.gender = createDto.gender || 'MALE';
-    tourGuide.birthday = new Date();
-    tourGuide.nationality = 'VN';
-    tourGuide.identityCard = '';
+    tourGuide.address = createDto.address;
+    tourGuide.gender = createDto.gender;
+    tourGuide.birthday = createDto.birthday;
+    tourGuide.nationality = createDto.nationality;
+    tourGuide.identityCard = createDto.identityCard;
+    tourGuide.passportNumber = createDto.passportNumber;
+    tourGuide.shortBio = createDto.shortBio;
+    tourGuide.bio = createDto.bio;
+    tourGuide.languages = createDto.languages;
+    tourGuide.specialties = createDto.specialties;
+    tourGuide.yearsOfExperience = createDto.yearsOfExperience;
+    tourGuide.licenseNumber = createDto.licenseNumber;
+    tourGuide.licenseIssuedDate = createDto.licenseIssuedDate;
+    tourGuide.licenseExpiryDate = createDto.licenseExpiryDate;
+    tourGuide.licenseIssuedBy = createDto.licenseIssuedBy;
+    tourGuide.averageRating = createDto.averageRating;
+    tourGuide.totalReviews = createDto.totalReviews;
+    tourGuide.totalToursCompleted = createDto.totalToursCompleted;
+    tourGuide.description = createDto.description;
+    tourGuide.baseSalary = createDto.baseSalary;
+    tourGuide.commissionRate = createDto.commissionRate;
+    tourGuide.startDate = createDto.startDate;
+    tourGuide.endDate = createDto.endDate;
+    tourGuide.isAvailable = createDto.isAvailable;
+    tourGuide.bankAccountNumber = createDto.bankAccountNumber;
+    tourGuide.bankName = createDto.bankName;
+    tourGuide.bankAccountName = createDto.bankAccountName;
     tourGuide.createdBy = user.id;
     tourGuide.createdAt = new Date();
 
@@ -271,6 +349,7 @@ export class TourGuideService {
     newUser.email = tourGuide.email;
     newUser.isActive = true;
     newUser.isAdmin = false;
+    newUser.customerId = undefined;
     newUser.tourGuideId = tourGuide.id;
     newUser.createdBy = user.id;
     newUser.createdAt = new Date();
@@ -296,67 +375,147 @@ export class TourGuideService {
   }
 
   async update(user: UserDto, updateDto: UpdateTourGuideDto) {
-    const tourGuide = await this.repo.findOne({ where: { id: updateDto.id } });
+    const tourGuide = await this.repo.findOne({
+      where: { id: updateDto.id },
+      relations: { user: true },
+    });
+
     if (!tourGuide) {
       throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
 
-    const tourGuideUser = await this.userRepo.findOne({
-      where: { tourGuideId: updateDto.id },
-    });
+    const tourGuideUser = await tourGuide.user;
     if (!tourGuideUser) {
-      throw new NotFoundException('Không tìm thấy tài khoản hướng dẫn viên');
+      throw new NotFoundException(
+        'Không tìm thấy tài khoản liên kết với hướng dẫn viên',
+      );
     }
 
     const dataCheck: Partial<CheckPhoneEmailTourGuideDto> = {};
-    if (updateDto.phone !== tourGuide.phone) dataCheck.phone = updateDto.phone;
-    if (updateDto.email !== tourGuide.email) dataCheck.email = updateDto.email;
+    if (updateDto.phone && updateDto.phone !== tourGuide.phone) {
+      dataCheck.phone = updateDto.phone;
+    }
+    if (updateDto.email && updateDto.email !== tourGuide.email) {
+      dataCheck.email = updateDto.email;
+    }
 
-    if (dataCheck.phone || dataCheck.email) {
+    if (Object.keys(dataCheck).length > 0) {
       await this.checkPhoneAndEmail(dataCheck, {
         tourGuideId: tourGuide.id,
       });
     }
 
-    const oldTourGuideData = JSON.stringify(tourGuide);
-    const oldUserData = JSON.stringify({ ...tourGuideUser, password: '***' });
+    const oldTourGuideData = { ...tourGuide };
+    const oldUserData = { ...tourGuideUser, password: '***' };
 
-    const tourGuideUpdateData: any = {
+    const tourGuideUpdateData: Partial<TourGuideEntity> = {
       updatedBy: user.id,
       updatedAt: new Date(),
     };
 
-    if (updateDto.name) tourGuideUpdateData.name = updateDto.name;
-    if (updateDto.phone) tourGuideUpdateData.phone = updateDto.phone;
+    if (updateDto.name !== undefined) tourGuideUpdateData.name = updateDto.name;
+    if (updateDto.phone !== undefined)
+      tourGuideUpdateData.phone = updateDto.phone;
+    let slugChanged = false;
+    if (
+      updateDto.name !== undefined &&
+      updateDto.name.trim() !== tourGuide.name
+    ) {
+      tourGuide.name = updateDto.name.trim();
+      const newSlug = coreHelper.generateSlug(tourGuide.name);
+      const existing = await this.repo.findOne({
+        where: { slug: newSlug, id: Not(tourGuide.id) },
+      });
+
+      tourGuide.slug = existing
+        ? `${newSlug}-${customAlphabet('0123456789', 3)()}`
+        : newSlug;
+
+      slugChanged = true;
+    }
     if (updateDto.email !== undefined)
       tourGuideUpdateData.email = updateDto.email;
-    if (updateDto.gender) tourGuideUpdateData.gender = updateDto.gender;
+    if (updateDto.address !== undefined)
+      tourGuideUpdateData.address = updateDto.address;
+    if (updateDto.gender !== undefined)
+      tourGuideUpdateData.gender = updateDto.gender;
+    if (updateDto.birthday !== undefined)
+      tourGuideUpdateData.birthday = updateDto.birthday;
+    if (updateDto.nationality !== undefined)
+      tourGuideUpdateData.nationality = updateDto.nationality;
+    if (updateDto.identityCard !== undefined)
+      tourGuideUpdateData.identityCard = updateDto.identityCard;
+    if (updateDto.passportNumber !== undefined)
+      tourGuideUpdateData.passportNumber = updateDto.passportNumber;
+    if (updateDto.shortBio !== undefined)
+      tourGuideUpdateData.shortBio = updateDto.shortBio;
+    if (updateDto.bio !== undefined) tourGuideUpdateData.bio = updateDto.bio;
+    if (updateDto.languages !== undefined)
+      tourGuideUpdateData.languages = updateDto.languages;
+    if (updateDto.specialties !== undefined)
+      tourGuideUpdateData.specialties = updateDto.specialties;
+    if (updateDto.yearsOfExperience !== undefined)
+      tourGuideUpdateData.yearsOfExperience = updateDto.yearsOfExperience;
+    if (updateDto.licenseNumber !== undefined)
+      tourGuideUpdateData.licenseNumber = updateDto.licenseNumber;
+    if (updateDto.licenseIssuedDate !== undefined)
+      tourGuideUpdateData.licenseIssuedDate = updateDto.licenseIssuedDate;
+    if (updateDto.licenseExpiryDate !== undefined)
+      tourGuideUpdateData.licenseExpiryDate = updateDto.licenseExpiryDate;
+    if (updateDto.licenseIssuedBy !== undefined)
+      tourGuideUpdateData.licenseIssuedBy = updateDto.licenseIssuedBy;
+    if (updateDto.averageRating !== undefined)
+      tourGuideUpdateData.averageRating = updateDto.averageRating;
+    if (updateDto.totalReviews !== undefined)
+      tourGuideUpdateData.totalReviews = updateDto.totalReviews;
+    if (updateDto.totalToursCompleted !== undefined)
+      tourGuideUpdateData.totalToursCompleted = updateDto.totalToursCompleted;
+    if (updateDto.description !== undefined)
+      tourGuideUpdateData.description = updateDto.description;
+    if (updateDto.baseSalary !== undefined)
+      tourGuideUpdateData.baseSalary = updateDto.baseSalary;
+    if (updateDto.commissionRate !== undefined)
+      tourGuideUpdateData.commissionRate = updateDto.commissionRate;
+    if (updateDto.startDate !== undefined)
+      tourGuideUpdateData.startDate = updateDto.startDate;
+    if (updateDto.endDate !== undefined)
+      tourGuideUpdateData.endDate = updateDto.endDate;
+    if (updateDto.isAvailable !== undefined)
+      tourGuideUpdateData.isAvailable = updateDto.isAvailable;
+    if (updateDto.bankAccountNumber !== undefined)
+      tourGuideUpdateData.bankAccountNumber = updateDto.bankAccountNumber;
+    if (updateDto.bankName !== undefined)
+      tourGuideUpdateData.bankName = updateDto.bankName;
+    if (updateDto.bankAccountName !== undefined)
+      tourGuideUpdateData.bankAccountName = updateDto.bankAccountName;
 
-    if (Object.prototype.hasOwnProperty.call(updateDto, 'avatar')) {
-      await this.fileArchivalRepo.delete({ tourGuideId: updateDto.id });
+    if (updateDto.avatar !== undefined) {
+      await this.fileArchivalRepo.delete({ tourGuideId: tourGuide.id });
 
       const avatarData = Array.isArray(updateDto.avatar)
         ? updateDto.avatar[0]
         : updateDto.avatar;
       if (avatarData?.fileUrl && avatarData?.fileName) {
-        const fileArchival = new FileArchivalCreateDto();
-        fileArchival.createdBy = user.id;
-        fileArchival.fileUrl = avatarData.fileUrl;
-        fileArchival.fileName = avatarData.fileName;
-        fileArchival.fileRelationName = 'tourGuideId';
-        fileArchival.fileRelationId = tourGuide.id;
+        const fileArchival: FileArchivalCreateDto = {
+          fileUrl: avatarData.fileUrl,
+          fileName: avatarData.fileName,
+          fileType: 'TOUR_GUIDE_AVATAR',
+          createdBy: user.id,
+          createdAt: new Date().toISOString(),
+          fileRelationName: 'tourGuideId',
+          fileRelationId: tourGuide.id,
+        };
         await this.fileArchivalService.create(fileArchival);
       }
     }
 
     await this.repo.update(tourGuide.id, tourGuideUpdateData);
-
     const updatedTourGuide = await this.repo.findOne({
       where: { id: tourGuide.id },
+      relations: { user: true },
     });
-    const updatedUser = await this.userRepo.findOne({
-      where: { id: tourGuideUser.id },
-    });
+
+    const updatedUser = await updatedTourGuide?.user;
 
     const actionLogDto: ActionLogCreateDto = {
       functionId: tourGuide.id,
@@ -365,20 +524,22 @@ export class TourGuideService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Cập nhật hướng dẫn viên: ${tourGuide.code} - ${tourGuide.name}`,
+      description: `Cập nhật thông tin hướng dẫn viên: ${tourGuide.code} - ${tourGuide.name || 'Unknown'}`,
       oldData: JSON.stringify({
         tourGuide: oldTourGuideData,
         user: oldUserData,
       }),
       newData: JSON.stringify({
         tourGuide: updatedTourGuide,
-        user: { ...updatedUser, password: '***' },
+        user: updatedUser ? { ...updatedUser, password: '***' } : null,
       }),
     };
+
     await this.actionLogService.create(actionLogDto);
 
     return {
       message: 'Cập nhật hướng dẫn viên thành công',
+      data: transformKeys(updatedTourGuide),
     };
   }
 
@@ -726,6 +887,26 @@ export class TourGuideService {
 
     return {
       message: 'Cập nhật ảnh đại diện thành công',
+    };
+  }
+
+  async findAll(data: PaginationDto) {
+    const [tourGuides, total] = await this.repo.findAndCount({
+      where: { isDeleted: false },
+      relations: {
+        avatar: true,
+      },
+
+      skip: data.skip,
+      take: data.take,
+      order: { createdAt: 'DESC' },
+    });
+
+    const res = transformKeys(tourGuides);
+
+    return {
+      data: res,
+      total,
     };
   }
 }

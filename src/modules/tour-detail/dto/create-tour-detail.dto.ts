@@ -14,7 +14,7 @@ export class CreateTourDetailDto {
   @IsUUID()
   tourId: string;
 
-  @ApiProperty({ description: 'Mã tour detail', required: false })
+  @ApiProperty({ description: 'Mã tour detail' })
   @IsOptional()
   @IsString()
   code?: string;

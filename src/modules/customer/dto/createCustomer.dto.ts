@@ -4,31 +4,57 @@ import { FileDto } from 'src/dto';
 export class CreateCustomerDto {
   @ApiProperty({ description: 'Họ và tên khách hàng' })
   @IsString()
-  @IsNotEmpty({ message: 'Tên khách hàng không được để trống' })
+  @IsNotEmpty()
   @MaxLength(100)
   name: string;
 
   @ApiProperty({ description: 'Số điện thoại khách hàng' })
   @IsString()
-  @IsNotEmpty({ message: 'Số điện thoại không được để trống' })
+  @IsNotEmpty()
   @MaxLength(20)
   phone: string;
 
-  @ApiProperty({ description: 'Giới tính khách hàng', required: false })
+  @ApiProperty({ description: 'Giới tính khách hàng' })
   @IsOptional()
   @IsString()
   gender?: string;
 
-  @ApiProperty({ description: 'Email khách hàng', required: false })
+  @ApiProperty({ description: 'Email khách hàng' })
   @IsString()
   @MaxLength(100)
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({
-    description: 'URL avatar của khách hàng',
-    required: false,
-  })
+  @ApiProperty({ description: 'Địa chỉ' })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiProperty({ description: 'Ngày sinh' })
+  @IsNotEmpty()
+  birthday: Date;
+
+  @ApiProperty({ description: 'Quốc tịch' })
+  @IsOptional()
+  @IsString()
+  nationality?: string;
+
+  @ApiProperty({ description: 'Số căn cước công dân/CMND' })
+  @IsOptional()
+  @IsString()
+  identityCard?: string;
+
+  @ApiProperty({ description: 'Số hộ chiếu' })
+  @IsOptional()
+  @IsString()
+  passportNumber?: string;
+
+  @ApiProperty({ description: 'Ghi chú' })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: 'URL avatar của khách hàng' })
   @IsOptional()
   avatar?: FileDto[];
 }
@@ -51,7 +77,7 @@ export class RegisterCustomerDto {
   @IsString()
   email: string;
 
-  @ApiProperty({ description: 'Mã xác thực tài khoản', required: false })
+  @ApiProperty({ description: 'Mã xác thực tài khoản' })
   @IsString()
   otpCode: string;
 

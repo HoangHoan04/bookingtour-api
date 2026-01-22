@@ -18,7 +18,7 @@ export class PermissionGuard implements CanActivate {
     }>(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
 
     if (!permissionsMetadata) {
-      return true; // Không có yêu cầu permission thì cho phép
+      return true;
     }
 
     const { permissions: requiredPermissions, requireAll } =
@@ -35,17 +35,13 @@ export class PermissionGuard implements CanActivate {
       throw new ForbiddenException('Người dùng chưa đăng nhập');
     }
 
-    // Admin có tất cả quyền
     if (user.isAdmin) {
       return true;
     }
 
-    // Lấy danh sách permissions của user
     const userPermissions: string[] = user.permissions || [];
 
-    // Kiểm tra permissions
     if (requireAll) {
-      // Yêu cầu có tất cả permissions
       const hasAllPermissions = requiredPermissions.every((permission) =>
         userPermissions.includes(permission),
       );
@@ -55,7 +51,6 @@ export class PermissionGuard implements CanActivate {
         );
       }
     } else {
-      // Chỉ cần có ít nhất một permission
       const hasAnyPermission = requiredPermissions.some((permission) =>
         userPermissions.includes(permission),
       );

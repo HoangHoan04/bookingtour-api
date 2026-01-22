@@ -26,6 +26,7 @@ export const enumData = {
   Gender: {
     MALE: { code: 'MALE', name: 'Nam' },
     FEMALE: { code: 'FEMALE', name: 'Nữ' },
+    OTHER: { code: 'OTHER', name: 'Khác' },
   },
 
   UserType: {
@@ -172,6 +173,12 @@ export const enumData = {
     BOOKING: { code: 'BOOKING', name: 'Đặt tour' },
     NEWS: { code: 'NEWS', name: 'Tin tức' },
     FAQ: { code: 'FAQ', name: 'Câu hỏi thường gặp' },
+  },
+
+  TRAVEL_TYPE: {
+    ALL: { code: 'ALL', name: 'Tất cả' },
+    DOMESTIC: { code: 'DOMESTIC', name: 'Trong nước' },
+    INTERNATIONAL: { code: 'INTERNATIONAL', name: 'Nước ngoài' },
   },
 };
 

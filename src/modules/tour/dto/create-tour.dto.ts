@@ -3,7 +3,7 @@ import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { FileDto } from 'src/dto';
 
 export class CreateTourDto {
-  @ApiProperty({ description: 'Mã tour', required: false })
+  @ApiProperty({ description: 'Mã tour' })
   @IsOptional()
   @IsString()
   code?: string;
@@ -30,27 +30,27 @@ export class CreateTourDto {
   @IsString()
   shortDescription: string;
 
-  @ApiProperty({ description: 'Mô tả chi tiết', required: false })
+  @ApiProperty({ description: 'Mô tả chi tiết' })
   @IsOptional()
   @IsString()
   longDescription?: string;
 
-  @ApiProperty({ description: 'Điểm nổi bật', required: false })
+  @ApiProperty({ description: 'Điểm nổi bật' })
   @IsOptional()
   @IsString()
   highlights?: string;
 
-  @ApiProperty({ description: 'Bao gồm', required: false })
+  @ApiProperty({ description: 'Bao gồm' })
   @IsOptional()
   @IsString()
   included?: string;
 
-  @ApiProperty({ description: 'Không bao gồm', required: false })
+  @ApiProperty({ description: 'Không bao gồm' })
   @IsOptional()
   @IsString()
   excluded?: string;
 
-  @ApiProperty({ description: 'Danh mục', required: false })
+  @ApiProperty({ description: 'Danh mục' })
   @IsOptional()
   @IsString()
   category?: string;

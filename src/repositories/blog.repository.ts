@@ -6,6 +6,7 @@ import {
 } from 'src/entities';
 import { BannerEntity } from 'src/entities/blogs/banner.entity';
 import { NewsEntity } from 'src/entities/blogs/new.entity';
+import { TravelHintEntity } from 'src/entities/blogs/travel-hint.entity';
 import { CustomRepository } from 'src/typeorm';
 import { Repository } from 'typeorm';
 
@@ -26,3 +27,6 @@ export class BannerRepository extends Repository<BannerEntity> {}
 
 @CustomRepository(NewsEntity)
 export class NewsRepository extends Repository<NewsEntity> {}
+
+@CustomRepository(TravelHintEntity)
+export class TravelHintRepository extends Repository<TravelHintEntity> {}
