@@ -17,8 +17,8 @@ import { FindOptionsWhere, ILike, In, IsNull } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
-import { FileArchivalCreateDto } from '../fileArchival/dto';
-import { FileArchivalService } from '../fileArchival/fileArchival.service';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 import {
   CreateBlogDto,
   CreateCommentDto,
@@ -103,7 +103,7 @@ export class BlogService {
     blog.content = createDto.content;
     blog.category = createDto.category;
     blog.tags = createDto.tags;
-    blog.status = createDto.status;
+    blog.status = enumData.BLOG_STATUS.NEW.code;
     blog.seoTitle = createDto.seoTitle;
     blog.seoDescription = createDto.seoDescription;
     blog.publishedAt = createDto.publishedAt;
@@ -169,7 +169,6 @@ export class BlogService {
       blogUpdateData.featuredImage = data.featuredImage;
     if (data.category) blogUpdateData.category = data.category;
     if (data.tags !== undefined) blogUpdateData.tags = data.tags;
-    if (data.status) blogUpdateData.status = data.status;
     if (data.seoTitle !== undefined) blogUpdateData.seoTitle = data.seoTitle;
     if (data.seoDescription !== undefined)
       blogUpdateData.seoDescription = data.seoDescription;
@@ -353,7 +352,7 @@ export class BlogService {
     const whereCon: FindOptionsWhere<BlogCommentEntity> = {
       postId,
       parentId: IsNull(),
-      status: 'approved',
+      status: enumData.BLOG_COMMENT_STATUS.APPROVED.code,
       isDeleted: false,
     };
 
@@ -372,7 +371,7 @@ export class BlogService {
         const replies = await this.commentRepo.find({
           where: {
             parentId: comment.id,
-            status: 'approved',
+            status: enumData.BLOG_COMMENT_STATUS.APPROVED.code,
             isDeleted: false,
           },
           order: { createdAt: 'ASC' },
@@ -421,7 +420,7 @@ export class BlogService {
     comment.customerId = user.id;
     comment.content = createDto.content;
     comment.parentId = createDto.parentId;
-    comment.status = 'pending';
+    comment.status = enumData.BLOG_COMMENT_STATUS.PENDING.code;
     comment.createdBy = user.id;
     comment.createdAt = new Date();
 
@@ -564,6 +563,441 @@ export class BlogService {
 
     return {
       message: 'Khôi phục bình luận thành công',
+      data: transformKeys(comment),
+    };
+  }
+  // Thêm các methods này vào BlogService
+
+  /**
+   * Lấy danh sách bài viết đã xuất bản cho user
+   */
+  async getPublishedBlogs(data: PaginationDto) {
+    const whereCon: FindOptionsWhere<BlogPostEntity> = {
+      status: enumData.BLOG_STATUS.PUBLISHED.code,
+      isDeleted: false,
+    };
+
+    if (data.where.title) whereCon.title = ILike(`%${data.where.title}%`);
+    if (data.where.category)
+      whereCon.category = ILike(`%${data.where.category}%`);
+
+    const [blogs, total] = await this.repo.findAndCount({
+      where: whereCon,
+      skip: data.skip,
+      take: data.take,
+      order: { publishedAt: 'DESC' },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+    });
+
+    return {
+      data: blogs.map((blog) => transformKeys(blog)),
+      total,
+    };
+  }
+
+  /**
+   * Lấy chi tiết bài viết bằng slug cho user
+   */
+  async getPublishedBlogBySlug(slug: string) {
+    const blog = await this.repo.findOne({
+      where: {
+        slug,
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+    });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    // Tăng view count
+    await this.repo.update(blog.id, {
+      viewCount: blog.viewCount + 1,
+    });
+
+    const data = transformKeys(blog);
+
+    return {
+      message: 'Lấy thông tin bài viết thành công',
+      data: {
+        ...data,
+        viewCount: blog.viewCount + 1,
+      },
+    };
+  }
+
+  /**
+   * Lấy bài viết liên quan
+   */
+  async getRelatedBlogs(blogId: string, limit: number = 5) {
+    const currentBlog = await this.repo.findOne({
+      where: { id: blogId },
+    });
+
+    if (!currentBlog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    // Lấy bài viết cùng category
+    const relatedByCategory = await this.repo.find({
+      where: {
+        category: currentBlog.category,
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+      order: { publishedAt: 'DESC' },
+      take: limit,
+    });
+
+    // Lọc bỏ bài viết hiện tại
+    const filtered = relatedByCategory.filter((blog) => blog.id !== blogId);
+
+    return {
+      data: filtered.slice(0, limit).map((blog) => transformKeys(blog)),
+    };
+  }
+
+  /**
+   * Lấy danh sách bài viết phổ biến
+   */
+  async getPopularBlogs(limit: number = 10) {
+    const blogs = await this.repo.find({
+      where: {
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+      order: {
+        viewCount: 'DESC',
+        likeCount: 'DESC',
+      },
+      take: limit,
+    });
+
+    return {
+      data: blogs.map((blog) => transformKeys(blog)),
+    };
+  }
+
+  /**
+   * Lấy danh sách bài viết mới nhất
+   */
+  async getLatestBlogs(limit: number = 10) {
+    const blogs = await this.repo.find({
+      where: {
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+      order: {
+        publishedAt: 'DESC',
+      },
+      take: limit,
+    });
+
+    return {
+      data: blogs.map((blog) => transformKeys(blog)),
+    };
+  }
+
+  /**
+   * Lấy danh sách categories
+   */
+  async getCategories() {
+    const allBlogs = await this.repo.find({
+      where: {
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      select: ['category'],
+    });
+
+    // Đếm số lượng bài viết theo category
+    const categoryMap = new Map<string, number>();
+
+    allBlogs.forEach((blog) => {
+      if (blog.category) {
+        categoryMap.set(
+          blog.category,
+          (categoryMap.get(blog.category) || 0) + 1,
+        );
+      }
+    });
+
+    const categories = Array.from(categoryMap.entries()).map(
+      ([category, count]) => ({
+        category,
+        count,
+      }),
+    );
+
+    return {
+      data: categories.sort((a, b) => b.count - a.count),
+    };
+  }
+
+  /**
+   * Lấy danh sách tags
+   */
+  async getTags() {
+    const blogs = await this.repo.find({
+      where: {
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      select: ['tags'],
+    });
+
+    const tagsMap = new Map<string, number>();
+
+    blogs.forEach((blog) => {
+      if (blog.tags && Array.isArray(blog.tags)) {
+        blog.tags.forEach((tag) => {
+          tagsMap.set(tag, (tagsMap.get(tag) || 0) + 1);
+        });
+      }
+    });
+
+    const tags = Array.from(tagsMap.entries()).map(([tag, count]) => ({
+      tag,
+      count,
+    }));
+
+    return {
+      data: tags.sort((a, b) => b.count - a.count),
+    };
+  }
+
+  /**
+   * Like bài viết
+   */
+  async likeBlog(blogId: string, user: UserDto) {
+    const blog = await this.repo.findOne({
+      where: {
+        id: blogId,
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+    });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    await this.repo.update(blogId, {
+      likeCount: blog.likeCount + 1,
+    });
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: 'LIKE',
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Thích bài viết: ${blog.title}`,
+      oldData: JSON.stringify({ likeCount: blog.likeCount }),
+      newData: JSON.stringify({ likeCount: blog.likeCount + 1 }),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Đã thích bài viết',
+      data: {
+        likeCount: blog.likeCount + 1,
+      },
+    };
+  }
+
+  /**
+   * Tìm kiếm bài viết
+   */
+  async searchBlogs(keyword: string, data: PaginationDto) {
+    const whereCon: FindOptionsWhere<BlogPostEntity>[] = [
+      {
+        title: ILike(`%${keyword}%`),
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      {
+        excerpt: ILike(`%${keyword}%`),
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      {
+        content: ILike(`%${keyword}%`),
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+    ];
+
+    const [blogs, total] = await this.repo.findAndCount({
+      where: whereCon,
+      skip: data.skip,
+      take: data.take,
+      order: { publishedAt: 'DESC' },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+    });
+
+    return {
+      data: blogs.map((blog) => transformKeys(blog)),
+      total,
+    };
+  }
+
+  /**
+   * Lấy bài viết theo category
+   */
+  async getBlogsByCategory(category: string, data: PaginationDto) {
+    const [blogs, total] = await this.repo.findAndCount({
+      where: {
+        category,
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      skip: data.skip,
+      take: data.take,
+      order: { publishedAt: 'DESC' },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+    });
+
+    return {
+      data: blogs.map((blog) => transformKeys(blog)),
+      total,
+    };
+  }
+
+  /**
+   * Lấy bài viết theo tag
+   */
+  async getBlogsByTag(tag: string, data: PaginationDto) {
+    // Lấy tất cả bài viết published
+    const allBlogs = await this.repo.find({
+      where: {
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+      relations: {
+        author: true,
+        featuredImage: true,
+      },
+      order: { publishedAt: 'DESC' },
+    });
+
+    // Lọc blogs có tag tương ứng
+    const filteredBlogs = allBlogs.filter(
+      (blog) => blog.tags && blog.tags.includes(tag),
+    );
+
+    const total = filteredBlogs.length;
+    const paginatedBlogs = filteredBlogs.slice(
+      data.skip,
+      data.skip + data.take,
+    );
+
+    return {
+      data: paginatedBlogs.map((blog) => transformKeys(blog)),
+      total,
+    };
+  }
+
+  /**
+   * Approve comment (Admin only)
+   */
+  async approveBlogComment(id: string, user: UserDto) {
+    const comment = await this.commentRepo.findOne({ where: { id } });
+
+    if (!comment) {
+      throw new NotFoundException('Không tìm thấy bình luận');
+    }
+
+    const oldData = JSON.stringify(comment);
+
+    comment.status = enumData.BLOG_COMMENT_STATUS.APPROVED.code;
+    comment.updatedBy = user.id;
+    comment.updatedAt = new Date();
+
+    await this.commentRepo.save(comment);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: comment.id,
+      functionType: 'BlogComment',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Duyệt bình luận: ${comment.content}`,
+      oldData: oldData,
+      newData: JSON.stringify(comment),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Duyệt bình luận thành công',
+      data: transformKeys(comment),
+    };
+  }
+
+  /**
+   * Reject comment (Admin only)
+   */
+  async rejectBlogComment(id: string, user: UserDto) {
+    const comment = await this.commentRepo.findOne({ where: { id } });
+
+    if (!comment) {
+      throw new NotFoundException('Không tìm thấy bình luận');
+    }
+
+    const oldData = JSON.stringify(comment);
+
+    comment.status = enumData.BLOG_COMMENT_STATUS.REJECTED.code;
+    comment.updatedBy = user.id;
+    comment.updatedAt = new Date();
+
+    await this.commentRepo.save(comment);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: comment.id,
+      functionType: 'BlogComment',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Từ chối bình luận: ${comment.content}`,
+      oldData: oldData,
+      newData: JSON.stringify(comment),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Từ chối bình luận thành công',
       data: transformKeys(comment),
     };
   }

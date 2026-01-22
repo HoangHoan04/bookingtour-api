@@ -6,6 +6,7 @@ import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
 import { ReviewEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
+import { TourGuideEntity } from './user/tour_guide.entity';
 
 @Entity('file_archive')
 export class FileArchivalEntity extends BaseEntity {
@@ -35,6 +36,13 @@ export class FileArchivalEntity extends BaseEntity {
   @ManyToOne(() => CustomerEntity, (p) => p.avatar)
   @JoinColumn({ name: 'customerId' })
   customer: Promise<CustomerEntity>;
+
+  // Avatar hướng dẫn viên du lịch
+  @Column({ type: 'uuid', nullable: true })
+  tourGuideId: string;
+  @ManyToOne(() => TourGuideEntity, (p) => p.avatar)
+  @JoinColumn({ name: 'tourGuideId' })
+  tourGuide: Promise<TourGuideEntity>;
 
   // Ảnh đánh giá review
   @Column({ type: 'uuid', nullable: true })

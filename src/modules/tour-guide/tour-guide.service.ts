@@ -5,44 +5,39 @@ import {
 } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { enumData } from 'src/common/constants';
-import { PaginationDto } from 'src/dto/pagination.dto';
-import { UserDto } from 'src/dto/user.dto';
+import { PaginationDto, UserDto } from 'src/dto';
 import { UserEntity } from 'src/entities';
-import { VerifyOtpEntity } from 'src/entities/user';
-import { CustomerEntity } from 'src/entities/user/customer.entity';
+import { TourGuideEntity, VerifyOtpEntity } from 'src/entities/user';
 import { coreHelper, transformKeys } from 'src/helpers';
-import { ActionLogService } from 'src/modules/actionLog/actionLog.service';
-import { ActionLogCreateDto } from 'src/modules/actionLog/dto';
-import { EmailService } from 'src/modules/email/email.service';
-import { ZaloService } from 'src/modules/zalo/zalo.service';
 import {
-  CustomerRepository,
+  FileArchivalRepository,
+  TourGuideRepository,
   UserRepository,
   VerifyOtpRepository,
 } from 'src/repositories';
-import { FileArchivalRepository } from 'src/repositories/base.repository';
 import { FindOptionsWhere, ILike, In, Not } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { ActionLogService } from '../actionLog/actionLog.service';
+import { ActionLogCreateDto } from '../actionLog/dto';
+import { EmailService } from '../email/email.service';
 import { FileArchivalCreateDto } from '../file-archival/dto';
 import { FileArchivalService } from '../file-archival/file-archival.service';
+import { ZaloService } from '../zalo/zalo.service';
 import {
-  ChangePasswordCustomerDto,
-  CheckPhoneEmailCustomerDto,
-  CreateCustomerDto,
-  ForgotPasswordCustomerDto,
-  RegisterCustomerDto,
-  SendOtpCustomerDto,
+  ChangePasswordTourGuideDto,
+  CheckPhoneEmailTourGuideDto,
+  CreateTourGuideDto,
+  ForgotPasswordTourGuideDto,
+  SendOtpTourGuideDto,
+  UpdateTourGuideAvatarDto,
+  UpdateTourGuideDto,
   VerifyOtpDto,
 } from './dto';
-import {
-  UpdateCustomerAvatarDto,
-  UpdateCustomerDto,
-} from './dto/updateCustomer.dto';
 
 @Injectable()
-export class CustomerService {
+export class TourGuideService {
   constructor(
-    private readonly repo: CustomerRepository,
+    private readonly repo: TourGuideRepository,
     private readonly userRepo: UserRepository,
     private readonly fileArchivalService: FileArchivalService,
     private readonly actionLogService: ActionLogService,
@@ -57,9 +52,9 @@ export class CustomerService {
     return generate();
   }
 
-  private genCodeCustomer() {
+  private genCodeTourGuide() {
     const generate = customAlphabet('0123456789', 8);
-    return `KH${generate()}`;
+    return `HDV${generate()}`;
   }
 
   async findById(id: string) {
@@ -72,7 +67,7 @@ export class CustomerService {
     });
 
     if (!result) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
     const userEntity = await result.user;
     let safeUser: any = null;
@@ -90,7 +85,7 @@ export class CustomerService {
     const data = transformKeys(finalData);
 
     return {
-      message: 'Tìm kiếm khách hàng thành công',
+      message: 'Tìm kiếm hướng dẫn viên thành công',
       data,
     };
   }
@@ -101,7 +96,7 @@ export class CustomerService {
         { email: email, isDeleted: false },
       ],
     });
-    if (res?.length !== 0 && res[0].id === user.customerId) {
+    if (res?.length !== 0 && res[0].id === user.tourGuideId) {
       return [];
     }
     return res;
@@ -120,23 +115,23 @@ export class CustomerService {
   }
 
   async checkPhoneAndEmail(
-    data: CheckPhoneEmailCustomerDto,
-    options?: { customerId?: string; skipDuprValidation?: boolean },
+    data: CheckPhoneEmailTourGuideDto,
+    options?: { tourGuideId?: string; skipDuprValidation?: boolean },
   ) {
-    let customer: CustomerEntity | null = null;
-    if (options?.customerId) {
-      customer = await this.repo.findOne({
-        where: { id: options?.customerId },
+    let tourGuide: TourGuideEntity | null = null;
+    if (options?.tourGuideId) {
+      tourGuide = await this.repo.findOne({
+        where: { id: options?.tourGuideId },
         select: { id: true, phone: true, email: true },
       });
     }
     if (data.phone) {
-      const phoneWhere: FindOptionsWhere<CustomerEntity> = {
+      const phoneWhere: FindOptionsWhere<TourGuideEntity> = {
         phone: In([data.phone, coreHelper.normalizePhoneNumber(data.phone)]),
         isDeleted: false,
       };
-      if (options?.customerId) {
-        phoneWhere.id = Not(options.customerId);
+      if (options?.tourGuideId) {
+        phoneWhere.id = Not(options.tourGuideId);
       }
       const checkPhone = await this.repo.findOne({
         where: phoneWhere,
@@ -149,13 +144,13 @@ export class CustomerService {
       }
     }
 
-    if (data.email && (!customer || customer.email != data.email)) {
-      const emailWhere: FindOptionsWhere<CustomerEntity> = {
+    if (data.email && (!tourGuide || tourGuide.email != data.email)) {
+      const emailWhere: FindOptionsWhere<TourGuideEntity> = {
         email: data.email,
         isDeleted: false,
       };
-      if (options?.customerId) {
-        emailWhere.id = Not(options.customerId);
+      if (options?.tourGuideId) {
+        emailWhere.id = Not(options.tourGuideId);
       }
       const checkEmail = await this.repo.findOne({
         where: emailWhere,
@@ -201,7 +196,7 @@ export class CustomerService {
   }
 
   async pagination(data: PaginationDto) {
-    const whereCon: FindOptionsWhere<CustomerEntity> = {};
+    const whereCon: FindOptionsWhere<TourGuideEntity> = {};
 
     if (data.where.code) whereCon.code = ILike(`%${data.where.code}%`);
     if (data.where.name) whereCon.name = ILike(`%${data.where.name}%`);
@@ -209,7 +204,7 @@ export class CustomerService {
     if ([true, false].includes(data.where.isDeleted))
       whereCon.isDeleted = data.where.isDeleted;
 
-    const [customers, total] = await this.repo.findAndCount({
+    const [tourGuides, total] = await this.repo.findAndCount({
       where: whereCon,
       skip: data.skip,
       take: data.take,
@@ -217,32 +212,32 @@ export class CustomerService {
     });
 
     return {
-      data: customers,
+      data: tourGuides,
       total,
     };
   }
 
-  async create(user: UserDto, createDto: CreateCustomerDto) {
+  async create(user: UserDto, createDto: CreateTourGuideDto) {
     await this.checkPhoneAndEmail({
       phone: createDto.phone,
       email: createDto.email,
     });
 
-    const customer = new CustomerEntity();
-    customer.id = uuidv4();
-    customer.code = this.genCodeCustomer();
-    customer.name = createDto.name;
-    customer.phone = createDto.phone;
-    customer.email = createDto.email;
-    customer.address = '';
-    customer.gender = createDto.gender || 'MALE';
-    customer.birthday = new Date();
-    customer.nationality = 'VN';
-    customer.identityCard = '';
-    customer.createdBy = user.id;
-    customer.createdAt = new Date();
+    const tourGuide = new TourGuideEntity();
+    tourGuide.id = uuidv4();
+    tourGuide.code = this.genCodeTourGuide();
+    tourGuide.name = createDto.name;
+    tourGuide.phone = createDto.phone;
+    tourGuide.email = createDto.email;
+    tourGuide.address = '';
+    tourGuide.gender = createDto.gender || 'MALE';
+    tourGuide.birthday = new Date();
+    tourGuide.nationality = 'VN';
+    tourGuide.identityCard = '';
+    tourGuide.createdBy = user.id;
+    tourGuide.createdAt = new Date();
 
-    await this.repo.insert(customer);
+    await this.repo.insert(tourGuide);
 
     const avatarData = Array.isArray(createDto.avatar)
       ? createDto.avatar[0]
@@ -251,153 +246,94 @@ export class CustomerService {
       const fileArchival: FileArchivalCreateDto = {
         fileUrl: avatarData.fileUrl,
         fileName: avatarData.fileName,
-        fileType: 'CUSTOMER_AVATAR',
+        fileType: 'TOUR_GUIDE_AVATAR',
         createdBy: user.id,
         createdAt: new Date().toISOString(),
-        fileRelationName: 'customerId',
-        fileRelationId: customer.id,
+        fileRelationName: 'tourGuideId',
+        fileRelationId: tourGuide.id,
       };
       await this.fileArchivalService.create(fileArchival);
     }
 
     const existingUser = await this.userRepo.findOne({
-      where: { username: customer.phone },
+      where: { username: tourGuide.phone },
     });
     if (existingUser) {
       throw new BadRequestException(
-        'Lỗi hệ thống khi tạo khách hàng, vui lòng thử lại',
+        'Lỗi hệ thống khi tạo hướng dẫn viên, vui lòng thử lại',
       );
     }
 
     const newUser = new UserEntity();
     newUser.id = uuidv4();
-    newUser.username = customer.phone;
+    newUser.username = tourGuide.phone;
     newUser.password = '123456';
-    newUser.email = customer.email;
+    newUser.email = tourGuide.email;
     newUser.isActive = true;
     newUser.isAdmin = false;
-    newUser.customerId = customer.id;
+    newUser.tourGuideId = tourGuide.id;
     newUser.createdBy = user.id;
     newUser.createdAt = new Date();
     await this.userRepo.insert(newUser);
 
     const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
+      functionId: tourGuide.id,
+      functionType: 'TourGuide',
       type: enumData.ActionLogType.CREATE.code,
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Tạo mới khách hàng: ${customer.code}`,
+      description: `Tạo mới hướng dẫn viên: ${tourGuide.code}`,
       oldData: '{}',
-      newData: JSON.stringify(customer),
+      newData: JSON.stringify(tourGuide),
     };
 
     await this.actionLogService.create(actionLogDto);
 
     return {
-      message: 'Tạo mới khách hàng thành công',
+      message: 'Tạo mới hướng dẫn viên thành công',
     };
   }
 
-  async register(data: RegisterCustomerDto) {
-    if (data.password !== data.confirmPassword) {
-      throw new BadRequestException('Mật khẩu và xác nhận mật khẩu không khớp');
+  async update(user: UserDto, updateDto: UpdateTourGuideDto) {
+    const tourGuide = await this.repo.findOne({ where: { id: updateDto.id } });
+    if (!tourGuide) {
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
-    await this.checkPhoneAndEmail({ phone: data.phone, email: data.email });
-    await this.checkOtpCode({
-      phone: data.phone,
-      email: data.email,
-      sendMethod: data.sendMethod,
-      otpCode: data.otpCode,
+
+    const tourGuideUser = await this.userRepo.findOne({
+      where: { tourGuideId: updateDto.id },
     });
-    const customer = new CustomerEntity();
-    customer.id = uuidv4();
-    customer.code = this.genCodeCustomer();
-    customer.name = data.name;
-    customer.phone = data.phone;
-    customer.email = data.email;
-    customer.address = '';
-    customer.gender = data.gender || 'MALE';
-    customer.birthday = new Date();
-    customer.nationality = 'VN';
-    customer.identityCard = '';
-    customer.createdBy = customer.id;
-    customer.createdAt = new Date();
-    await this.repo.insert(customer);
-
-    const newUser = new UserEntity();
-    newUser.id = uuidv4();
-    newUser.username = customer.phone;
-    newUser.password = data.password;
-    newUser.email = customer.email;
-    newUser.isActive = true;
-    newUser.isAdmin = false;
-    newUser.customerId = customer.id;
-    newUser.isVerified = true;
-    newUser.createdBy = newUser.id;
-    newUser.createdAt = new Date();
-
-    await this.userRepo.insert(newUser);
-
-    const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
-      type: enumData.ActionLogType.CREATE.code,
-      createdBy: newUser.id,
-      createdById: newUser.id,
-      createdByName: newUser.username,
-      description: `Khách hàng đăng ký tài khoản: ${customer.code}`,
-      oldData: '{}',
-      newData: JSON.stringify(customer),
-    };
-
-    await this.actionLogService.create(actionLogDto);
-
-    return {
-      message: 'Đăng ký tài khoản khách hàng thành công',
-    };
-  }
-
-  async update(user: UserDto, updateDto: UpdateCustomerDto) {
-    const customer = await this.repo.findOne({ where: { id: updateDto.id } });
-    if (!customer) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+    if (!tourGuideUser) {
+      throw new NotFoundException('Không tìm thấy tài khoản hướng dẫn viên');
     }
 
-    const customerUser = await this.userRepo.findOne({
-      where: { customerId: updateDto.id },
-    });
-    if (!customerUser) {
-      throw new NotFoundException('Không tìm thấy tài khoản khách hàng');
-    }
-
-    const dataCheck: Partial<CheckPhoneEmailCustomerDto> = {};
-    if (updateDto.phone !== customer.phone) dataCheck.phone = updateDto.phone;
-    if (updateDto.email !== customer.email) dataCheck.email = updateDto.email;
+    const dataCheck: Partial<CheckPhoneEmailTourGuideDto> = {};
+    if (updateDto.phone !== tourGuide.phone) dataCheck.phone = updateDto.phone;
+    if (updateDto.email !== tourGuide.email) dataCheck.email = updateDto.email;
 
     if (dataCheck.phone || dataCheck.email) {
-      await this.checkPhoneAndEmail(dataCheck as CheckPhoneEmailCustomerDto, {
-        customerId: customer.id,
+      await this.checkPhoneAndEmail(dataCheck, {
+        tourGuideId: tourGuide.id,
       });
     }
 
-    const oldCustomerData = JSON.stringify(customer);
-    const oldUserData = JSON.stringify({ ...customerUser, password: '***' });
+    const oldTourGuideData = JSON.stringify(tourGuide);
+    const oldUserData = JSON.stringify({ ...tourGuideUser, password: '***' });
 
-    const customerUpdateData: any = {
+    const tourGuideUpdateData: any = {
       updatedBy: user.id,
       updatedAt: new Date(),
     };
 
-    if (updateDto.name) customerUpdateData.name = updateDto.name;
-    if (updateDto.phone) customerUpdateData.phone = updateDto.phone;
+    if (updateDto.name) tourGuideUpdateData.name = updateDto.name;
+    if (updateDto.phone) tourGuideUpdateData.phone = updateDto.phone;
     if (updateDto.email !== undefined)
-      customerUpdateData.email = updateDto.email;
-    if (updateDto.gender) customerUpdateData.gender = updateDto.gender;
+      tourGuideUpdateData.email = updateDto.email;
+    if (updateDto.gender) tourGuideUpdateData.gender = updateDto.gender;
 
     if (Object.prototype.hasOwnProperty.call(updateDto, 'avatar')) {
-      await this.fileArchivalRepo.delete({ customerId: updateDto.id });
+      await this.fileArchivalRepo.delete({ tourGuideId: updateDto.id });
 
       const avatarData = Array.isArray(updateDto.avatar)
         ? updateDto.avatar[0]
@@ -407,53 +343,56 @@ export class CustomerService {
         fileArchival.createdBy = user.id;
         fileArchival.fileUrl = avatarData.fileUrl;
         fileArchival.fileName = avatarData.fileName;
-        fileArchival.fileRelationName = 'customerId';
-        fileArchival.fileRelationId = customer.id;
+        fileArchival.fileRelationName = 'tourGuideId';
+        fileArchival.fileRelationId = tourGuide.id;
         await this.fileArchivalService.create(fileArchival);
       }
     }
 
-    await this.repo.update(customer.id, customerUpdateData);
+    await this.repo.update(tourGuide.id, tourGuideUpdateData);
 
-    const updatedCustomer = await this.repo.findOne({
-      where: { id: customer.id },
+    const updatedTourGuide = await this.repo.findOne({
+      where: { id: tourGuide.id },
     });
     const updatedUser = await this.userRepo.findOne({
-      where: { id: customerUser.id },
+      where: { id: tourGuideUser.id },
     });
 
     const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
+      functionId: tourGuide.id,
+      functionType: 'TourGuide',
       type: enumData.ActionLogType.UPDATE.code,
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Cập nhật khách hàng: ${customer.code} - ${customer.name}`,
-      oldData: JSON.stringify({ customer: oldCustomerData, user: oldUserData }),
+      description: `Cập nhật hướng dẫn viên: ${tourGuide.code} - ${tourGuide.name}`,
+      oldData: JSON.stringify({
+        tourGuide: oldTourGuideData,
+        user: oldUserData,
+      }),
       newData: JSON.stringify({
-        customer: updatedCustomer,
+        tourGuide: updatedTourGuide,
         user: { ...updatedUser, password: '***' },
       }),
     };
     await this.actionLogService.create(actionLogDto);
 
     return {
-      message: 'Cập nhật khách hàng thành công',
+      message: 'Cập nhật hướng dẫn viên thành công',
     };
   }
 
   async deactivate(user: UserDto, id: string) {
-    const customer = await this.repo.findOne({ where: { id } });
-    if (!customer) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+    const tourGuide = await this.repo.findOne({ where: { id } });
+    if (!tourGuide) {
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
-    const customerUsers = await this.userRepo.find({
-      where: { customerId: id },
+    const tourGuideUsers = await this.userRepo.find({
+      where: { tourGuideId: id },
     });
 
-    for (const customerUser of customerUsers) {
-      await this.userRepo.update(customerUser.id, {
+    for (const tourGuideUser of tourGuideUsers) {
+      await this.userRepo.update(tourGuideUser.id, {
         isDeleted: true,
         isActive: false,
         updatedBy: user.id,
@@ -462,9 +401,9 @@ export class CustomerService {
     }
 
     await this.repo.update(id, { isDeleted: true });
-    if (customerUsers.length) {
+    if (tourGuideUsers.length) {
       await this.userRepo.update(
-        { customerId: id },
+        { tourGuideId: id },
         {
           isDeleted: true,
           isActive: false,
@@ -472,18 +411,18 @@ export class CustomerService {
       );
     }
     const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
+      functionId: tourGuide.id,
+      functionType: 'TourGuide',
       type: enumData.ActionLogType.DEACTIVATE.code,
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Ngừng hoạt động khách hàng với code: ${customer.code}`,
-      oldData: JSON.stringify(customer),
+      description: `Ngừng hoạt động hướng dẫn viên với code: ${tourGuide.code}`,
+      oldData: JSON.stringify(tourGuide),
       newData: JSON.stringify({
-        ...customer,
+        ...tourGuide,
         isDeleted: true,
-        users: customerUsers.map((u) => ({
+        users: tourGuideUsers.map((u) => ({
           id: u.id,
           isDeleted: true,
           isActive: false,
@@ -492,31 +431,31 @@ export class CustomerService {
     };
     await this.actionLogService.create(actionLogDto);
     return {
-      message: 'Ngừng hoạt động khách hàng thành công',
+      message: 'Ngừng hoạt động hướng dẫn viên thành công',
     };
   }
 
   async activate(user: UserDto, id: string) {
-    const customer = await this.repo.findOne({ where: { id } });
-    if (!customer) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+    const tourGuide = await this.repo.findOne({ where: { id } });
+    if (!tourGuide) {
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
     await this.checkPhoneAndEmail(
       {
-        phone: customer.phone,
-        email: customer.email,
+        phone: tourGuide.phone,
+        email: tourGuide.email,
       },
-      { customerId: customer.id, skipDuprValidation: true },
+      { tourGuideId: tourGuide.id, skipDuprValidation: true },
     );
 
-    const customerUsers = await this.userRepo.find({
-      where: { customerId: id },
+    const tourGuideUsers = await this.userRepo.find({
+      where: { tourGuideId: id },
     });
 
     await this.repo.update(id, { isDeleted: false });
-    if (customerUsers.length) {
+    if (tourGuideUsers.length) {
       await this.userRepo.update(
-        { customerId: id },
+        { tourGuideId: id },
         {
           isDeleted: false,
           isActive: true,
@@ -524,18 +463,18 @@ export class CustomerService {
       );
     }
     const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
+      functionId: tourGuide.id,
+      functionType: 'TourGuide',
       type: enumData.ActionLogType.ACTIVATE.code,
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Kích hoạt khách hàng với code: ${customer.code}`,
-      oldData: JSON.stringify(customer),
+      description: `Kích hoạt hướng dẫn viên với code: ${tourGuide.code}`,
+      oldData: JSON.stringify(tourGuide),
       newData: JSON.stringify({
-        ...customer,
+        ...tourGuide,
         isDeleted: false,
-        users: customerUsers.map((u) => ({
+        users: tourGuideUsers.map((u) => ({
           id: u.id,
           isDeleted: false,
           isActive: true,
@@ -544,11 +483,11 @@ export class CustomerService {
     };
     await this.actionLogService.create(actionLogDto);
     return {
-      message: 'Kích hoạt khách hàng thành công',
+      message: 'Kích hoạt hướng dẫn viên thành công',
     };
   }
 
-  async findByCodes(codes: string[]): Promise<CustomerEntity[]> {
+  async findByCodes(codes: string[]): Promise<TourGuideEntity[]> {
     return await this.repo.find({
       where: {
         code: In(codes),
@@ -557,7 +496,7 @@ export class CustomerService {
     });
   }
 
-  async findByIds(ids: string[]): Promise<CustomerEntity[]> {
+  async findByIds(ids: string[]): Promise<TourGuideEntity[]> {
     return await this.repo.find({
       where: {
         id: In(ids),
@@ -566,7 +505,7 @@ export class CustomerService {
     });
   }
 
-  async findByPhones(phones: string[]): Promise<CustomerEntity[]> {
+  async findByPhones(phones: string[]): Promise<TourGuideEntity[]> {
     return await this.repo.find({
       where: {
         phone: In(phones),
@@ -575,7 +514,7 @@ export class CustomerService {
     });
   }
 
-  async sendOtpVerifyCustomer(data: SendOtpCustomerDto) {
+  async sendOtpVerifyTourGuide(data: SendOtpTourGuideDto) {
     const otpCode = this.generateOtpCode();
     const newOtp = new VerifyOtpEntity();
     newOtp.otpCode = otpCode;
@@ -610,7 +549,7 @@ export class CustomerService {
         newOtp.error = JSON.stringify({ message: res.message, code: res.code });
       }
       await this.verifyRepo.insert(newOtp);
-      return { ...res, customerId: checkPhone.id };
+      return { ...res, tourGuideId: checkPhone.id };
     }
 
     if (data.sendMethod === enumData.OTPSendMethod.EMAIL) {
@@ -635,7 +574,7 @@ export class CustomerService {
 
       return {
         isSuccess: true,
-        customerId: checkEmail.id,
+        tourGuideId: checkEmail.id,
         message: 'Mã OTP đã được gửi đến email của bạn',
       };
     }
@@ -652,16 +591,16 @@ export class CustomerService {
       otpCode: data.otpCode,
     });
 
-    let customer: CustomerEntity | null = null;
+    let tourGuide: TourGuideEntity | null = null;
     if (data.sendMethod === enumData.OTPSendMethod.ZALO) {
-      customer = await this.repo.findOne({
+      tourGuide = await this.repo.findOne({
         where: {
           phone: In([data.phone, coreHelper.normalizePhoneNumber(data.phone)]),
           isDeleted: false,
         },
       });
     } else if (data.sendMethod === enumData.OTPSendMethod.EMAIL) {
-      customer = await this.repo.findOne({
+      tourGuide = await this.repo.findOne({
         where: {
           email: data.email,
           isDeleted: false,
@@ -669,63 +608,23 @@ export class CustomerService {
       });
     }
 
-    if (!customer) {
-      throw new NotFoundException('Khách hàng không tồn tại');
+    if (!tourGuide) {
+      throw new NotFoundException('Hướng dẫn viên không tồn tại');
     }
 
-    await this.repo.update(customer.id, {});
+    await this.repo.update(tourGuide.id, {});
     return {
       message: 'Xác thực OTP thành công',
     };
   }
 
-  async sendOtpRegisterCustomer(data: SendOtpCustomerDto) {
-    await this.checkPhoneAndEmail({ phone: data.phone, email: data.email });
-
-    const otpCode = this.generateOtpCode();
-    const newOtp = new VerifyOtpEntity();
-    newOtp.otpCode = otpCode;
-    newOtp.sendMethod = data.sendMethod;
-
-    const millisecondEffect =
-      Number(process.env.MILLISECOND_OTP_EFFECT) || 300000;
-
-    if (data.sendMethod === enumData.OTPSendMethod.ZALO) {
-      const res = await this.zaloService.sendOtpCode({
-        phone: data.phone,
-        otpCode,
-      });
-      newOtp.phone = data.phone;
-      newOtp.dateExpired = new Date(new Date().getTime() + millisecondEffect);
-      if (!res.isSuccess) {
-        newOtp.error = JSON.stringify({ message: res.message, code: res.code });
-      }
-      await this.verifyRepo.insert(newOtp);
-      return res;
-    }
-
-    if (data.sendMethod === enumData.OTPSendMethod.EMAIL) {
-      await this.emailService.sendEmailVerify({ email: data.email, otpCode });
-      newOtp.email = data.email;
-      newOtp.dateExpired = new Date(new Date().getTime() + millisecondEffect);
-      await this.verifyRepo.insert(newOtp);
-      return {
-        isSuccess: true,
-        message: 'Gửi OTP thành công',
-      };
-    }
-    throw new NotFoundException(
-      `Phương thức [${data.sendMethod}] không hợp lệ`,
-    );
-  }
-
-  async forgotPassword(data: ForgotPasswordCustomerDto) {
+  async forgotPassword(data: ForgotPasswordTourGuideDto) {
     if (data.password !== data.confirmPassword) {
       throw new NotFoundException('Mật khẩu và xác nhận mật khẩu không khớp');
     }
 
     const foundCus = await this.repo.findOne({
-      where: { id: data.customerId },
+      where: { id: data.tourGuideId },
     });
     if (!foundCus) {
       throw new NotFoundException('Người dùng không tồn tại');
@@ -746,7 +645,7 @@ export class CustomerService {
     }
 
     const foundUser = await this.userRepo.findOne({
-      where: { customerId: foundCus.id },
+      where: { tourGuideId: foundCus.id },
     });
     if (!foundUser) {
       throw new NotFoundException('Người dùng không tồn tại');
@@ -763,41 +662,41 @@ export class CustomerService {
   async changePassword(
     user: UserDto,
     id: string,
-    changePasswordDto: ChangePasswordCustomerDto,
+    changePasswordDto: ChangePasswordTourGuideDto,
   ) {
     if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
       throw new BadRequestException('Mật khẩu và xác nhận mật khẩu không khớp');
     }
-    const customer = await this.repo.findOne({ where: { id } });
-    if (!customer) {
-      throw new NotFoundException('Không tìm thấy khách hàng');
+    const tourGuide = await this.repo.findOne({ where: { id } });
+    if (!tourGuide) {
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
     }
-    const customerUser = await this.userRepo.findOne({
-      where: { customerId: id },
+    const tourGuideUser = await this.userRepo.findOne({
+      where: { tourGuideId: id },
     });
-    if (!customerUser) {
-      throw new NotFoundException('Không tìm thấy tài khoản khách hàng');
+    if (!tourGuideUser) {
+      throw new NotFoundException('Không tìm thấy tài khoản hướng dẫn viên');
     }
 
-    const oldUserData = JSON.stringify({ ...customerUser, password: '***' });
+    const oldUserData = JSON.stringify({ ...tourGuideUser, password: '***' });
 
-    customerUser.password = changePasswordDto.newPassword;
-    customerUser.updatedBy = user.id;
-    customerUser.updatedAt = new Date();
+    tourGuideUser.password = changePasswordDto.newPassword;
+    tourGuideUser.updatedBy = user.id;
+    tourGuideUser.updatedAt = new Date();
 
-    await this.userRepo.save(customerUser);
+    await this.userRepo.save(tourGuideUser);
     const actionLogDto: ActionLogCreateDto = {
-      functionId: customer.id,
-      functionType: 'Customer',
+      functionId: tourGuide.id,
+      functionType: 'TourGuide',
       type: enumData.ActionLogType.UPDATE.code,
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Thay đổi mật khẩu cho khách hàng: ${customer.code} thành công`,
-      oldData: JSON.stringify({ customer, user: oldUserData }),
+      description: `Thay đổi mật khẩu cho hướng dẫn viên: ${tourGuide.code} thành công`,
+      oldData: JSON.stringify({ tourGuide, user: oldUserData }),
       newData: JSON.stringify({
-        customer,
-        user: { ...customerUser, password: '***' },
+        tourGuide,
+        user: { ...tourGuideUser, password: '***' },
       }),
     };
 
@@ -808,21 +707,21 @@ export class CustomerService {
     };
   }
 
-  async updateAvatar(user: UserDto, data: UpdateCustomerAvatarDto) {
-    const checkCustomer = await this.repo.findOne({
-      where: { id: user.customerId },
+  async updateAvatar(user: UserDto, data: UpdateTourGuideAvatarDto) {
+    const checkTourGuide = await this.repo.findOne({
+      where: { id: user.tourGuideId },
     });
-    if (!checkCustomer)
-      throw new NotFoundException('Không tìm thấy khách hàng');
+    if (!checkTourGuide)
+      throw new NotFoundException('Không tìm thấy hướng dẫn viên');
 
-    await this.fileArchivalRepo.delete({ customerId: checkCustomer.id });
+    await this.fileArchivalRepo.delete({ tourGuideId: checkTourGuide.id });
 
     const fileArchival = new FileArchivalCreateDto();
     fileArchival.createdBy = user.id;
     fileArchival.fileUrl = data.avatarUrl;
     fileArchival.fileName = 'avatarUrl';
-    fileArchival.fileRelationName = 'customerId';
-    fileArchival.fileRelationId = checkCustomer.id;
+    fileArchival.fileRelationName = 'tourGuideId';
+    fileArchival.fileRelationId = checkTourGuide.id;
     await this.fileArchivalService.create(fileArchival);
 
     return {

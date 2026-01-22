@@ -8,6 +8,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { TourGuideEntity } from '../user/tour_guide.entity';
 import { BookingDetailEntity } from './booking_detail.entity';
 import { TourEntity } from './tour.entity';
 import { TourItinerarieEntity } from './tour_itinerarie.entity';
@@ -61,4 +62,13 @@ export class TourDetailEntity extends BaseEntity {
   @ApiProperty({ description: 'Chi tiết đặt chỗ' })
   @OneToMany(() => BookingDetailEntity, (bd) => bd.tourDetail)
   bookingDetails: Promise<BookingDetailEntity[]>;
+
+  @ApiProperty({
+    description: 'Mã hướng dẫn viên (nếu user là hướng dẫn viên)',
+  })
+  @Column({ type: 'uuid', nullable: true })
+  tourGuideId?: string;
+  @OneToOne(() => TourGuideEntity, (tourGuide) => tourGuide.user)
+  @JoinColumn({ name: 'tourGuideId' })
+  tourGuide?: TourGuideEntity;
 }

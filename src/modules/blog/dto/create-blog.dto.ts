@@ -41,12 +41,6 @@ export class CreateBlogDto {
   @IsOptional()
   tags?: string[];
 
-  @ApiProperty({ description: 'Trạng thái xuất bản' })
-  @IsString()
-  @IsNotEmpty({ message: 'Trạng thái không được để trống' })
-  @MaxLength(50)
-  status: string;
-
   @ApiProperty({ description: 'Tiêu đề SEO', required: false })
   @IsOptional()
   @IsString()

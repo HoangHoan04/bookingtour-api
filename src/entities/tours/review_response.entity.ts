@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { TourGuideEntity } from '../user';
 import { ReviewEntity } from './review.entity';
 
 @Entity('review_responses')
@@ -19,4 +20,9 @@ export class ReviewResponseEntity extends BaseEntity {
   @ApiProperty({ description: 'Nội dung phản hồi' })
   @Column({ type: 'text', nullable: false })
   content: string;
+
+  @ApiProperty({ description: 'Hướng dẫn viên phản hồi' })
+  @ManyToOne(() => TourGuideEntity, (guide) => guide.reviewResponses)
+  @JoinColumn({ name: 'responderId' })
+  responder: TourGuideEntity;
 }

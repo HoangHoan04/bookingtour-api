@@ -6,7 +6,7 @@ import {
 } from 'src/repositories/blog.repository';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { BlogService } from './blog.service';
 
 @Module({

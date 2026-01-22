@@ -19,8 +19,8 @@ import {
   CustomerRepository,
   UserRepository,
 } from '../../repositories/user.repository';
-import { FileArchivalCreateDto } from '../fileArchival/dto';
-import { FileArchivalService } from '../fileArchival/fileArchival.service';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 import {
   ChangePasswordDto,
   FacebookLoginDto,

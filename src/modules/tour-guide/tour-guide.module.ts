@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import {
-  CustomerRepository,
+  TourGuideRepository,
   UserRepository,
   VerifyOtpRepository,
 } from 'src/repositories';
@@ -11,7 +11,7 @@ import { EmailModule } from '../email/email.module';
 import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { NotificationModule } from '../notification/notification.module';
 import { ZaloModule } from '../zalo/zalo.module';
-import { CustomerService } from './customer.service';
+import { TourGuideService } from './tour-guide.service';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { CustomerService } from './customer.service';
       UserRepository,
       VerifyOtpRepository,
       FileArchivalRepository,
-      CustomerRepository,
+      TourGuideRepository,
     ]),
     ActionLogModule,
     FileArchivalModule,
@@ -27,10 +27,10 @@ import { CustomerService } from './customer.service';
     EmailModule,
     NotificationModule,
   ],
-  exports: [CustomerService],
+  exports: [TourGuideService],
   controllers: [],
-  providers: [CustomerService],
+  providers: [TourGuideService],
 })
-export class CustomerModule implements NestModule {
+export class TourGuideModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {}
 }

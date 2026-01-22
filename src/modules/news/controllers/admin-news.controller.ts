@@ -20,12 +20,13 @@ export class AdminNewsController {
     return await this.service.create(data, user);
   }
 
+  @ApiOperation({ summary: 'Lấy danh sách tin tức với bộ lọc (Admin)' })
   @Post('pagination')
-  @ApiOperation({ summary: 'Lấy danh sách tin tức với bộ lọc' })
   async pagination(@Body() body: PaginationDto<FilterCustomerDto>) {
     return await this.service.pagination(body);
   }
 
+  @ApiOperation({ summary: 'Lấy danh sách tin tức cho select box' })
   @Post('select-box')
   async selectBox() {
     return await this.service.selectBox();
@@ -49,9 +50,26 @@ export class AdminNewsController {
     return await this.service.activate(user, body.id);
   }
 
-  @ApiOperation({ summary: 'Chi tiết tin tức' })
+  @ApiOperation({ summary: 'Chi tiết tin tức (Admin)' })
   @Post('find-by-id')
   async findById(@Body() body: IdDto) {
     return await this.service.findById(body.id);
+  }
+
+  @ApiOperation({ summary: 'Lấy số lượng tin tức theo loại' })
+  @Post('count-by-type')
+  async getNewsCountByType() {
+    return await this.service.getNewsCountByType();
+  }
+
+  @ApiOperation({ summary: 'Tìm kiếm tin tức theo IDs' })
+  @Post('find-by-ids')
+  async findByIds(@Body() body: { ids: string[] }) {
+    const news = await this.service.findByIds(body.ids);
+    return {
+      message: 'Tìm kiếm tin tức thành công',
+      data: news,
+      total: news.length,
+    };
   }
 }
