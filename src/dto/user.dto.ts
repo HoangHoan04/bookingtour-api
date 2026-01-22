@@ -2,25 +2,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsUUID } from 'class-validator';
 
 export class UserDto {
-  @ApiProperty({
-    description: 'Id user',
-    example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-  })
+  @ApiProperty({ description: 'Id user' })
   @IsUUID()
   id: string;
 
-  @ApiProperty({ description: 'Tài khoản', example: 'userX' })
+  @ApiProperty({ description: 'Tài khoản' })
   @IsString()
   username: string;
 
-  @ApiProperty({ description: 'Tên nhân viên', example: 'Nguyễn Văn A' })
+  @ApiProperty({ description: 'Tên nhân viên' })
   @IsString()
   name: string;
 
-  @ApiProperty({
-    description: 'Id khách hàng',
-    example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-  })
+  @ApiProperty({ description: 'Id khách hàng' })
   customerId?: string;
 
   @ApiProperty({
@@ -29,9 +23,9 @@ export class UserDto {
   })
   isAdmin: boolean;
 
-  @ApiProperty({
-    description: 'Các module được hiển thị ',
-    example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-  })
+  @ApiProperty({ description: 'Các module được hiển thị ' })
   modules: string[];
+
+  @ApiProperty({ description: 'Các quyền của user' })
+  userRoles: string[];
 }

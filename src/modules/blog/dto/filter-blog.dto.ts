@@ -1,38 +1,23 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FilterBlogDto {
-  @ApiPropertyOptional({ description: 'Mã khách hàng' })
+  @ApiPropertyOptional({ description: 'Tiêu đề bài viết' })
   @IsOptional()
   @IsString()
-  code?: string;
+  title?: string;
 
-  @ApiPropertyOptional({ description: 'Tên khách hàng' })
+  @ApiPropertyOptional({ description: 'Danh mục bài viết' })
   @IsOptional()
   @IsString()
-  name?: string;
+  category?: string;
 
-  @ApiPropertyOptional({ description: 'Số điện thoại' })
+  @ApiPropertyOptional({ description: 'Trạng thái xuất bản' })
   @IsOptional()
   @IsString()
-  phone?: string;
+  status?: string;
 
-  @ApiPropertyOptional({ description: 'Giới tính' })
-  @IsOptional()
-  @IsString()
-  gender?: string;
-
-  @ApiPropertyOptional({ description: 'Email' })
-  @IsOptional()
-  @IsString()
-  email?: string;
-
-  @ApiPropertyOptional({ description: 'Trạng thái' })
+  @ApiPropertyOptional({ description: 'Trạng thái xóa' })
   @IsOptional()
   isDeleted?: boolean;
-
-  @ApiPropertyOptional({ description: 'Loại khách hàng' })
-  @IsOptional()
-  @IsUUID()
-  customerTypeId?: string;
 }

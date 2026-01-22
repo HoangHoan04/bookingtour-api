@@ -37,12 +37,7 @@ export class CreateBannerDto {
   type?: string;
 
   @ApiProperty({ description: 'Trạng thái banner' })
-  @IsNotEmpty()
   status: string;
-
-  @ApiProperty({ description: 'Trang banner sẽ hiển thị' })
-  @IsOptional()
-  site?: string;
 
   @ApiProperty({ description: 'Danh sách ảnh của banner' })
   @IsOptional()

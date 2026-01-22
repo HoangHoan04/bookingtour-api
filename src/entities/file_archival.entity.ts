@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { BlogPostEntity } from './blogs';
 import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
 import { ReviewEntity } from './tours';
@@ -55,4 +56,11 @@ export class FileArchivalEntity extends BaseEntity {
   @OneToOne(() => BannerEntity, (p) => p.image)
   @JoinColumn({ name: 'bannerId' })
   banner: Promise<BannerEntity>;
+
+  /** Id blog post */
+  @Column({ type: 'varchar', nullable: true })
+  blogPostId: string;
+  @OneToOne(() => BlogPostEntity, (p) => p.featuredImage)
+  @JoinColumn({ name: 'blogPostId' })
+  blogPost: Promise<BlogPostEntity>;
 }
