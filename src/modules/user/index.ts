@@ -24,6 +24,10 @@ import { TourGuideModule } from '../tour-guide/tour-guide.module';
 import { UserTourItinerariesController } from '../tour-itineraries/controller/user-tour-itineraries.controller';
 import { TourItinerariesModule } from '../tour-itineraries/tour-itineraries.module';
 import { UserTourPriceController } from '../tour-price/controller/user-tour-price.controller';
+import { UserBookingController } from '../booking/controller/user-booking.controller';
+import { BookingModule } from '../booking/booking.module';
+import { UserPaymentController } from '../payment/controller/user-payment.controller';
+import { PaymentModule } from '../payment/payment.module';
 import { TourPriceModule } from '../tour-price/tour-price.module';
 import { UserTourController } from '../tour/controller/user-tour.controller';
 import { TourModule } from '../tour/tour.module';
@@ -40,6 +44,8 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     UserTourItinerariesController,
     UserTourDetailController,
     UserTourPriceController,
+    UserBookingController,
+    UserPaymentController,
     UserBlogController,
     UserBannerController,
     UserNewsController,
@@ -56,6 +62,8 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     TourPriceModule,
     TourItinerariesModule,
     TourDetailModule,
+    BookingModule,
+    PaymentModule,
     BlogModule,
     BannerModule,
     NewsModule,

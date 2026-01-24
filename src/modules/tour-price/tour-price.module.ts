@@ -9,6 +9,7 @@ import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
 import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { TourPriceService } from './tour-price.service';
+import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TourPriceService } from './tour-price.service';
       TourItinerarieRepository,
     ]),
     ActionLogModule,
+    GenerateCodeHelper,
     FileArchivalModule,
   ],
   exports: [TourPriceService],

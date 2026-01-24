@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { enumData } from 'src/common/constants';
 import { FileDto } from 'src/dto';
 
 export class CreateTourDto {
@@ -61,9 +62,12 @@ export class CreateTourDto {
   @IsString({ each: true })
   tags?: string[];
 
-  @ApiProperty({ description: 'Trạng thái tour' })
+  @ApiProperty({
+    description: 'Trạng thái tour',
+    default: enumData.TOUR_STATUS.ACTIVE.code,
+  })
   @IsString()
-  status: string;
+  status?: string;
 
   @ApiProperty({ description: 'Hình ảnh tour' })
   @IsOptional()

@@ -4,6 +4,7 @@ import { PaginationDto, UserDto } from 'src/dto';
 import { TourEntity } from 'src/entities';
 import { TourRepository } from 'src/repositories';
 import { FindOptionsWhere, ILike } from 'typeorm';
+import slugify from 'slugify';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { CreateTourDto } from './dto';
@@ -66,7 +67,7 @@ export class TourService {
     const tour = new TourEntity();
     tour.code = dto.code;
     tour.title = dto.title;
-    tour.slug = dto.slug;
+    tour.slug = slugify(dto.title);
     tour.location = dto.location;
     tour.durations = dto.durations;
     tour.shortDescription = dto.shortDescription;
@@ -75,7 +76,7 @@ export class TourService {
     tour.included = dto.included;
     tour.excluded = dto.excluded;
     tour.category = dto.category;
-    tour.status = dto.status;
+    if (dto.status) tour.status = dto.status;
     tour.tags = dto.tags;
     tour.createdBy = user.id;
     tour.createdAt = new Date();
@@ -109,6 +110,23 @@ export class TourService {
     }
 
     Object.assign(tour, dto);
-    return this.repo.save(tour);
+    await this.repo.save(tour);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: tour.id,
+      functionType: 'Tour',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Cập nhật tour: ${tour.title}`,
+      oldData: JSON.stringify(tour),
+      newData: JSON.stringify(dto),
+    };
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Cập nhật tour thành công',
+    };
   }
 }

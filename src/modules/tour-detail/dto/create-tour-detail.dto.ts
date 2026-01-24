@@ -10,22 +10,36 @@ import {
 } from 'class-validator';
 
 export class CreateTourDetailDto {
-  @ApiProperty({ description: 'ID tour' })
+  @ApiProperty({
+    description: 'ID tour',
+    format: 'uuid',
+  })
+  @IsString()
   @IsUUID()
   tourId: string;
 
+  @ApiProperty({
+    description: 'Mã tour detail',
+    required: false,
+  })
   @ApiProperty({ description: 'Mã tour detail' })
   @IsOptional()
   @IsString()
   code?: string;
 
-  @ApiProperty({ description: 'Ngày bắt đầu tour' })
+  @ApiProperty({
+    description: 'Ngày bắt đầu tour (ISO 8601)',
+    example: '2025-02-20',
+  })
   @IsDateString()
-  startDay: Date;
+  startDay: string;
 
-  @ApiProperty({ description: 'Ngày kết thúc tour' })
+  @ApiProperty({
+    description: 'Ngày kết thúc tour (ISO 8601)',
+    example: '2025-02-28',
+  })
   @IsDateString()
-  endDay: Date;
+  endDay: string;
 
   @ApiProperty({ description: 'Địa điểm bắt đầu' })
   @IsString()
@@ -37,12 +51,7 @@ export class CreateTourDetailDto {
   @Min(1)
   capacity: number;
 
-  @ApiProperty({ description: 'Số chỗ còn lại' })
-  @IsInt()
-  @Min(0)
-  remainingSeats: number;
-
-  @ApiProperty({ description: 'Trạng thái tour' })
+  @IsOptional()
   @IsString()
-  status: string;
+  status?: string;
 }
