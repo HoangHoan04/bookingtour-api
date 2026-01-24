@@ -3,6 +3,7 @@ import {
   BlogPostEntity,
   DestinationEntity,
   FaqEntity,
+  TourDestinationEntity,
 } from 'src/entities';
 import { BannerEntity } from 'src/entities/blogs/banner.entity';
 import { NewsEntity } from 'src/entities/blogs/new.entity';
@@ -30,3 +31,6 @@ export class NewsRepository extends Repository<NewsEntity> {}
 
 @CustomRepository(TravelHintEntity)
 export class TravelHintRepository extends Repository<TravelHintEntity> {}
+
+@CustomRepository(TourDestinationEntity)
+export class TourDestinationRepository extends Repository<TourDestinationEntity> {}

@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { FileArchivalEntity } from '../file_archival.entity';
+import { TourDestinationEntity } from '../tours/tour_destination.entity';
 
 @Entity('destinations')
 export class DestinationEntity extends BaseEntity {
@@ -28,16 +30,12 @@ export class DestinationEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ApiProperty({ description: 'Ảnh đại diện' })
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  imageUrl: string;
-
   @ApiProperty({ description: 'Vĩ độ' })
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 8, nullable: true })
   latitude: number;
 
   @ApiProperty({ description: 'Kinh độ' })
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 8, nullable: true })
   longitude: number;
 
   @ApiProperty({ description: 'Thời gian tốt nhất' })
@@ -52,10 +50,6 @@ export class DestinationEntity extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   popularActivities: string[];
 
-  @ApiProperty({ description: 'Số tour đến điểm này' })
-  @Column({ type: 'int', default: 0 })
-  touringCount: number;
-
   @ApiProperty({ description: 'Số lượt xem' })
   @Column({ type: 'int', default: 0 })
   viewCount: number;
@@ -67,4 +61,12 @@ export class DestinationEntity extends BaseEntity {
   @ApiProperty({ description: 'Trạng thái ACTIVE/INACTIVE' })
   @Column({ type: 'varchar', length: 50 })
   status: string;
+
+  @ApiProperty({ description: 'Tours đến điểm đến này' })
+  @OneToMany(() => TourDestinationEntity, (td) => td.destination)
+  tourDestinations: Promise<TourDestinationEntity[]>;
+
+  @ApiProperty({ description: 'Ảnh đại diện' })
+  @OneToOne(() => FileArchivalEntity, (file) => file.destinations)
+  image: FileArchivalEntity;
 }

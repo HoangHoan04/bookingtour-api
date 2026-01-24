@@ -10,3 +10,12 @@ export class FilterOneDto {
   @IsOptional()
   id?: string;
 }
+
+export class FilterSlugDto {
+  @ApiProperty({
+    description: 'Slug của đối tượng',
+    example: 'my-object-slug',
+  })
+  @IsOptional()
+  slug?: string;
+}

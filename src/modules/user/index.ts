@@ -9,6 +9,8 @@ import { UserBlogController } from '../blog/controller/user-blog.controller';
 import { PREFIX_MODULE } from '../config-module';
 import { UserCustomerController } from '../customer/controller/user-customer.controller';
 import { CustomerModule } from '../customer/customer.module';
+import { UserDestinationController } from '../destination/controller/user-destination.controller';
+import { DestinationModule } from '../destination/destination.module';
 import { UserNewsController } from '../news/controllers/user-news.controller';
 import { NewsModule } from '../news/new.module';
 import { UserNewsletterController } from '../newsletter/newsletter.controller';
@@ -44,6 +46,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     UserNewsletterController,
     UserTourGuideController,
     UserTravelHintController,
+    UserDestinationController,
   ],
   imports: [
     AuthModule,
@@ -59,6 +62,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     NewsletterModule,
     TourGuideModule,
     TravelHintModule,
+    DestinationModule,
   ],
   exports: [],
 })

@@ -35,6 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = message.message;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
       if (status === HttpStatus.UNAUTHORIZED && message === 'Unauthorized') {
         if (response?.req?.authInfo?.name == 'TokenExpiredError') {
           message = 'Hết phiên đăng nhập, vui lòng đăng nhập lại để tiếp tục.';
@@ -42,6 +43,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
 
       if (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         status === HttpStatus.BAD_REQUEST &&
         name === 'BadRequestException' &&
         message === 'Bad Request Exception'

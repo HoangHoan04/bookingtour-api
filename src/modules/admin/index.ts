@@ -53,7 +53,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     AdminTourPriceController,
     AdminBannerController,
     AdminNewsController,
-    AdminBlogController,
     AdminDestinationController,
     AdminFaqController,
     AdminTourGuideController,

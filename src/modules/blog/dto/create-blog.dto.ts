@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { FileDto } from 'src/dto';
 
 export class CreateBlogDto {
   @ApiProperty({ description: 'Tiêu đề bài viết' })
@@ -24,12 +25,6 @@ export class CreateBlogDto {
   @IsString()
   @IsNotEmpty()
   content: string;
-
-  @ApiProperty({ description: 'Ảnh đại diện bài viết' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  featuredImage?: string;
 
   @ApiProperty({ description: 'Danh mục bài viết' })
   @IsOptional()
@@ -56,4 +51,7 @@ export class CreateBlogDto {
   @ApiProperty({ description: 'Thời gian xuất bản' })
   @IsOptional()
   publishedAt?: Date;
+
+  @ApiProperty({ description: 'Ảnh đại diện bài viết' })
+  featuredImage?: FileDto;
 }

@@ -10,6 +10,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { BlogPostEntity } from '../blogs';
 import { UserRoleEntity } from '../role';
 import { CustomerEntity } from './customer.entity';
 import { TourGuideEntity } from './tour_guide.entity';
@@ -62,6 +63,10 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => UserRoleEntity, (userRole) => userRole.user)
   userRoles: UserRoleEntity[];
+
+  @ApiProperty({ description: 'Bài viết của user' })
+  @OneToMany(() => BlogPostEntity, (post) => post.author)
+  blogPosts: BlogPostEntity[];
 
   @ApiProperty({ description: 'Zalo ID nếu đăng nhập bằng Zalo' })
   @Column({ nullable: true })

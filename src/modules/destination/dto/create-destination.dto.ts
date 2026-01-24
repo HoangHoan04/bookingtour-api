@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { FileDto } from 'src/dto';
 
 export class CreateDestinationDto {
-  @ApiProperty({ description: 'Mã điểm đến' })
-  code: string;
-
   @ApiProperty({ description: 'Tên điểm đến' })
   name: string;
 
@@ -18,9 +16,6 @@ export class CreateDestinationDto {
 
   @ApiProperty({ description: 'Mô tả điểm đến' })
   description: string;
-
-  @ApiProperty({ description: 'Ảnh đại diện' })
-  imageUrl: string;
 
   @ApiProperty({ description: 'Vĩ độ' })
   latitude: number;
@@ -39,4 +34,7 @@ export class CreateDestinationDto {
 
   @ApiProperty({ description: 'Trạng thái ACTIVE/INACTIVE' })
   status: string;
+
+  @ApiProperty({ description: 'Ảnh đại diện' })
+  image: FileDto;
 }

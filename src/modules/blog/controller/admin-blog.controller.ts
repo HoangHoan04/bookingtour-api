@@ -9,7 +9,7 @@ import { CreateBlogDto, UpdateBlogDto } from '../dto';
 @ApiBearerAuth()
 @ApiTags('Admin - Blog')
 @UseGuards(JwtAuthGuard, PermissionGuard)
-@Controller('admin/blog')
+@Controller('blog')
 export class AdminBlogController {
   constructor(private readonly service: BlogService) {}
 
@@ -89,5 +89,52 @@ export class AdminBlogController {
   @Post('comments/restore')
   async restoreBlogComment(@Body() body: IdDto, @CurrentUser() user: UserDto) {
     return await this.service.restoreBlogComment(body.id, user);
+  }
+
+  @ApiOperation({ summary: 'Xuất bản bài viết' })
+  @Post('publish')
+  async publishBlogPost(@Body() body: IdDto, @CurrentUser() user: UserDto) {
+    return await this.service.publishBlogPost(body.id, user);
+  }
+
+  @ApiOperation({ summary: 'Chuyển bài viết sang bản nháp' })
+  @Post('draft')
+  async draftBlogPost(@Body() body: IdDto, @CurrentUser() user: UserDto) {
+    return await this.service.draftBlogPost(body.id, user);
+  }
+
+  @ApiOperation({ summary: 'Từ chối xuất bản bài viết' })
+  @Post('reject')
+  async rejectBlogPost(
+    @Body() body: { id: string; reason?: string },
+    @CurrentUser() user: UserDto,
+  ) {
+    return await this.service.rejectBlogPost(body.id, user, body.reason);
+  }
+
+  @ApiOperation({ summary: 'Lưu trữ bài viết' })
+  @Post('archive')
+  async archiveBlogPost(@Body() body: IdDto, @CurrentUser() user: UserDto) {
+    return await this.service.archiveBlogPost(body.id, user);
+  }
+
+  @ApiOperation({ summary: 'Khôi phục bài viết từ lưu trữ' })
+  @Post('unarchive')
+  async unarchiveBlogPost(@Body() body: IdDto, @CurrentUser() user: UserDto) {
+    return await this.service.unarchiveBlogPost(body.id, user);
+  }
+
+  @ApiOperation({ summary: 'Thay đổi trạng thái bài viết' })
+  @Post('change-status')
+  async changeBlogStatus(
+    @Body() body: { id: string; status: string; reason?: string },
+    @CurrentUser() user: UserDto,
+  ) {
+    return await this.service.changeBlogStatus(
+      body.id,
+      body.status,
+      user,
+      body.reason,
+    );
   }
 }

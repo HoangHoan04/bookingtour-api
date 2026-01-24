@@ -4,6 +4,7 @@ export * from './payment.entity';
 export * from './review.entity';
 export * from './review_response.entity';
 export * from './tour.entity';
+export * from './tour_destination.entity';
 export * from './tour_details.entity';
 export * from './tour_itinerarie.entity';
 export * from './tour_price.entity';

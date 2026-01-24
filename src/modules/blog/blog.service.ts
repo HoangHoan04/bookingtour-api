@@ -280,6 +280,311 @@ export class BlogService {
     };
   }
 
+  async approveBlogPost(id: string, user: UserDto) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.PUBLISHED.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    await this.repo.save(blog);
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Duyệt bài viết: ${blog.content}`,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Duyệt bài viết thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  // Thêm các hàm này vào BlogService
+
+  /**
+   * Chuyển bài viết sang trạng thái Draft
+   */
+  async draftBlogPost(id: string, user: UserDto) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.DRAFT.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    await this.repo.save(blog);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Chuyển bài viết sang bản nháp: ${blog.title}`,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Chuyển bài viết sang bản nháp thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  /**
+   * Xuất bản bài viết (giống approveBlogPost nhưng đổi tên cho rõ nghĩa hơn)
+   */
+  async publishBlogPost(id: string, user: UserDto) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.PUBLISHED.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    // Nếu chưa có publishedAt thì set thời gian xuất bản
+    if (!blog.publishedAt) {
+      blog.publishedAt = new Date();
+    }
+
+    await this.repo.save(blog);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Xuất bản bài viết: ${blog.title}`,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Xuất bản bài viết thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  /**
+   * Từ chối xuất bản bài viết
+   */
+  async rejectBlogPost(id: string, user: UserDto, reason?: string) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.REJECT.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    await this.repo.save(blog);
+
+    const description = reason
+      ? `Từ chối xuất bản bài viết: ${blog.title}. Lý do: ${reason}`
+      : `Từ chối xuất bản bài viết: ${blog.title}`;
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: description,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Từ chối xuất bản bài viết thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  /**
+   * Lưu trữ bài viết
+   */
+  async archiveBlogPost(id: string, user: UserDto) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.ARCHIVED.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    await this.repo.save(blog);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Lưu trữ bài viết: ${blog.title}`,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Lưu trữ bài viết thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  /**
+   * Khôi phục bài viết từ archived về draft
+   */
+  async unarchiveBlogPost(id: string, user: UserDto) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    if (blog.status !== enumData.BLOG_STATUS.ARCHIVED.code) {
+      throw new BadRequestException(
+        'Chỉ có thể khôi phục bài viết đang ở trạng thái lưu trữ',
+      );
+    }
+
+    const oldData = JSON.stringify(blog);
+
+    blog.status = enumData.BLOG_STATUS.DRAFT.code;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    await this.repo.save(blog);
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Khôi phục bài viết từ lưu trữ: ${blog.title}`,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Khôi phục bài viết thành công',
+      data: transformKeys(blog),
+    };
+  }
+
+  /**
+   * Thay đổi trạng thái bài viết (hàm tổng quát)
+   */
+  async changeBlogStatus(
+    id: string,
+    status: string,
+    user: UserDto,
+    reason?: string,
+  ) {
+    const blog = await this.repo.findOne({ where: { id } });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    // Validate status
+    const validStatuses = Object.values(enumData.BLOG_STATUS).map(
+      (s) => s.code,
+    );
+    if (!validStatuses.includes(status)) {
+      throw new BadRequestException('Trạng thái không hợp lệ');
+    }
+
+    const oldData = JSON.stringify(blog);
+    const oldStatus = blog.status;
+
+    blog.status = status;
+    blog.updatedBy = user.id;
+    blog.updatedAt = new Date();
+
+    // Set publishedAt khi chuyển sang PUBLISHED
+    if (status === enumData.BLOG_STATUS.PUBLISHED.code && !blog.publishedAt) {
+      blog.publishedAt = new Date();
+    }
+
+    await this.repo.save(blog);
+
+    const statusName =
+      Object.values(enumData.BLOG_STATUS).find((s) => s.code === status)
+        ?.name || status;
+    const description = reason
+      ? `Thay đổi trạng thái bài viết "${blog.title}" từ ${oldStatus} sang ${statusName}. Lý do: ${reason}`
+      : `Thay đổi trạng thái bài viết "${blog.title}" từ ${oldStatus} sang ${statusName}`;
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: enumData.ActionLogType.UPDATE.code,
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: description,
+      oldData: oldData,
+      newData: JSON.stringify(blog),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: `Thay đổi trạng thái bài viết thành công`,
+      data: transformKeys(blog),
+    };
+  }
+
   async findByIds(ids: string[]): Promise<BlogPostEntity[]> {
     return await this.repo.find({
       where: {
@@ -566,7 +871,6 @@ export class BlogService {
       data: transformKeys(comment),
     };
   }
-  // Thêm các methods này vào BlogService
 
   /**
    * Lấy danh sách bài viết đã xuất bản cho user
@@ -727,7 +1031,9 @@ export class BlogService {
         status: enumData.BLOG_STATUS.PUBLISHED.code,
         isDeleted: false,
       },
-      select: ['category'],
+      select: {
+        category: true,
+      },
     });
 
     // Đếm số lượng bài viết theo category
@@ -763,7 +1069,9 @@ export class BlogService {
         status: enumData.BLOG_STATUS.PUBLISHED.code,
         isDeleted: false,
       },
-      select: ['tags'],
+      select: {
+        tags: true,
+      },
     });
 
     const tagsMap = new Map<string, number>();

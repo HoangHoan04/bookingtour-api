@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class IdDto {
   @ApiProperty({
@@ -11,4 +11,14 @@ export class IdDto {
   @IsNotEmpty()
   @Expose()
   id: string;
+}
+
+export class SlugDto {
+  @ApiProperty({
+    description: 'Slug của điểm đến',
+    example: 'nghe-an-djfb',
+  })
+  @IsString()
+  @IsNotEmpty()
+  slug: string;
 }

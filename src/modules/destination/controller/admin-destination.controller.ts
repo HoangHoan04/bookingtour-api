@@ -32,6 +32,7 @@ export class AdminDestinationController {
     return await this.service.pagination(body);
   }
 
+  @ApiOperation({ summary: 'Lấy danh sách điểm đến cho select box' })
   @Post('select-box')
   async selectBox() {
     return await this.service.selectBox();
@@ -62,5 +63,11 @@ export class AdminDestinationController {
   @Post('find-by-id')
   async findById(@Body() body: IdDto) {
     return await this.service.findById(body.id);
+  }
+
+  @ApiOperation({ summary: 'Lấy danh sách tour theo điểm đến' })
+  @Post('get-tours-by-destination')
+  async getToursByDestination(@Body() body: IdDto) {
+    return await this.service.getToursByDestination(body.id);
   }
 }

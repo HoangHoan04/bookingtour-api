@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { FileArchivalEntity } from '../file_archival.entity';
-import { CustomerEntity } from '../user/customer.entity';
+import { UserEntity } from '../user/user.entity';
 import { BlogCommentEntity } from './blog_comment.entity';
 
 @Entity('blog_posts')
@@ -17,9 +17,9 @@ export class BlogPostEntity extends BaseEntity {
   @ApiProperty({ description: 'Tác giả bài viết' })
   @Column({ type: 'uuid', nullable: false })
   authorId: string;
-  @ManyToOne(() => CustomerEntity, (customer) => customer.blogPosts)
+  @ManyToOne(() => UserEntity, (user) => user.blogPosts)
   @JoinColumn({ name: 'authorId' })
-  author: CustomerEntity;
+  author: UserEntity;
 
   @ApiProperty({ description: 'Tiêu đề bài viết' })
   @Column({ type: 'varchar', length: 255, nullable: false })

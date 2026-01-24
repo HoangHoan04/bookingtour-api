@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { BlogCommentEntity, BlogPostEntity } from '../blogs';
+import { BlogCommentEntity } from '../blogs';
 import { FileArchivalEntity } from '../file_archival.entity';
 import { NotificationEntity, NotificationSettingEntity } from '../notify';
 import { BookingEntity, ReviewEntity, UserVoucherEntity } from '../tours';
@@ -93,8 +93,4 @@ export class CustomerEntity extends BaseEntity {
   @ApiProperty({ description: 'Comment của khách hàng' })
   @OneToMany(() => BlogCommentEntity, (p) => p.customer)
   blogComments: Promise<BlogCommentEntity[]>;
-
-  @ApiProperty({ description: 'Bài viết của khách hàng' })
-  @OneToMany(() => BlogPostEntity, (p) => p.author)
-  blogPosts: Promise<BlogPostEntity[]>;
 }

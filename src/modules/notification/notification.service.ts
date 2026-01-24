@@ -261,7 +261,9 @@ export class NotificationService {
         customerId: user.customerId,
         isDeleted: false,
       },
-      relations: ['customer'],
+      relations: {
+        customer: true,
+      },
     });
 
     if (!notification) {

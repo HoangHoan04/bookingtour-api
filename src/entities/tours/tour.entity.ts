@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ReviewEntity } from './review.entity';
+import { TourDestinationEntity } from './tour_destination.entity';
 import { TourDetailEntity } from './tour_details.entity';
 
 @Entity('tours')
@@ -73,6 +74,10 @@ export class TourEntity extends BaseEntity {
   @ApiProperty({ description: 'Trạng thái tour' })
   @Column({ type: 'varchar', length: 50, nullable: false })
   status: string;
+
+  @ApiProperty({ description: 'Các điểm đến của tour' })
+  @OneToMany(() => TourDestinationEntity, (td) => td.tour)
+  tourDestinations: Promise<TourDestinationEntity[]>;
 
   @ApiProperty({ description: 'Chi tiết tour' })
   @OneToMany(() => TourDetailEntity, (tourDetails) => tourDetails.tour)
