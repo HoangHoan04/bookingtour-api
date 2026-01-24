@@ -14,6 +14,7 @@ export class BookingDetailEntity extends BaseEntity {
   @ApiProperty({ description: 'Mã đơn đặt' })
   @Column({ type: 'uuid', nullable: false })
   bookingId: string;
+
   @ManyToOne(() => BookingEntity, (booking) => booking.bookingDetails, {
     onDelete: 'CASCADE',
   })
@@ -31,10 +32,6 @@ export class BookingDetailEntity extends BaseEntity {
   @ApiProperty({ description: 'Thành tiền (price * quantity)' })
   @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
   subtotal: number;
-
-  @ApiProperty({ description: 'Thông tin hành khách (tên, CMND...)' })
-  @Column({ type: 'json', nullable: true })
-  passengerInfo: any;
 
   @ApiProperty({ description: 'Trạng thái chi tiết' })
   @Column({ type: 'varchar', length: 50 })
