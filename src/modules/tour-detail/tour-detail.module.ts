@@ -7,7 +7,7 @@ import {
 } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { TourDetailService } from './tour-detail.service';
 
 @Module({

@@ -11,6 +11,7 @@ import {
   TourRepository,
 } from 'src/repositories/tour.repository';
 import { PaymentModule } from '../payment/payment.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 
 @Module({
   imports: [

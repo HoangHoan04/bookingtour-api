@@ -1,6 +1,9 @@
-import { UserEntity } from 'src/entities';
-import { VerifyOtpEntity } from 'src/entities/user';
-import { CustomerEntity } from 'src/entities/user/customer.entity';
+import {
+  CustomerEntity,
+  TourGuideEntity,
+  UserEntity,
+  VerifyOtpEntity,
+} from 'src/entities/user';
 import { CustomRepository } from 'src/typeorm';
 import { Repository } from 'typeorm';
 
@@ -12,3 +15,6 @@ export class CustomerRepository extends Repository<CustomerEntity> {}
 
 @CustomRepository(VerifyOtpEntity)
 export class VerifyOtpRepository extends Repository<VerifyOtpEntity> {}
+
+@CustomRepository(TourGuideEntity)
+export class TourGuideRepository extends Repository<TourGuideEntity> {}

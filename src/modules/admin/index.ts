@@ -24,6 +24,8 @@ import { RoleController } from '../role/role.controller';
 import { RoleModule } from '../role/role.module';
 import { AdminTourDetailController } from '../tour-detail/controller/admin-tour-detail.controller';
 import { TourDetailModule } from '../tour-detail/tour-detail.module';
+import { AdminTourGuideController } from '../tour-guide/controllers/admin-tour-guide.controller';
+import { TourGuideModule } from '../tour-guide/tour-guide.module';
 import { AdminTourItinerariesController } from '../tour-itineraries/controller/admin-tour-itineraries.controller';
 import { TourItinerariesModule } from '../tour-itineraries/tour-itineraries.module';
 import { AdminTourPriceController } from '../tour-price/controller/admin-tour-price.controller';
@@ -32,6 +34,8 @@ import { AdminTourController } from '../tour/controller/admin-tour.controller';
 import { TourModule } from '../tour/tour.module';
 import { AdminTranslationsController } from '../translations/controller/admin-translations.controller';
 import { TranslationsModule } from '../translations/translations.module';
+import { AdminTravelHintController } from '../travel-hint/controller/admin-travel-hint.controller';
+import { TravelHintModule } from '../travel-hint/travel-hint.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.admin,
@@ -52,6 +56,8 @@ import { TranslationsModule } from '../translations/translations.module';
     AdminBlogController,
     AdminDestinationController,
     AdminFaqController,
+    AdminTourGuideController,
+    AdminTravelHintController,
   ],
   imports: [
     AuthModule,
@@ -71,6 +77,8 @@ import { TranslationsModule } from '../translations/translations.module';
     BlogModule,
     FaqModule,
     DestinationModule,
+    TourGuideModule,
+    TravelHintModule,
   ],
   exports: [],
 })

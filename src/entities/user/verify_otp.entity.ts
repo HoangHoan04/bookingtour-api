@@ -45,7 +45,7 @@ export class VerifyOtpEntity {
   })
   sendMethod: string;
 
-  @ApiProperty({ description: 'Thời hạn mã xác thực', required: false })
+  @ApiProperty({ description: 'Thời hạn mã xác thực' })
   @Column({
     type: 'timestamptz',
     nullable: true,

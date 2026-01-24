@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 import { enumData } from 'src/common/constants';
 
 export class CreateTourPriceDto {
-  @ApiProperty({ description: 'Mã giá tour', required: false })
+  @ApiProperty({ description: 'Mã giá tour' })
   @IsOptional()
   @IsString()
   code?: string;

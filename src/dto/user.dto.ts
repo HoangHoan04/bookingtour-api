@@ -17,6 +17,9 @@ export class UserDto {
   @ApiProperty({ description: 'Id khách hàng' })
   customerId?: string;
 
+  @ApiProperty({ description: 'Id hướng dẫn viên' })
+  tourGuideId?: string;
+
   @ApiProperty({
     description: 'Có phải là tài khoản Admin hay không',
     example: 'true',

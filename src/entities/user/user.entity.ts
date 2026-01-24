@@ -12,6 +12,7 @@ import {
 import { BaseEntity } from '../base.entity';
 import { UserRoleEntity } from '../role';
 import { CustomerEntity } from './customer.entity';
+import { TourGuideEntity } from './tour_guide.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -33,6 +34,15 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => CustomerEntity, (customer) => customer.user)
   @JoinColumn({ name: 'customerId' })
   customer?: CustomerEntity;
+
+  @ApiProperty({
+    description: 'Mã hướng dẫn viên (nếu user là hướng dẫn viên)',
+  })
+  @Column({ type: 'uuid', nullable: true })
+  tourGuideId?: string;
+  @OneToOne(() => TourGuideEntity, (tourGuide) => tourGuide.user)
+  @JoinColumn({ name: 'tourGuideId' })
+  tourGuide?: TourGuideEntity;
 
   @ApiProperty({ description: 'Tài khoản có đang hoạt động không' })
   @Column({ type: 'boolean', default: true })

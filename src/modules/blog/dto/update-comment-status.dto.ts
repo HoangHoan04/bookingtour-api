@@ -1,19 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
-
-export enum CommentStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-}
+import { enumData } from 'src/common/constants';
 
 export class UpdateCommentStatusDto {
-  @ApiProperty({
-    description: 'Trạng thái bình luận',
-    enum: CommentStatus,
-    required: true,
-  })
-  @IsNotEmpty({ message: 'Trạng thái không được để trống' })
-  @IsEnum(CommentStatus, { message: 'Trạng thái không hợp lệ' })
-  status: CommentStatus;
+  @ApiProperty({ description: 'Trạng thái bình luận' })
+  @IsNotEmpty()
+  @IsEnum(enumData.BLOG_COMMENT_STATUS)
+  status: keyof typeof enumData.BLOG_COMMENT_STATUS;
 }

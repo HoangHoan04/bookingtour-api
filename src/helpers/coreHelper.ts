@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import * as moment from 'moment';
+import { customAlphabet } from 'nanoid';
 import * as QRCode from 'qrcode';
 
 class CoreHelper {
@@ -222,6 +223,39 @@ class CoreHelper {
     }
     // Nếu không có 0 hoặc 84 ở đầu thì thêm 84 vào
     return '84' + phone;
+  }
+
+  generateSlug(name: string, suffixLength = 4): string {
+    if (!name || typeof name !== 'string') {
+      return (
+        'hdv-' +
+        customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', suffixLength)()
+      );
+    }
+
+    // Loại bỏ dấu tiếng Việt, chuyển thành lowercase, thay khoảng trắng và ký tự đặc biệt thành -
+    const slug = name
+      .normalize('NFD') // tách dấu
+      .replace(/[\u0300-\u036f]/g, '') // xóa dấu
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '') // chỉ giữ chữ cái, số, khoảng trắng, dấu gạch ngang
+      .replace(/\s+/g, '-') // thay nhiều khoảng trắng thành 1 dấu -
+      .replace(/-+/g, '-') // tránh nhiều dấu - liên tiếp
+      .replace(/^-+|-+$/g, ''); // xóa dấu - đầu/cuối
+
+    if (!slug) {
+      return (
+        'hdv-' +
+        customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', suffixLength)()
+      );
+    }
+
+    const randomSuffix = customAlphabet(
+      'abcdefghijklmnopqrstuvwxyz',
+      suffixLength,
+    )();
+    return `${slug}-${randomSuffix}`;
   }
 }
 

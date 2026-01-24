@@ -19,8 +19,8 @@ import {
   CustomerRepository,
   UserRepository,
 } from '../../repositories/user.repository';
-import { FileArchivalCreateDto } from '../fileArchival/dto';
-import { FileArchivalService } from '../fileArchival/fileArchival.service';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 import {
   ChangePasswordDto,
   FacebookLoginDto,
@@ -132,10 +132,12 @@ export class AuthService {
         customer.phone = zaloUser.phone || 'N/A';
         customer.email = `zalo_${zaloUser.id}@temporary.com`;
         customer.address = 'N/A';
-        customer.gender = 'OTHER';
+        customer.gender = enumData.Gender.OTHER.code;
         customer.birthday = new Date('2000-01-01');
-        customer.nationality = 'VN';
-        customer.identityCard = `ZALO_${zaloUser.id.substring(0, 12)}`;
+        customer.nationality = undefined;
+        customer.identityCard = undefined;
+        customer.passportNumber = undefined;
+        customer.description = undefined;
         customer.createdAt = new Date();
         customer.createdBy = 'zalo-oauth';
 
@@ -149,6 +151,7 @@ export class AuthService {
         user.isActive = true;
         user.isAdmin = false;
         user.customerId = customer.id;
+        user.tourGuideId = undefined;
         user.loginProvider = enumData.LoginProvider.ZALO;
         user.zaloId = zaloUser.id;
         user.isVerified = true;
@@ -328,11 +331,12 @@ export class AuthService {
           googleUser.email || `google_${googleUser.sub}@temporary.com`;
         customer.phone = 'N/A';
         customer.address = 'N/A';
-        customer.gender = 'OTHER';
+        customer.gender = enumData.Gender.OTHER.code;
         customer.birthday = new Date('2000-01-01');
-        customer.nationality = 'VN';
-        customer.identityCard = '';
-        customer.passportNumber = '';
+        customer.nationality = undefined;
+        customer.identityCard = undefined;
+        customer.passportNumber = undefined;
+        customer.description = undefined;
         customer.createdAt = new Date();
         customer.createdBy = 'google-oauth';
 
@@ -359,6 +363,7 @@ export class AuthService {
         user.isActive = true;
         user.isAdmin = false;
         user.customerId = customer.id;
+        user.tourGuideId = undefined;
         user.googleId = googleUser.sub;
         user.loginProvider = enumData.LoginProvider.GOOGLE;
         user.isVerified = true;
@@ -504,10 +509,12 @@ export class AuthService {
           customer.email = fbUser.email || `fb_${fbUser.id}@temporary.com`;
           customer.phone = fbUser.phone || 'N/A';
           customer.address = 'N/A';
-          customer.gender = 'OTHER';
+          customer.gender = enumData.Gender.OTHER.code;
           customer.birthday = new Date('2000-01-01');
-          customer.nationality = 'VN';
-          customer.identityCard = `FB_${fbUser.id.substring(0, 12)}`;
+          customer.nationality = undefined;
+          customer.identityCard = undefined;
+          customer.passportNumber = undefined;
+          customer.description = undefined;
           customer.createdAt = new Date();
           customer.createdBy = 'facebook-oauth';
 
@@ -534,6 +541,7 @@ export class AuthService {
           user.isActive = true;
           user.isAdmin = false;
           user.customerId = customer.id;
+          user.tourGuideId = undefined;
           user.facebookId = fbUser.id;
           user.loginProvider = enumData.LoginProvider.FACEBOOK;
           user.isVerified = true;

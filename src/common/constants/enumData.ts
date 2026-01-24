@@ -26,6 +26,7 @@ export const enumData = {
   Gender: {
     MALE: { code: 'MALE', name: 'Nam' },
     FEMALE: { code: 'FEMALE', name: 'Nữ' },
+    OTHER: { code: 'OTHER', name: 'Khác' },
   },
 
   UserType: {
@@ -127,9 +128,17 @@ export const enumData = {
 
   // Trạng thái blog
   BLOG_STATUS: {
+    NEW: { code: 'NEW', name: 'Mới tạo' },
     DRAFT: { code: 'DRAFT', name: 'Bản nháp' },
     PUBLISHED: { code: 'PUBLISHED', name: 'Đã xuất bản' },
     ARCHIVED: { code: 'ARCHIVED', name: 'Lưu trữ' },
+    REJECT: { code: 'REJECT', name: 'Từ chối xuất bản' },
+  },
+
+  BLOG_COMMENT_STATUS: {
+    PENDING: { code: 'PENDING', name: 'Chờ duyệt', color: 'yellow' },
+    APPROVED: { code: 'APPROVED', name: 'Đã duyệt', color: 'green' },
+    REJECTED: { code: 'REJECTED', name: 'Từ chối', color: 'red' },
   },
 
   // Loại notification
@@ -184,6 +193,23 @@ export const enumData = {
     FRESHLY_CREATED: { code: 'FRESHLY_CREATED', name: 'Mới tạo' },
     IN_EFFECT: { code: 'IN_EFFECT', name: 'Đang hiệu lực' },
     EXPIRED: { code: 'EXPIRED', name: 'Hết hiệu lực' },
+  },
+
+  BANNER_TYPE: {
+    HOME: { code: 'HOME', name: 'Trang chủ' },
+    ABOUT: { code: 'ABOUT', name: 'Giới thiệu' },
+    BLOG: { code: 'BLOG', name: 'Blog' },
+    SERVICES: { code: 'SERVICES', name: 'Dịch vụ' },
+    TOUR: { code: 'TOUR', name: 'Tour' },
+    BOOKING: { code: 'BOOKING', name: 'Đặt tour' },
+    NEWS: { code: 'NEWS', name: 'Tin tức' },
+    FAQ: { code: 'FAQ', name: 'Câu hỏi thường gặp' },
+  },
+
+  TRAVEL_TYPE: {
+    ALL: { code: 'ALL', name: 'Tất cả' },
+    DOMESTIC: { code: 'DOMESTIC', name: 'Trong nước' },
+    INTERNATIONAL: { code: 'INTERNATIONAL', name: 'Nước ngoài' },
   },
 };
 

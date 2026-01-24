@@ -14,8 +14,6 @@ import { coreHelper, transformKeys } from 'src/helpers';
 import { ActionLogService } from 'src/modules/actionLog/actionLog.service';
 import { ActionLogCreateDto } from 'src/modules/actionLog/dto';
 import { EmailService } from 'src/modules/email/email.service';
-import { FileArchivalCreateDto } from 'src/modules/fileArchival/dto';
-import { FileArchivalService } from 'src/modules/fileArchival/fileArchival.service';
 import { ZaloService } from 'src/modules/zalo/zalo.service';
 import {
   CustomerRepository,
@@ -25,6 +23,8 @@ import {
 import { FileArchivalRepository } from 'src/repositories/base.repository';
 import { FindOptionsWhere, ILike, In, Not } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 import {
   ChangePasswordCustomerDto,
   CheckPhoneEmailCustomerDto,
@@ -38,6 +38,7 @@ import {
   UpdateCustomerAvatarDto,
   UpdateCustomerDto,
 } from './dto/updateCustomer.dto';
+
 @Injectable()
 export class CustomerService {
   constructor(
@@ -93,6 +94,7 @@ export class CustomerService {
       data,
     };
   }
+
   async findByPhoneEmail(phone: string, email: string, user: UserDto) {
     const res = await this.repo.find({
       where: [
@@ -232,12 +234,14 @@ export class CustomerService {
     customer.code = this.genCodeCustomer();
     customer.name = createDto.name;
     customer.phone = createDto.phone;
+    customer.gender = createDto.gender;
     customer.email = createDto.email;
-    customer.address = '';
-    customer.gender = createDto.gender || 'MALE';
-    customer.birthday = new Date();
-    customer.nationality = 'VN';
-    customer.identityCard = '';
+    customer.address = createDto.address;
+    customer.birthday = createDto.birthday;
+    customer.nationality = createDto.nationality;
+    customer.identityCard = createDto.identityCard;
+    customer.passportNumber = createDto.passportNumber;
+    customer.description = createDto.description;
     customer.createdBy = user.id;
     customer.createdAt = new Date();
 
@@ -276,6 +280,7 @@ export class CustomerService {
     newUser.isActive = true;
     newUser.isAdmin = false;
     newUser.customerId = customer.id;
+    newUser.tourGuideId = undefined;
     newUser.createdBy = user.id;
     newUser.createdAt = new Date();
     await this.userRepo.insert(newUser);
@@ -319,8 +324,9 @@ export class CustomerService {
     customer.address = '';
     customer.gender = data.gender || 'MALE';
     customer.birthday = new Date();
-    customer.nationality = 'VN';
-    customer.identityCard = '';
+    customer.nationality = undefined;
+    customer.identityCard = undefined;
+    customer.passportNumber = undefined;
     customer.createdBy = customer.id;
     customer.createdAt = new Date();
     await this.repo.insert(customer);
@@ -333,6 +339,7 @@ export class CustomerService {
     newUser.isActive = true;
     newUser.isAdmin = false;
     newUser.customerId = customer.id;
+    newUser.tourGuideId = undefined;
     newUser.isVerified = true;
     newUser.createdBy = newUser.id;
     newUser.createdAt = new Date();
@@ -391,9 +398,20 @@ export class CustomerService {
 
     if (updateDto.name) customerUpdateData.name = updateDto.name;
     if (updateDto.phone) customerUpdateData.phone = updateDto.phone;
+    if (updateDto.gender) customerUpdateData.gender = updateDto.gender;
     if (updateDto.email !== undefined)
       customerUpdateData.email = updateDto.email;
-    if (updateDto.gender) customerUpdateData.gender = updateDto.gender;
+    if (updateDto.address !== undefined)
+      customerUpdateData.address = updateDto.address;
+    if (updateDto.birthday) customerUpdateData.birthday = updateDto.birthday;
+    if (updateDto.nationality !== undefined)
+      customerUpdateData.nationality = updateDto.nationality;
+    if (updateDto.identityCard !== undefined)
+      customerUpdateData.identityCard = updateDto.identityCard;
+    if (updateDto.passportNumber !== undefined)
+      customerUpdateData.passportNumber = updateDto.passportNumber;
+    if (updateDto.description !== undefined)
+      customerUpdateData.description = updateDto.description;
 
     if (Object.prototype.hasOwnProperty.call(updateDto, 'avatar')) {
       await this.fileArchivalRepo.delete({ customerId: updateDto.id });

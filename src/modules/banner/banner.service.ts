@@ -9,8 +9,8 @@ import { FindOptionsWhere, ILike, In } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
-import { FileArchivalCreateDto } from '../fileArchival/dto';
-import { FileArchivalService } from '../fileArchival/fileArchival.service';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto';
 @Injectable()
 export class BannerService {
@@ -265,5 +265,104 @@ export class BannerService {
         isDeleted: false,
       },
     });
+  }
+
+  async findByType(type?: string) {
+    const currentDate = new Date();
+
+    const whereConditions: any = {
+      isDeleted: false,
+      isVisible: true,
+    };
+
+    if (type) {
+      whereConditions.type = type;
+    }
+
+    const banners = await this.repo.find({
+      where: whereConditions,
+      relations: {
+        image: true,
+      },
+      order: {
+        displayOrder: 'ASC',
+        createdAt: 'DESC',
+      },
+    });
+
+    // Lọc banner còn hiệu lực theo ngày
+    const activeBanners = banners.filter((banner) => {
+      // Kiểm tra effectiveStartDate
+      const startDateValid =
+        !banner.effectiveStartDate ||
+        new Date(banner.effectiveStartDate) <= currentDate;
+
+      // Kiểm tra effectiveEndDate
+      const endDateValid =
+        !banner.effectiveEndDate ||
+        new Date(banner.effectiveEndDate) >= currentDate;
+
+      return startDateValid && endDateValid;
+    });
+
+    const data = activeBanners.map((banner) => {
+      const transformed = transformKeys(banner);
+      // Đảm bảo image luôn là array
+      if (transformed.image && !Array.isArray(transformed.image)) {
+        transformed.image = [transformed.image];
+      } else if (!transformed.image) {
+        transformed.image = [];
+      }
+      return transformed;
+    });
+
+    return {
+      message: 'Lấy danh sách banner thành công',
+      data,
+    };
+  }
+
+  async findAll() {
+    const currentDate = new Date();
+
+    const banners = await this.repo.find({
+      where: {
+        isDeleted: false,
+        isVisible: true,
+      },
+      relations: {
+        image: true,
+      },
+      order: {
+        displayOrder: 'ASC',
+        createdAt: 'DESC',
+      },
+    });
+
+    const activeBanners = banners.filter((banner) => {
+      const startDateValid =
+        !banner.effectiveStartDate ||
+        new Date(banner.effectiveStartDate) <= currentDate;
+      const endDateValid =
+        !banner.effectiveEndDate ||
+        new Date(banner.effectiveEndDate) >= currentDate;
+
+      return startDateValid && endDateValid;
+    });
+
+    const data = activeBanners.map((banner) => {
+      const transformed = transformKeys(banner);
+      if (transformed.image && !Array.isArray(transformed.image)) {
+        transformed.image = [transformed.image];
+      } else if (!transformed.image) {
+        transformed.image = [];
+      }
+      return transformed;
+    });
+
+    return {
+      message: 'Lấy danh sách banner thành công',
+      data,
+    };
   }
 }

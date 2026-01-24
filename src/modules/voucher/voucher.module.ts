@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 
 @Module({
   imports: [

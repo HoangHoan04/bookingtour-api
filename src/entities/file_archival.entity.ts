@@ -4,8 +4,10 @@ import { BaseEntity } from './base.entity';
 import { BlogPostEntity } from './blogs';
 import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
+import { TravelHintEntity } from './blogs/travel-hint.entity';
 import { ReviewEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
+import { TourGuideEntity } from './user/tour_guide.entity';
 
 @Entity('file_archive')
 export class FileArchivalEntity extends BaseEntity {
@@ -36,6 +38,13 @@ export class FileArchivalEntity extends BaseEntity {
   @JoinColumn({ name: 'customerId' })
   customer: Promise<CustomerEntity>;
 
+  // Avatar hướng dẫn viên du lịch
+  @Column({ type: 'uuid', nullable: true })
+  tourGuideId: string;
+  @ManyToOne(() => TourGuideEntity, (p) => p.avatar)
+  @JoinColumn({ name: 'tourGuideId' })
+  tourGuide: Promise<TourGuideEntity>;
+
   // Ảnh đánh giá review
   @Column({ type: 'uuid', nullable: true })
   reviewId: string;
@@ -63,4 +72,11 @@ export class FileArchivalEntity extends BaseEntity {
   @OneToOne(() => BlogPostEntity, (p) => p.featuredImage)
   @JoinColumn({ name: 'blogPostId' })
   blogPost: Promise<BlogPostEntity>;
+
+  /** Id travel hint */
+  @Column({ type: 'varchar', nullable: true })
+  travelHintId: string;
+  @ManyToOne(() => TravelHintEntity, (p) => p.images)
+  @JoinColumn({ name: 'travelHintId' })
+  travelHint: Promise<TravelHintEntity>;
 }

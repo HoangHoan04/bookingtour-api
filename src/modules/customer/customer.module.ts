@@ -8,7 +8,7 @@ import { FileArchivalRepository } from 'src/repositories/base.repository';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
 import { EmailModule } from '../email/email.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { NotificationModule } from '../notification/notification.module';
 import { ZaloModule } from '../zalo/zalo.module';
 import { CustomerService } from './customer.service';

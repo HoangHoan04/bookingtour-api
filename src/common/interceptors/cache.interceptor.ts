@@ -17,7 +17,7 @@ function isPromiseLike(v: any): v is Promise<any> {
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
-  
+
   async intercept(context: ExecutionContext, next: CallHandler): Promise<any> {
     const httpCtx = context.switchToHttp();
     const request = httpCtx.getRequest<Request>();

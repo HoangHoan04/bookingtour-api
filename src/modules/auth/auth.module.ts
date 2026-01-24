@@ -9,7 +9,7 @@ import {
   UserRepository,
 } from '../../repositories';
 import { TypeOrmExModule } from '../../typeorm';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { NotificationModule } from '../notification/notification.module';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
