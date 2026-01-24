@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from 'src/dto';
+import { PaginationDto, SlugDto } from 'src/dto';
 import { TourGuideService } from '../tour-guide.service';
 
 @ApiTags('User - TourGuide')
@@ -14,9 +14,9 @@ export class UserTourGuideController {
     return await this.service.findAll(data);
   }
 
-  @ApiOperation({ summary: 'Chi tiết banner' })
+  @ApiOperation({ summary: 'Chi tiết hướng dẫn viên' })
   @Post('find-by-slug')
-  async findBySlug(@Body() slug: string) {
-    return await this.service.findBySlug(slug);
+  async findBySlug(@Body() body: SlugDto) {
+    return await this.service.findBySlug(body.slug);
   }
 }

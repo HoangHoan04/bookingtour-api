@@ -1,10 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { BookingRepository, PaymentRepository } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
 import { ActionLogModule } from '../actionLog/actionLog.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
-
+import { FileArchivalModule } from '../file-archival/file-archival.module';
 import { PaymentService } from './payment.service';
-import { BookingRepository, PaymentRepository } from 'src/repositories';
 
 @Module({
   imports: [

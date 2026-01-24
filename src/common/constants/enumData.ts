@@ -86,7 +86,6 @@ export const enumData = {
     FACEBOOK: 'FACEBOOK',
   },
 
-  // Trạng thái booking
   BOOKING_STATUS: {
     PENDING: { code: 'PENDING', name: 'Chờ xác nhận', color: 'yellow' },
     CONFIRMED: { code: 'CONFIRMED', name: 'Đã xác nhận', color: 'blue' },
@@ -100,7 +99,6 @@ export const enumData = {
     CANCELLED: { code: 'CANCELLED', name: 'Đã hủy', color: 'red' },
   },
 
-  // Trạng thái payment
   PAYMENT_STATUS: {
     PENDING: { code: 'PENDING', name: 'Chờ xử lý', color: 'yellow' },
     CONFIRMED: { code: 'CONFIRMED', name: 'Đã xác nhận', color: 'blue' },
@@ -110,7 +108,6 @@ export const enumData = {
     CANCELLED: { code: 'CANCELLED', name: 'Đã hủy', color: 'red' },
   },
 
-  // Phương thức thanh toán
   PAYMENT_METHOD: {
     VNPAY: { code: 'VNPAY', name: 'VNPAY' },
     MOMO: { code: 'MOMO', name: 'MOMO' },
@@ -119,14 +116,12 @@ export const enumData = {
     CREDIT_CARD: { code: 'CREDIT_CARD', name: 'Thẻ tín dụng' },
   },
 
-  // Trạng thái review
   REVIEW_STATUS: {
     PENDING: { code: 'PENDING', name: 'Chờ duyệt', color: 'yellow' },
     APPROVED: { code: 'APPROVED', name: 'Đã duyệt', color: 'green' },
     REJECTED: { code: 'REJECTED', name: 'Từ chối', color: 'red' },
   },
 
-  // Trạng thái blog
   BLOG_STATUS: {
     NEW: { code: 'NEW', name: 'Mới tạo' },
     DRAFT: { code: 'DRAFT', name: 'Bản nháp' },
@@ -141,7 +136,6 @@ export const enumData = {
     REJECTED: { code: 'REJECTED', name: 'Từ chối', color: 'red' },
   },
 
-  // Loại notification
   NOTIFICATION_TYPE: {
     BOOKING: { code: 'BOOKING', name: 'Đặt chỗ' },
     PAYMENT: { code: 'PAYMENT', name: 'Thanh toán' },
@@ -150,7 +144,6 @@ export const enumData = {
     RECOMMENDATION: { code: 'RECOMMENDATION', name: 'Gợi ý' },
   },
 
-  // Độ ưu tiên notification
   NOTIFICATION_PRIORITY: {
     LOW: { code: 'LOW', name: 'Thấp' },
     MEDIUM: { code: 'MEDIUM', name: 'Trung bình' },
@@ -183,6 +176,7 @@ export const enumData = {
     CHILD: { code: 'CHILD', name: 'Trẻ em' },
     INFANT: { code: 'INFANT', name: 'Em bé' },
     VIP: { code: 'VIP', name: 'VIP' },
+  },
   BANNER_STATUS: {
     FRESHLY_CREATED: { code: 'FRESHLY_CREATED', name: 'Mới tạo' },
     IN_EFFECT: { code: 'IN_EFFECT', name: 'Đang hiệu lực' },

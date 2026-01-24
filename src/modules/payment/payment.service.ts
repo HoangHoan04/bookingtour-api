@@ -8,12 +8,12 @@ import * as crypto from 'crypto';
 import moment from 'moment-timezone';
 import * as qs from 'qs';
 import { enumData } from 'src/common/constants';
-import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
+import { IdDto } from 'src/dto';
 import { CodeType } from 'src/helpers/generateCode.config';
+import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
+import { BookingRepository, PaymentRepository } from 'src/repositories';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
-import { BookingRepository, PaymentRepository } from 'src/repositories';
-import { IdDto } from 'src/dto';
 
 @Injectable()
 export class PaymentService {
@@ -158,7 +158,7 @@ export class PaymentService {
     return { RspCode: '00', Message: 'Confirm Success' };
   }
 
-  async handleVnpayReturn(query: any) {
+  handleVnpayReturn(query: any) {
     return {
       success: query.vnp_ResponseCode === '00',
       bookingId: query.vnp_TxnRef?.split('$')[0],

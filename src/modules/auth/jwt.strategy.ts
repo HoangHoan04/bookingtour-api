@@ -40,10 +40,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Tài khoản đã bị ngưng hoạt động');
     }
 
-    // Lấy danh sách roles
     const roles = user.userRoles?.map((ur) => ur.role) || [];
-
-    // Lấy danh sách permissions từ tất cả các roles (merge từ JSON)
     const permissionSet = new Set<string>();
     user.userRoles?.forEach((ur) => {
       if (ur.role?.permissions && Array.isArray(ur.role.permissions)) {

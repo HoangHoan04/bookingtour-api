@@ -27,11 +27,8 @@ export class NotificationService {
     private userRepo: UserRepository,
   ) {}
 
-  // Tạo notification cho user (dùng cho admin gửi cho customer)
   async createNotify(senderId: string, data: NotificationCreateDto) {
     const whereCon: any = { isDeleted: false, isActive: true };
-
-    // Nếu có danh sách user cụ thể
     if (data.lstUserId && data.lstUserId.length > 0) {
       whereCon.id = In(data.lstUserId);
     }
@@ -76,7 +73,6 @@ export class NotificationService {
     };
   }
 
-  // Tạo notification cho admin (hệ thống gửi cho admin)
   async createNotifyAdmin(
     senderId: string,
     data: NotificationCreateAdminDto,
@@ -125,7 +121,6 @@ export class NotificationService {
     };
   }
 
-  // Đánh dấu tất cả là đã đọc
   async updateSeenAll(user: UserDto) {
     if (!user.customerId) {
       throw new NotFoundException('Không tìm thấy thông tin khách hàng');
@@ -143,7 +138,6 @@ export class NotificationService {
     };
   }
 
-  // Đánh dấu danh sách notification là đã đọc
   async updateSeenListNotify(user: UserDto, data: MarkReadListDto) {
     if (!user.customerId) {
       throw new NotFoundException('Không tìm thấy thông tin khách hàng');
@@ -170,7 +164,6 @@ export class NotificationService {
     };
   }
 
-  // Đếm số notification chưa đọc
   async findCountNotiNotSeen(user: UserDto) {
     if (!user || !user.customerId) {
       return { countAll: 0 };
@@ -187,7 +180,6 @@ export class NotificationService {
     return { countAll: count };
   }
 
-  // Lấy danh sách notification với phân trang và filter
   async pagination(
     user: UserDto,
     { where, skip, take }: PaginationDto,
@@ -204,28 +196,24 @@ export class NotificationService {
       })
       .andWhere('notification.isDeleted = :isDeleted', { isDeleted: false });
 
-    // Filter theo loại thông báo
     if (where?.notificationType) {
       queryBuilder.andWhere('notification.notificationType = :type', {
         type: where.notificationType,
       });
     }
 
-    // Filter theo độ ưu tiên
     if (where?.priority) {
       queryBuilder.andWhere('notification.priority = :priority', {
         priority: where.priority,
       });
     }
 
-    // Filter theo trạng thái đã đọc/chưa đọc
     if (where?.isRead !== undefined) {
       queryBuilder.andWhere('notification.isRead = :isRead', {
         isRead: where.isRead,
       });
     }
 
-    // Filter theo relatedEntity
     if (where?.relatedEntity) {
       queryBuilder.andWhere('notification.relatedEntity = :relatedEntity', {
         relatedEntity: where.relatedEntity,
@@ -244,7 +232,6 @@ export class NotificationService {
     };
   }
 
-  // Lấy chi tiết notification
   async getNotificationDetail(userId: string, notificationId: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
@@ -270,7 +257,6 @@ export class NotificationService {
       throw new NotFoundException('Không tìm thấy thông báo');
     }
 
-    // Tự động đánh dấu là đã đọc khi xem chi tiết
     if (!notification.isRead) {
       notification.isRead = true;
       notification.readAt = new Date();
@@ -283,7 +269,6 @@ export class NotificationService {
     };
   }
 
-  // Cập nhật notification (cho admin)
   async updateNotification(
     userId: string,
     notificationId: string,
@@ -297,7 +282,6 @@ export class NotificationService {
       throw new NotFoundException('Không tìm thấy thông báo');
     }
 
-    // Update các trường
     if (data.title) notification.title = data.title;
     if (data.content) notification.content = data.content;
     if (data.notificationType)
@@ -318,7 +302,6 @@ export class NotificationService {
     };
   }
 
-  // Lấy setting notification
   async getSettings(userId: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
@@ -333,7 +316,6 @@ export class NotificationService {
       where: { customerId: user.customerId },
     });
 
-    // Nếu chưa có setting thì tạo mới với giá trị mặc định
     if (!setting) {
       setting = new NotificationSettingEntity();
       setting.customerId = user.customerId;
@@ -352,7 +334,6 @@ export class NotificationService {
     };
   }
 
-  // Cập nhật setting notification
   async updateSettings(
     userId: string,
     data: UpdateNotificationSettingDto,
@@ -370,14 +351,12 @@ export class NotificationService {
       where: { customerId: user.customerId },
     });
 
-    // Nếu chưa có setting thì tạo mới
     if (!setting) {
       setting = new NotificationSettingEntity();
       setting.customerId = user.customerId;
       setting.createdBy = userId;
     }
 
-    // Update các trường nếu có trong data
     if (data.emailNotifications !== undefined) {
       setting.emailNotifications = data.emailNotifications;
     }
