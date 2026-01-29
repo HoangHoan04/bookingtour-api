@@ -197,7 +197,6 @@ export const enumData = {
     TOUR: { code: 'TOUR', name: 'Tour' },
     BOOKING: { code: 'BOOKING', name: 'Đặt tour' },
     NEWS: { code: 'NEWS', name: 'Tin tức' },
-    FAQ: { code: 'FAQ', name: 'Câu hỏi thường gặp' },
   },
 
   TRAVEL_TYPE: {
