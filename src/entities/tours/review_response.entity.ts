@@ -9,6 +9,7 @@ export class ReviewResponseEntity extends BaseEntity {
   @ApiProperty({ description: 'ID bài đánh giá' })
   @Column({ type: 'uuid', nullable: false })
   reviewId: string;
+
   @ManyToOne(() => ReviewEntity, (review) => review.responses)
   @JoinColumn({ name: 'reviewId' })
   review: ReviewEntity;

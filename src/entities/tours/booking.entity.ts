@@ -9,7 +9,7 @@ import { ReviewEntity } from './review.entity';
 export class BookingEntity extends BaseEntity {
   @ApiProperty({ description: 'Mã đơn đặt' })
   @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
-  code: string;
+  code?: string;
 
   @ApiProperty({ description: 'Tên liên hệ' })
   @Column({ type: 'varchar', length: 100, nullable: false })

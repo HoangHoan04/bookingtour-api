@@ -1,8 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmExModule } from 'src/typeorm';
-import { ActionLogModule } from '../actionLog/actionLog.module';
-import { FileArchivalModule } from '../fileArchival/fileArchival.module';
-import { BookingService } from './booking.service';
 import {
   BookingDetailRepository,
   BookingRepository,
@@ -10,8 +6,11 @@ import {
   TourPriceRepository,
   TourRepository,
 } from 'src/repositories/tour.repository';
-import { PaymentModule } from '../payment/payment.module';
+import { TypeOrmExModule } from 'src/typeorm';
+import { ActionLogModule } from '../actionLog/actionLog.module';
 import { FileArchivalModule } from '../file-archival/file-archival.module';
+import { PaymentModule } from '../payment/payment.module';
+import { BookingService } from './booking.service';
 
 @Module({
   imports: [
