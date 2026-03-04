@@ -3,9 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { enumData } from 'src/common/constants';
 import { PaginationDto, UserDto } from 'src/dto';
 import { BookingDetailEntity, BookingEntity } from 'src/entities';
+import { CodeType } from 'src/helpers/generateCode.config';
+import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
 import {
   BookingDetailRepository,
   BookingRepository,
@@ -13,14 +16,11 @@ import {
   TourPriceRepository,
   TourRepository,
 } from 'src/repositories';
-import { FindOptionsWhere, ILike, Transaction } from 'typeorm';
+import { FindOptionsWhere, ILike } from 'typeorm';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
-import { CreateBookingDto, UpdateBookingDto } from './dto';
-import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
-import { CodeType } from 'src/helpers/generateCode.config';
-import dayjs from 'dayjs';
 import { PaymentService } from '../payment/payment.service';
+import { CreateBookingDto, UpdateBookingDto } from './dto';
 
 @Injectable()
 export class BookingService {

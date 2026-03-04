@@ -14,7 +14,7 @@ export class TourItinerarieEntity extends BaseEntity {
 
   @ApiProperty({ description: 'Mã lịch trình tour' })
   @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
-  code: string;
+  code?: string;
 
   @ApiProperty({ description: 'Tiêu đề lịch trình' })
   @Column({ type: 'varchar', length: 255, nullable: false })
