@@ -18,7 +18,7 @@ export class UserBlogController {
   }
 
   @ApiOperation({ summary: 'Lấy chi tiết bài viết theo slug' })
-  @Post('detail')
+  @Post('find-by-slug')
   async getBlogBySlug(@Body() body: { slug: string }) {
     return await this.service.getPublishedBlogBySlug(body.slug);
   }
@@ -77,6 +77,14 @@ export class UserBlogController {
   @Post('like')
   async likeBlog(@Body() body: IdDto, @CurrentUser() user: UserDto) {
     return await this.service.likeBlog(body.id, user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Bỏ thích bài viết' })
+  @Post('unlike')
+  async unlikeBlog(@Body() body: IdDto, @CurrentUser() user: UserDto) {
+    return await this.service.unlikeBlog(body.id, user);
   }
 
   // ==================== BLOG COMMENTS ====================

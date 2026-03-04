@@ -24,7 +24,6 @@ export class NewsletterService {
   ): Promise<{ success: boolean; message: string }> {
     const { email } = dto;
 
-    // Kiểm tra email đã tồn tại chưa
     const existing = await this.newsletterRepo.findOne({
       where: { email, isDeleted: false },
     });
@@ -33,15 +32,12 @@ export class NewsletterService {
       if (existing.isActive) {
         throw new ConflictException('Email này đã đăng ký nhận tin từ trước');
       } else {
-        // Kích hoạt lại nếu đã hủy
         existing.isActive = true;
         existing.subscribedAt = new Date();
         existing.unsubscribedAt = null;
         existing.updatedAt = new Date();
         existing.updatedBy = 'system';
         await this.newsletterRepo.save(existing);
-
-        // Gửi email chào mừng khi kích hoạt lại
         await this.emailService.sendNewsletterWelcome(email);
 
         return {
@@ -51,7 +47,6 @@ export class NewsletterService {
       }
     }
 
-    // Tạo mới
     const newsletter = new NewsletterEntity();
     newsletter.id = uuidv4();
     newsletter.email = email;
@@ -62,8 +57,6 @@ export class NewsletterService {
     newsletter.isDeleted = false;
 
     await this.newsletterRepo.save(newsletter);
-
-    // Gửi email chào mừng cho người đăng ký mới
     await this.emailService.sendNewsletterWelcome(email);
 
     return {

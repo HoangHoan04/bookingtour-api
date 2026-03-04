@@ -23,8 +23,6 @@ export class NewsService {
     private readonly fileArchivalRepo: FileArchivalRepository,
   ) {}
 
-  // ==================== EXISTING METHODS ====================
-
   async findById(id: string) {
     const result = await this.repo.findOne({
       where: { id },
@@ -280,8 +278,6 @@ export class NewsService {
     });
   }
 
-  // ==================== NEW USER-FACING METHODS ====================
-
   /**
    * Lấy danh sách tin tức công khai (cho web user)
    * Chỉ trả về tin tức đang hiển thị, chưa bị xóa, và đang trong thời gian hiệu lực
@@ -293,12 +289,10 @@ export class NewsService {
       isVisible: true,
     };
 
-    // Lọc theo loại tin tức
     if (data.where.type) {
       whereCon.type = data.where.type;
     }
 
-    // Tìm kiếm theo tiêu đề
     if (data.where.titleVI) {
       whereCon.titleVI = ILike(`%${data.where.titleVI}%`);
     }
@@ -314,12 +308,11 @@ export class NewsService {
       skip: data.skip,
       take: data.take,
       order: {
-        rank: 'ASC', // Sắp xếp theo rank trước (tin nổi bật)
+        rank: 'ASC',
         createdAt: 'DESC',
       },
     });
 
-    // Lọc theo thời gian hiệu lực
     const validNews = news.filter((item) => {
       const isAfterStart =
         !item.effectiveStartDate ||
