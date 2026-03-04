@@ -918,6 +918,8 @@ export class BlogService {
       },
     });
 
+    console.log(blog);
+
     if (!blog) {
       throw new NotFoundException('Không tìm thấy bài viết');
     }
@@ -1132,6 +1134,48 @@ export class BlogService {
       message: 'Đã thích bài viết',
       data: {
         likeCount: blog.likeCount + 1,
+      },
+    };
+  }
+
+  /**
+   * Unlike bài viết
+   */
+  async unlikeBlog(blogId: string, user: UserDto) {
+    const blog = await this.repo.findOne({
+      where: {
+        id: blogId,
+        status: enumData.BLOG_STATUS.PUBLISHED.code,
+        isDeleted: false,
+      },
+    });
+
+    if (!blog) {
+      throw new NotFoundException('Không tìm thấy bài viết');
+    }
+
+    await this.repo.update(blogId, {
+      likeCount: blog.likeCount - 1,
+    });
+
+    const actionLogDto: ActionLogCreateDto = {
+      functionId: blog.id,
+      functionType: 'Blog',
+      type: 'LIKE',
+      createdBy: user.id,
+      createdById: user.id,
+      createdByName: user.username,
+      description: `Bỏ thích bài viết: ${blog.title}`,
+      oldData: JSON.stringify({ likeCount: blog.likeCount }),
+      newData: JSON.stringify({ likeCount: blog.likeCount - 1 }),
+    };
+
+    await this.actionLogService.create(actionLogDto);
+
+    return {
+      message: 'Đã bỏ thích bài viết',
+      data: {
+        likeCount: blog.likeCount - 1,
       },
     };
   }

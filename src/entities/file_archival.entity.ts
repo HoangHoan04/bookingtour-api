@@ -31,21 +31,21 @@ export class FileArchivalEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true, comment: 'Mô tả tệp' })
   description: string;
 
-  // Avatar khách hàng
+  /** Avatar khách hàng */
   @Column({ type: 'uuid', nullable: true })
   customerId: string;
   @ManyToOne(() => CustomerEntity, (p) => p.avatar)
   @JoinColumn({ name: 'customerId' })
   customer: Promise<CustomerEntity>;
 
-  // Avatar hướng dẫn viên du lịch
+  /** Avatar hướng dẫn viên du lịch */
   @Column({ type: 'uuid', nullable: true })
   tourGuideId: string;
   @ManyToOne(() => TourGuideEntity, (p) => p.avatar)
   @JoinColumn({ name: 'tourGuideId' })
   tourGuide: Promise<TourGuideEntity>;
 
-  // Ảnh đánh giá review
+  /** Ảnh đánh giá review */
   @Column({ type: 'uuid', nullable: true })
   reviewId: string;
   @ManyToOne(() => ReviewEntity, (p) => p.images)

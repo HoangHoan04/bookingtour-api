@@ -2,7 +2,6 @@ import {
   BlogCommentEntity,
   BlogPostEntity,
   DestinationEntity,
-  FaqEntity,
   TourDestinationEntity,
 } from 'src/entities';
 import { BannerEntity } from 'src/entities/blogs/banner.entity';
@@ -16,9 +15,6 @@ export class BlogPostRepository extends Repository<BlogPostEntity> {}
 
 @CustomRepository(BlogCommentEntity)
 export class BlogCommentRepository extends Repository<BlogCommentEntity> {}
-
-@CustomRepository(FaqEntity)
-export class FaqRepository extends Repository<FaqEntity> {}
 
 @CustomRepository(DestinationEntity)
 export class DestinationRepository extends Repository<DestinationEntity> {}

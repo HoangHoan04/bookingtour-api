@@ -14,8 +14,6 @@ import { AdminCustomerController } from '../customer/controller/admin-customer.c
 import { CustomerModule } from '../customer/customer.module';
 import { AdminDestinationController } from '../destination/controller/admin-destination.controller';
 import { DestinationModule } from '../destination/destination.module';
-import { AdminFaqController } from '../faq/controller/admin-faq.controller';
-import { FaqModule } from '../faq/faq.module';
 import { AdminNewsController } from '../news/controllers/admin-news.controller';
 import { NewsModule } from '../news/new.module';
 import { AdminNotificationController } from '../notification/controller/admin-notification.controller';
@@ -54,7 +52,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     AdminBannerController,
     AdminNewsController,
     AdminDestinationController,
-    AdminFaqController,
     AdminTourGuideController,
     AdminTravelHintController,
   ],
@@ -74,7 +71,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     BannerModule,
     NewsModule,
     BlogModule,
-    FaqModule,
     DestinationModule,
     TourGuideModule,
     TravelHintModule,

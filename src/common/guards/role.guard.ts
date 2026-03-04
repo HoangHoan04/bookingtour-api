@@ -18,7 +18,7 @@ export class RoleGuard implements CanActivate {
     );
 
     if (!requiredRoles || requiredRoles.length === 0) {
-      return true; // Không có yêu cầu role thì cho phép
+      return true;
     }
 
     const request = context.switchToHttp().getRequest();
@@ -28,15 +28,12 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException('Người dùng chưa đăng nhập');
     }
 
-    // Admin có tất cả quyền
     if (user.isAdmin) {
       return true;
     }
 
-    // Lấy danh sách role codes của user
     const userRoles: string[] = user.roles?.map((role) => role.code) || [];
 
-    // Kiểm tra xem user có ít nhất một trong các roles yêu cầu không
     const hasRequiredRole = requiredRoles.some((role) =>
       userRoles.includes(role),
     );
