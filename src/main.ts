@@ -15,7 +15,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.setGlobalPrefix('api');
+  // Set global prefix 'api' but exclude health check endpoint
+  app.setGlobalPrefix('api', {
+    exclude: ['health', '/'],
+  });
 
   // CORS Configuration for multi-subdomain support
   app.enableCors({
@@ -48,13 +51,23 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api-docs', app, document);
 
-  const port = configService.get('PORT') || 4300;
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+  // Railway provides PORT via environment variable
+  const port = parseInt(
+    process.env.PORT || configService.get('PORT') || '4300',
+    10,
+  );
+  const host = '0.0.0.0'; // Always bind to 0.0.0.0 in production/Railway
 
   await app.listen(port, host);
-  console.log(`🚀 Application is running on: http://${host}:${port}`);
-  console.log(`📚 Swagger is running on: http://${host}:${port}/api-docs`);
-  console.log(`💚 Health check: http://${host}:${port}/health`);
+
+  console.log('='.repeat(50));
+  console.log(`🚀 Application started successfully!`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 Listening on: ${host}:${port}`);
+  console.log(`💚 Health Check: http://${host}:${port}/health`);
+  console.log(`📚 API Docs: http://${host}:${port}/api-docs`);
+  console.log(`🔗 API Endpoints: http://${host}:${port}/api/*`);
+  console.log('='.repeat(50));
 }
 
 // Bootstrap function cho Vercel serverless
@@ -66,7 +79,10 @@ async function bootstrapServer() {
       new ExpressAdapter(expressApp),
     );
 
-    app.setGlobalPrefix('api');
+    // Set global prefix 'api' but exclude health check endpoint
+    app.setGlobalPrefix('api', {
+      exclude: ['health', '/'],
+    });
 
     // CORS Configuration for multi-subdomain support
     app.enableCors({
