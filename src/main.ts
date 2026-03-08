@@ -16,7 +16,24 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-  app.enableCors();
+
+  // CORS Configuration for multi-subdomain support
+  app.enableCors({
+    origin: [
+      'https://himlamtourist.xyz',
+      'https://admin.himlamtourist.xyz',
+      'https://dev.himlamtourist.xyz',
+      'https://dev-admin.himlamtourist.xyz',
+      'http://localhost:3000',
+      'http://localhost:3350',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  });
+
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
@@ -31,10 +48,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api-docs', app, document);
 
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 Swagger is running on: http://localhost:${port}/api-docs`);
+  const port = configService.get('PORT') || 4300;
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+  await app.listen(port, host);
+  console.log(`🚀 Application is running on: http://${host}:${port}`);
+  console.log(`📚 Swagger is running on: http://${host}:${port}/api-docs`);
+  console.log(`💚 Health check: http://${host}:${port}/health`);
 }
 
 // Bootstrap function cho Vercel serverless
@@ -47,7 +67,23 @@ async function bootstrapServer() {
     );
 
     app.setGlobalPrefix('api');
-    app.enableCors();
+
+    // CORS Configuration for multi-subdomain support
+    app.enableCors({
+      origin: [
+        'https://himlamtourist.xyz',
+        'https://admin.himlamtourist.xyz',
+        'https://dev.himlamtourist.xyz',
+        'https://dev-admin.himlamtourist.xyz',
+        'http://localhost:3000',
+        'http://localhost:3350',
+        'http://localhost:5173',
+        'http://localhost:5174',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    });
     app.use(json({ limit: '10mb' }));
     app.use(urlencoded({ extended: true, limit: '10mb' }));
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
