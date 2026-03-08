@@ -30,7 +30,9 @@
     "migration:run:dev": "yarn typeorm:dev migration:run",
     "migration:run:prod": "yarn typeorm:prod migration:run",
     "migration:revert:dev": "yarn typeorm:dev migration:revert",
-    "migration:revert:prod": "yarn typeorm:prod migration:revert"
+    "migration:revert:prod": "yarn typeorm:prod migration:revert",
+    "typeorm": "ts-node ./node_modules/typeorm/cli -d ./src/typeorm/typeorm.config.ts",
+    "test:db": "ts-node src/database/test-connection.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
