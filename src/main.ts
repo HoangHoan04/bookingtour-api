@@ -15,8 +15,28 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.setGlobalPrefix('api');
-  app.enableCors();
+  // Set global prefix 'api' but exclude health check endpoint
+  app.setGlobalPrefix('api', {
+    exclude: ['health', '/'],
+  });
+
+  // CORS Configuration for multi-subdomain support
+  app.enableCors({
+    origin: [
+      'https://himlamtourist.xyz',
+      'https://admin.himlamtourist.xyz',
+      'https://dev.himlamtourist.xyz',
+      'https://dev-admin.himlamtourist.xyz',
+      'http://localhost:3000',
+      'http://localhost:3350',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  });
+
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
@@ -31,10 +51,23 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api-docs', app, document);
 
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 Swagger is running on: http://localhost:${port}/api-docs`);
+  // Railway provides PORT via environment variable
+  const port = parseInt(
+    process.env.PORT || configService.get('PORT') || '4300',
+    10,
+  );
+  const host = '0.0.0.0'; // Always bind to 0.0.0.0 in production/Railway
+
+  await app.listen(port, host);
+
+  console.log('='.repeat(50));
+  console.log(`🚀 Application started successfully!`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 Listening on: ${host}:${port}`);
+  console.log(`💚 Health Check: http://${host}:${port}/health`);
+  console.log(`📚 API Docs: http://${host}:${port}/api-docs`);
+  console.log(`🔗 API Endpoints: http://${host}:${port}/api/*`);
+  console.log('='.repeat(50));
 }
 
 // Bootstrap function cho Vercel serverless
@@ -46,8 +79,27 @@ async function bootstrapServer() {
       new ExpressAdapter(expressApp),
     );
 
-    app.setGlobalPrefix('api');
-    app.enableCors();
+    // Set global prefix 'api' but exclude health check endpoint
+    app.setGlobalPrefix('api', {
+      exclude: ['health', '/'],
+    });
+
+    // CORS Configuration for multi-subdomain support
+    app.enableCors({
+      origin: [
+        'https://himlamtourist.xyz',
+        'https://admin.himlamtourist.xyz',
+        'https://dev.himlamtourist.xyz',
+        'https://dev-admin.himlamtourist.xyz',
+        'http://localhost:3000',
+        'http://localhost:3350',
+        'http://localhost:5173',
+        'http://localhost:5174',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    });
     app.use(json({ limit: '10mb' }));
     app.use(urlencoded({ extended: true, limit: '10mb' }));
     app.useGlobalPipes(new ValidationPipe({ transform: true }));

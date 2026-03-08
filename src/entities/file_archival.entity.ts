@@ -4,7 +4,7 @@ import { BaseEntity } from './base.entity';
 import { BlogPostEntity, DestinationEntity } from './blogs';
 import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
-import { TravelHintEntity } from './blogs/travel-hint.entity';
+import { TravelHintEntity } from './blogs/travel_hint.entity';
 import { ReviewEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
 import { TourGuideEntity } from './user/tour_guide.entity';

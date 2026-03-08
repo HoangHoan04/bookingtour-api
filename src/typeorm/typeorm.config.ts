@@ -1,14 +1,33 @@
-import 'dotenv/config';
+// Only load dotenv in development/local environment
+// In production (Railway, K8s, Docker), env vars are already set by the platform
+
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // Dynamic require to avoid bundling in production
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const dotenv = require('dotenv');
+    const path = require('path');
+
+    // Tự động load file môi trường dựa vào NODE_ENV
+    const envFile =
+      process.env.NODE_ENV === 'development' ? '.env.dev' : '.env';
+    const envPath = path.resolve(process.cwd(), envFile);
+
+    dotenv.config({ path: envPath });
+    console.log(`✅ Loaded environment from: ${envFile}`);
+  } catch (error) {
+    // dotenv not available in production build, which is fine
+    console.log('dotenv not loaded (production environment)');
+  }
+}
+
 import { DataSource } from 'typeorm';
 
 // Check if SSL is needed (Neon, Supabase or cloud databases)
 const host = process.env.TYPEORM_HOST || '';
 const port = parseInt(process.env.TYPEORM_PORT ?? '5432', 10);
 const isCloud =
-  process.env.DATABASE_URL ||
-  host.includes('neon.tech') ||
-  host.includes('supabase') ||
-  port === 6543;
+  process.env.DATABASE_URL || host.includes('supabase') || port === 6543;
 
 export const dataSource = new DataSource({
   type: 'postgres',

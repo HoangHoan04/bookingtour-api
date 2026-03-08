@@ -13,7 +13,7 @@ data:
   TYPEORM_PORT: '6543'
   TYPEORM_USERNAME: 'postgres.wttdlqsclulqeimazkvw'
   TYPEORM_PASSWORD: 'OLBKeQiDaeTTPsEd'
-  TYPEORM_DATABASE: 'postgres'
+  TYPEORM_DATABASE: 'bookingtour-db-prod'
   TYPEORM_LOGGING: 'false'
 
   JWT_EXPIRY: '10h'

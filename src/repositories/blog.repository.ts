@@ -6,7 +6,7 @@ import {
 } from 'src/entities';
 import { BannerEntity } from 'src/entities/blogs/banner.entity';
 import { NewsEntity } from 'src/entities/blogs/new.entity';
-import { TravelHintEntity } from 'src/entities/blogs/travel-hint.entity';
+import { TravelHintEntity } from 'src/entities/blogs/travel_hint.entity';
 import { CustomRepository } from 'src/typeorm';
 import { Repository } from 'typeorm';
 
