@@ -204,6 +204,23 @@ curl https://your-app.railway.app/api
 - Reduce build size
 - Optimize dependencies
 
+### Issue 5: Cannot find module 'dotenv/config' ⚠️
+
+**Error:**
+
+```
+Error: Cannot find module 'dotenv/config'
+  at Object.<anonymous> (/app/dist/typeorm/typeorm.config.js:4:1)
+```
+
+**Nguyên nhân:** File TypeORM config import `dotenv/config` nhưng trong production Docker build với `--production` flag, dotenv có thể không available.
+
+**Solution:** ✅ ĐÃ FIX!
+
+- File `src/typeorm/typeorm.config.ts` đã được update để chỉ load dotenv trong development
+- Trong production (Railway), environment variables đã được set sẵn, không cần .env file
+- Nếu vẫn gặp lỗi, rebuild code mới nhất: `git pull && git push`
+
 ---
 
 ## 📊 Railway vs Other Platforms
