@@ -50,6 +50,13 @@ const modules = Object.values(allModules);
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
+      // Tự động load file môi trường dựa vào NODE_ENV
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.prod'
+          : process.env.NODE_ENV === 'development'
+            ? '.env.dev'
+            : '.env',
     }),
   ],
   controllers: [AppController],

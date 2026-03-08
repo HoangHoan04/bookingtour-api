@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { enumData } from 'src/common/constants';
 import { PaginationDto, UserDto } from 'src/dto';
-import { TravelHintEntity } from 'src/entities/blogs/travel-hint.entity';
+import { TravelHintEntity } from 'src/entities/blogs/travel_hint.entity';
 import { transformKeys } from 'src/helpers';
 import { FileArchivalRepository } from 'src/repositories';
 import { TravelHintRepository } from 'src/repositories/blog.repository';

@@ -5,7 +5,16 @@ if (process.env.NODE_ENV !== 'production') {
   try {
     // Dynamic require to avoid bundling in production
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('dotenv/config');
+    const dotenv = require('dotenv');
+    const path = require('path');
+
+    // Tự động load file môi trường dựa vào NODE_ENV
+    const envFile =
+      process.env.NODE_ENV === 'development' ? '.env.dev' : '.env';
+    const envPath = path.resolve(process.cwd(), envFile);
+
+    dotenv.config({ path: envPath });
+    console.log(`✅ Loaded environment from: ${envFile}`);
   } catch (error) {
     // dotenv not available in production build, which is fine
     console.log('dotenv not loaded (production environment)');
