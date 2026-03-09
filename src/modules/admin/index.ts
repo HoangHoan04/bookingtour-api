@@ -20,8 +20,6 @@ import { AdminNotificationController } from '../notification/controller/admin-no
 import { NotificationModule } from '../notification/notification.module';
 import { RoleController } from '../role/role.controller';
 import { RoleModule } from '../role/role.module';
-import { AdminTourDetailController } from '../tour-detail/controller/admin-tour-detail.controller';
-import { TourDetailModule } from '../tour-detail/tour-detail.module';
 import { AdminTourGuideController } from '../tour-guide/controllers/admin-tour-guide.controller';
 import { TourGuideModule } from '../tour-guide/tour-guide.module';
 import { AdminTourItinerariesController } from '../tour-itineraries/controller/admin-tour-itineraries.controller';
@@ -47,7 +45,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     AdminNotificationController,
     AdminTourController,
     AdminTourItinerariesController,
-    AdminTourDetailController,
     AdminTourPriceController,
     AdminBannerController,
     AdminNewsController,
@@ -67,7 +64,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     TourModule,
     TourPriceModule,
     TourItinerariesModule,
-    TourDetailModule,
     BannerModule,
     NewsModule,
     BlogModule,
