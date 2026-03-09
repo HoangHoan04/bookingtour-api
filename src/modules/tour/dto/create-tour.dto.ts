@@ -1,23 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { enumData } from 'src/common/constants';
 import { FileDto } from 'src/dto';
+import { CreateTourDetailDto } from './create-tour-detail.dto';
 
 export class CreateTourDto {
-  @ApiProperty({ description: 'Mã tour' })
-  @IsOptional()
-  @IsString()
-  code?: string;
-
   @ApiProperty({ description: 'Tiêu đề tour' })
   @IsString()
   @IsNotEmpty()
   title: string;
-
-  @ApiProperty({ description: 'Slug tour' })
-  @IsString()
-  @IsNotEmpty()
-  slug: string;
 
   @ApiProperty({ description: 'Địa điểm' })
   @IsString()
@@ -66,11 +64,22 @@ export class CreateTourDto {
     description: 'Trạng thái tour',
     default: enumData.TOUR_STATUS.ACTIVE.code,
   })
-  @IsString()
+  @IsOptional()
   status?: string;
 
   @ApiProperty({ description: 'Hình ảnh tour' })
   @IsOptional()
   @IsString()
   images?: FileDto[];
+
+  @ApiProperty({
+    description: 'Danh sách chi tiết tour (các chuyến đi cụ thể)',
+    type: [CreateTourDetailDto],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateTourDetailDto)
+  tourDetails?: CreateTourDetailDto[];
 }

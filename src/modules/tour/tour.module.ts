@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import {
+  BookingRepository,
+  ReviewRepository,
   TourDetailRepository,
-  TourItinerarieRepository,
-  TourPriceRepository,
   TourRepository,
 } from 'src/repositories';
 import { TypeOrmExModule } from 'src/typeorm';
@@ -15,8 +15,8 @@ import { TourService } from './tour.service';
     TypeOrmExModule.forCustomRepository([
       TourRepository,
       TourDetailRepository,
-      TourPriceRepository,
-      TourItinerarieRepository,
+      ReviewRepository,
+      BookingRepository,
     ]),
     ActionLogModule,
     FileArchivalModule,
