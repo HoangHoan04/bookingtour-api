@@ -6,6 +6,8 @@ import { BannerModule } from '../banner/banner.module';
 import { UserBannerController } from '../banner/controllers/user-banner.controller';
 import { BlogModule } from '../blog/blog.module';
 import { UserBlogController } from '../blog/controller/user-blog.controller';
+import { BookingModule } from '../booking/booking.module';
+import { UserBookingController } from '../booking/controller/user-booking.controller';
 import { PREFIX_MODULE } from '../config-module';
 import { UserCustomerController } from '../customer/controller/user-customer.controller';
 import { CustomerModule } from '../customer/customer.module';
@@ -17,17 +19,13 @@ import { UserNewsletterController } from '../newsletter/newsletter.controller';
 import { NewsletterModule } from '../newsletter/newsletter.module';
 import { UserNotificationController } from '../notification/controller/user-notification.controller';
 import { NotificationModule } from '../notification/notification.module';
-import { UserTourDetailController } from '../tour-detail/controller/user-tour-detail.controller';
-import { TourDetailModule } from '../tour-detail/tour-detail.module';
+import { UserPaymentController } from '../payment/controller/user-payment.controller';
+import { PaymentModule } from '../payment/payment.module';
 import { UserTourGuideController } from '../tour-guide/controllers/user-tour-guide.controller';
 import { TourGuideModule } from '../tour-guide/tour-guide.module';
 import { UserTourItinerariesController } from '../tour-itineraries/controller/user-tour-itineraries.controller';
 import { TourItinerariesModule } from '../tour-itineraries/tour-itineraries.module';
 import { UserTourPriceController } from '../tour-price/controller/user-tour-price.controller';
-import { UserBookingController } from '../booking/controller/user-booking.controller';
-import { BookingModule } from '../booking/booking.module';
-import { UserPaymentController } from '../payment/controller/user-payment.controller';
-import { PaymentModule } from '../payment/payment.module';
 import { TourPriceModule } from '../tour-price/tour-price.module';
 import { UserTourController } from '../tour/controller/user-tour.controller';
 import { TourModule } from '../tour/tour.module';
@@ -42,7 +40,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     UserNotificationController,
     UserTourController,
     UserTourItinerariesController,
-    UserTourDetailController,
     UserTourPriceController,
     UserBookingController,
     UserPaymentController,
@@ -61,7 +58,6 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     TourModule,
     TourPriceModule,
     TourItinerariesModule,
-    TourDetailModule,
     BookingModule,
     PaymentModule,
     BlogModule,
