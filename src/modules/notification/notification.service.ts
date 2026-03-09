@@ -122,8 +122,13 @@ export class NotificationService {
   }
 
   async updateSeenAll(user: UserDto) {
+    // Nếu user không có customerId (như admin), bỏ qua
     if (!user.customerId) {
-      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+      return {
+        message: 'Không có thông báo nào để đánh dấu',
+        status_code: 200,
+        affected: 0,
+      };
     }
 
     const result = await this.notificationRepo.update(
@@ -139,8 +144,13 @@ export class NotificationService {
   }
 
   async updateSeenListNotify(user: UserDto, data: MarkReadListDto) {
+    // Nếu user không có customerId (như admin), bỏ qua
     if (!user.customerId) {
-      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+      return {
+        message: 'Không có thông báo nào để đánh dấu',
+        status_code: 200,
+        affected: 0,
+      };
     }
 
     if (!data.lstId || data.lstId.length === 0) {
@@ -184,8 +194,12 @@ export class NotificationService {
     user: UserDto,
     { where, skip, take }: PaginationDto,
   ): Promise<any> {
+    // Nếu user không có customerId (như admin), trả về danh sách rỗng
     if (!user.customerId) {
-      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+      return {
+        data: [],
+        total: 0,
+      };
     }
 
     const queryBuilder = this.notificationRepo
@@ -238,8 +252,9 @@ export class NotificationService {
       select: { customerId: true },
     });
 
+    // Nếu user không có customerId (như admin), trả về not found
     if (!user?.customerId) {
-      throw new NotFoundException('Không tìm thấy thông tin khách hàng');
+      throw new NotFoundException('Không tìm thấy thông báo');
     }
 
     const notification = await this.notificationRepo.findOne({
