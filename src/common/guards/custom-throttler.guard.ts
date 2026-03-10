@@ -18,6 +18,7 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   protected async getTracker(req: Record<string, any>): Promise<string> {
     const ip = req.ips.length ? req.ips[0] : req.ip;
     const token =
