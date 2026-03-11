@@ -191,12 +191,8 @@ export class BookingService {
         bookingDetail.createdBy = user.id;
         bookingDetail.createdAt = new Date();
         await this.bookingDetailRepo.insert(bookingDetail);
-
-        // Cập nhật remainingSeats trong TourDetailEntity
         existingTourDetail.remainingSeats -= detail.quantity;
         await this.tourDetailRepository.save(existingTourDetail);
-
-        // Cập nhật bookingCount trong TourEntity
         existingTour.bookingCount += detail.quantity;
         await this.tourRepository.save(existingTour);
       }

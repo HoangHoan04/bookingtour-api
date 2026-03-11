@@ -3,6 +3,7 @@ export enum CodeType {
   PAYMENT = 'PAYMENT',
   INVOICE = 'INVOICE',
   TOUR = 'TOUR',
+  TOUR_DETAIL = 'TOUR_DETAIL',
   ORDER = 'ORDER',
   PRICE = 'PRICE',
 }
@@ -23,6 +24,10 @@ export const CODE_CONFIG = {
   [CodeType.TOUR]: {
     prefix: 'TOUR',
     sequence: 'tour_code_seq',
+  },
+  [CodeType.TOUR_DETAIL]: {
+    prefix: 'TD',
+    sequence: 'tour_detail_code_seq',
   },
   [CodeType.ORDER]: {
     prefix: 'ORD',

@@ -18,6 +18,8 @@ import { ActionLogService } from '../actionLog/actionLog.service';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { CreateTourDto } from './dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
+import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
+import { CodeType } from 'src/helpers/generateCode.config';
 
 @Injectable()
 export class TourService {
@@ -164,32 +166,6 @@ export class TourService {
     };
   }
 
-  private genCodeTour() {
-    const generate = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
-    return `TOUR${generate()}`;
-  }
-
-  private async generateUniqueCode(): Promise<string> {
-    let code: string;
-    let isUnique = false;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    while (!isUnique && attempts < maxAttempts) {
-      code = this.genCodeTour();
-      const existing = await this.repo.findOne({ where: { code } });
-      if (!existing) {
-        isUnique = true;
-        return code;
-      }
-      attempts++;
-    }
-
-    throw new BadRequestException(
-      'Không thể tạo mã tour duy nhất, vui lòng thử lại',
-    );
-  }
-
   async createTour(dto: CreateTourDto, user: UserDto) {
     // Kiểm tra title đã tồn tại
     const existingTitle = await this.repo.findOne({
@@ -199,10 +175,8 @@ export class TourService {
       throw new BadRequestException('Tiêu đề tour đã tồn tại');
     }
 
-    // Tự động generate code unique
-    const tourCode = await this.generateUniqueCode();
     const tour = new TourEntity();
-    tour.code = tourCode;
+    tour.code = await GenerateCodeHelper.generate(CodeType.TOUR, this.repo);
     tour.title = dto.title;
     tour.slug = slugify(dto.title, { lower: true, strict: true });
     tour.location = dto.location;
@@ -230,7 +204,10 @@ export class TourService {
       for (const detailDto of dto.tourDetails) {
         const tourDetail = new TourDetailEntity();
         tourDetail.tourId = savedTour.id;
-        tourDetail.code = await this.generateUniqueTourDetailCode();
+        tourDetail.code = await GenerateCodeHelper.generate(
+          CodeType.TOUR_DETAIL,
+          this.tourDetailRepo,
+        );
         tourDetail.startDay = detailDto.startDay;
         tourDetail.endDay = detailDto.endDay;
         tourDetail.startLocation = detailDto.startLocation;
@@ -277,27 +254,6 @@ export class TourService {
   /**
    * Generate mã tour detail unique
    */
-  private async generateUniqueTourDetailCode(): Promise<string> {
-    const generate = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
-    let code: string;
-    let isUnique = false;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    while (!isUnique && attempts < maxAttempts) {
-      code = `TD${generate()}`;
-      const existing = await this.tourDetailRepo.findOne({ where: { code } });
-      if (!existing) {
-        isUnique = true;
-        return code;
-      }
-      attempts++;
-    }
-
-    throw new BadRequestException(
-      'Không thể tạo mã tour detail duy nhất, vui lòng thử lại',
-    );
-  }
 
   async updateTour(dto: UpdateTourDto, user: UserDto) {
     const tour = await this.repo.findOne({
