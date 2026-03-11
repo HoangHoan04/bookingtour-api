@@ -22,3 +22,23 @@ export class SlugDto {
   @IsNotEmpty()
   slug: string;
 }
+
+export class CodeDto {
+  @ApiProperty({
+    description: 'Code của đối tượng',
+    example: 'CODE123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  code: string;
+}
+
+export class TourIdDto {
+  @ApiProperty({
+    description: 'Id của tour',
+    example: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  tourId: string;
+}
