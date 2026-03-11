@@ -32,6 +32,9 @@ import { AdminTranslationsController } from '../translations/controller/admin-tr
 import { TranslationsModule } from '../translations/translations.module';
 import { AdminTravelHintController } from '../travel-hint/controller/admin-travel-hint.controller';
 import { TravelHintModule } from '../travel-hint/travel-hint.module';
+import { Admin } from 'typeorm';
+import { AdminTourDetailController } from '../tour-detail/controller/admin-tour-detail.controller';
+import { TourDetailModule } from '../tour-detail/tour-detail.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.admin,
@@ -44,6 +47,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     AdminTranslationsController,
     AdminNotificationController,
     AdminTourController,
+    AdminTourDetailController,
     AdminTourItinerariesController,
     AdminTourPriceController,
     AdminBannerController,
@@ -59,6 +63,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     NotificationModule,
     RoleModule,
     TourModule,
+    TourDetailModule,
     TranslationsModule,
     NotificationModule,
     TourModule,
