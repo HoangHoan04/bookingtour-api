@@ -646,14 +646,15 @@ export class TourService {
         isDeleted: false,
         status: enumData.TOUR_STATUS.ACTIVE.code,
       },
-      select: ['id', 'code', 'title'],
+      select: {
+        id: true,
+        code: true,
+        title: true,
+      },
       order: { title: 'ASC' },
     });
 
-    return tours.map((tour) => ({
-      value: tour.id,
-      label: `${tour.code} - ${tour.title}`,
-    }));
+    return tours;
   }
 
   async exists(id: string): Promise<boolean> {
