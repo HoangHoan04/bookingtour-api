@@ -10,17 +10,16 @@ import { PaginationDto } from 'src/dto/pagination.dto';
 
 @ApiTags('Admin - Tour Details')
 @Controller('tour-detail')
+@UseGuards(JwtAuthGuard)
 export class AdminTourDetailController {
   constructor(private readonly tourDetailService: TourDetailService) {}
 
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Tạo chi tiết tour' })
   @Post('/create')
   create(@Body() dto: CreateTourDetailDto, @CurrentUser() user) {
     return this.tourDetailService.create(dto, user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Cập nhật chi tiết tour' })
   @Post('/update')
   update(@Body() dto, @CurrentUser() user) {
