@@ -3,8 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
 import { customAlphabet } from 'nanoid';
 import { enumData } from 'src/common/constants';
+import {
+  UploadedFileMeta,
+  assertXlsxFile,
+} from 'src/common/upload/xlsx-upload.util';
 import { PaginationDto, UserDto } from 'src/dto';
 import { UserEntity } from 'src/entities';
 import { TourGuideEntity, VerifyOtpEntity } from 'src/entities/user';
@@ -28,6 +33,7 @@ import {
   CheckPhoneEmailTourGuideDto,
   CreateTourGuideDto,
   ForgotPasswordTourGuideDto,
+  ImportTourGuideRowDto,
   SendOtpTourGuideDto,
   UpdateTourGuideAvatarDto,
   UpdateTourGuideDto,
@@ -907,6 +913,463 @@ export class TourGuideService {
     return {
       data: res,
       total,
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────
+  //  EXPORT EXCEL
+  // ──────────────────────────────────────────────────────────
+  async exportExcel(): Promise<Buffer> {
+    const tourGuides = await this.repo.find({
+      where: { isDeleted: false },
+      relations: { avatar: true },
+      order: { createdAt: 'ASC' },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'BookingTour System';
+    workbook.created = new Date();
+
+    const sheet = workbook.addWorksheet('Danh sách hướng dẫn viên', {
+      pageSetup: { fitToPage: true, orientation: 'landscape' },
+      views: [{ state: 'frozen', ySplit: 1 }],
+    });
+
+    // ── Định nghĩa các cột ──
+    const COLUMNS: {
+      header: string;
+      key: string;
+      width: number;
+    }[] = [
+      { header: 'STT', key: 'stt', width: 6 },
+      { header: 'Mã HDV', key: 'code', width: 14 },
+      { header: 'Họ tên', key: 'name', width: 28 },
+      { header: 'Giới tính', key: 'gender', width: 12 },
+      { header: 'Ngày sinh', key: 'birthday', width: 14 },
+      { header: 'Số điện thoại', key: 'phone', width: 18 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Địa chỉ', key: 'address', width: 36 },
+      { header: 'Quốc tịch', key: 'nationality', width: 14 },
+      { header: 'Số CCCD/CMND', key: 'identityCard', width: 18 },
+      { header: 'Số hộ chiếu', key: 'passportNumber', width: 18 },
+      { header: 'Số chứng chỉ', key: 'licenseNumber', width: 18 },
+      { header: 'Ngày cấp CC', key: 'licenseIssuedDate', width: 14 },
+      { header: 'Ngày hết hạn CC', key: 'licenseExpiryDate', width: 16 },
+      { header: 'Nơi cấp CC', key: 'licenseIssuedBy', width: 20 },
+      { header: 'Kinh nghiệm (năm)', key: 'yearsOfExperience', width: 18 },
+      { header: 'Lương cơ bản', key: 'baseSalary', width: 18 },
+      { header: 'Hoa hồng (%)', key: 'commissionRate', width: 14 },
+      { header: 'Số TK Ngân hàng', key: 'bankAccountNumber', width: 22 },
+      { header: 'Tên ngân hàng', key: 'bankName', width: 20 },
+      { header: 'Chủ tài khoản', key: 'bankAccountName', width: 24 },
+      { header: 'Giới thiệu ngắn', key: 'shortBio', width: 40 },
+      { header: 'Đánh giá TB', key: 'averageRating', width: 14 },
+      { header: 'Tổng đánh giá', key: 'totalReviews', width: 14 },
+      { header: 'Tour đã dẫn', key: 'totalToursCompleted', width: 14 },
+      { header: 'Sẵn sàng nhận tour', key: 'isAvailable', width: 20 },
+      { header: 'Trạng thái', key: 'status', width: 14 },
+    ];
+
+    sheet.columns = COLUMNS;
+
+    // ── Style header ──
+    const headerRow = sheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF1F4E79' },
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+        left: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+        bottom: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+        right: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+      };
+    });
+    headerRow.height = 32;
+
+    const formatDate = (d?: Date | null) =>
+      d ? new Date(d).toLocaleDateString('vi-VN') : '';
+
+    // ── Dữ liệu ──
+    tourGuides.forEach((tg, index) => {
+      const row = sheet.addRow({
+        stt: index + 1,
+        code: tg.code,
+        name: tg.name,
+        gender:
+          tg.gender === 'MALE'
+            ? 'Nam'
+            : tg.gender === 'FEMALE'
+              ? 'Nữ'
+              : (tg.gender ?? ''),
+        birthday: formatDate(tg.birthday),
+        phone: tg.phone,
+        email: tg.email,
+        address: tg.address ?? '',
+        nationality: tg.nationality ?? '',
+        identityCard: tg.identityCard ?? '',
+        passportNumber: tg.passportNumber ?? '',
+        licenseNumber: tg.licenseNumber ?? '',
+        licenseIssuedDate: formatDate(tg.licenseIssuedDate),
+        licenseExpiryDate: formatDate(tg.licenseExpiryDate),
+        licenseIssuedBy: tg.licenseIssuedBy ?? '',
+        yearsOfExperience: tg.yearsOfExperience ?? '',
+        baseSalary: tg.baseSalary ?? '',
+        commissionRate: tg.commissionRate ?? '',
+        bankAccountNumber: tg.bankAccountNumber ?? '',
+        bankName: tg.bankName ?? '',
+        bankAccountName: tg.bankAccountName ?? '',
+        shortBio: tg.shortBio ?? '',
+        averageRating: tg.averageRating ?? '',
+        totalReviews: tg.totalReviews ?? '',
+        totalToursCompleted: tg.totalToursCompleted ?? '',
+        isAvailable: tg.isAvailable ? 'Sẵn sàng' : 'Không sẵn sàng',
+        status: tg.isDeleted ? 'Đã khóa' : 'Đang hoạt động',
+      });
+
+      // Zebra striping
+      const fill: ExcelJS.Fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: index % 2 === 0 ? 'FFFFFFFF' : 'FFD9E1F2' },
+      };
+      row.eachCell((cell) => {
+        cell.fill = fill;
+        cell.alignment = { vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+          left: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+          bottom: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+          right: { style: 'thin', color: { argb: 'FFBFBFBF' } },
+        };
+      });
+      row.height = 22;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  //  IMPORT EXCEL
+  // ──────────────────────────────────────────────────────────
+  async importExcel(
+    user: UserDto,
+    fileBuffer: Buffer,
+    fileMeta?: UploadedFileMeta,
+  ): Promise<{
+    message: string;
+    total: number;
+    success: number;
+    failed: number;
+    errors: { row: number; reason: string }[];
+  }> {
+    assertXlsxFile(fileMeta);
+    const workbook = new ExcelJS.Workbook();
+    // ExcelJS typings may not accept Node's generic Buffer<T> in newer @types/node
+    await workbook.xlsx.load(Buffer.from(fileBuffer) as any);
+
+    const sheet = workbook.worksheets[0];
+    if (!sheet) {
+      throw new BadRequestException(
+        'File Excel không hợp lệ hoặc không có sheet dữ liệu',
+      );
+    }
+
+    const normalizeHeader = (s: string) =>
+      String(s ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        // remove markers like "*", "(*)", ":"...
+        .replace(/[^a-zA-Z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+
+    // ── Map header (normalized) -> column index ──
+    const HEADER_MAP: Record<string, keyof ImportTourGuideRowDto> = {
+      // Bắt buộc
+      [normalizeHeader('Họ và tên')]: 'name',
+      [normalizeHeader('Họ tên')]: 'name',
+      [normalizeHeader('Tên')]: 'name',
+      [normalizeHeader('Số điện thoại')]: 'phone',
+      [normalizeHeader('SĐT')]: 'phone',
+      [normalizeHeader('Điện thoại')]: 'phone',
+      [normalizeHeader('Phone')]: 'phone',
+      [normalizeHeader('Email')]: 'email',
+      [normalizeHeader('E-mail')]: 'email',
+      // Không bắt buộc
+      [normalizeHeader('Địa chỉ')]: 'address',
+      [normalizeHeader('Giới tính')]: 'gender',
+      [normalizeHeader('Ngày sinh')]: 'birthday',
+      [normalizeHeader('Quốc tịch')]: 'nationality',
+      [normalizeHeader('Số CCCD/CMND')]: 'identityCard',
+      [normalizeHeader('CCCD/CMND')]: 'identityCard',
+      [normalizeHeader('Số hộ chiếu')]: 'passportNumber',
+      [normalizeHeader('Số chứng chỉ')]: 'licenseNumber',
+      [normalizeHeader('Ngày cấp CC')]: 'licenseIssuedDate',
+      [normalizeHeader('Ngày hết hạn CC')]: 'licenseExpiryDate',
+      [normalizeHeader('Nơi cấp CC')]: 'licenseIssuedBy',
+      [normalizeHeader('Kinh nghiệm (năm)')]: 'yearsOfExperience',
+      [normalizeHeader('Kinh nghiệm')]: 'yearsOfExperience',
+      [normalizeHeader('Lương cơ bản')]: 'baseSalary',
+      [normalizeHeader('Hoa hồng (%)')]: 'commissionRate',
+      [normalizeHeader('Hoa hồng')]: 'commissionRate',
+      [normalizeHeader('Số TK Ngân hàng')]: 'bankAccountNumber',
+      [normalizeHeader('Số tài khoản')]: 'bankAccountNumber',
+      [normalizeHeader('Tên ngân hàng')]: 'bankName',
+      [normalizeHeader('Chủ tài khoản')]: 'bankAccountName',
+      [normalizeHeader('Giới thiệu ngắn')]: 'shortBio',
+    };
+
+    // Header có thể không nằm ở dòng 1 (file có title ở trên)
+    let headerRowIndex = 1;
+    for (let i = 1; i <= Math.min(10, sheet.rowCount); i++) {
+      const r = sheet.getRow(i);
+      const headersInRow = new Set<string>();
+      r.eachCell((cell) => {
+        const h = normalizeHeader(cell.text ?? '');
+        if (h) headersInRow.add(h);
+      });
+      const hasName = headersInRow.has('Họ tên');
+      const hasPhone = headersInRow.has('Số điện thoại');
+      const hasEmail = headersInRow.has('Email');
+      if (
+        (hasName && hasPhone) ||
+        (hasName && hasEmail) ||
+        (hasPhone && hasEmail)
+      ) {
+        headerRowIndex = i;
+        break;
+      }
+    }
+
+    const headerRow = sheet.getRow(headerRowIndex);
+    // Debug: log detected header row and headers
+    const debugHeaders: { col: number; raw: string }[] = [];
+    headerRow.eachCell((cell, colNumber) => {
+      const raw = normalizeHeader(cell.text ?? '');
+      if (raw) debugHeaders.push({ col: colNumber, raw });
+    });
+    console.log('[TourGuide.importExcel] headerRowIndex:', headerRowIndex);
+    console.log('[TourGuide.importExcel] headers:', debugHeaders);
+
+    const colIndexMap = new Map<keyof ImportTourGuideRowDto, number>();
+    headerRow.eachCell((cell, colNumber) => {
+      const header = normalizeHeader(cell.text?.trim() ?? '');
+      const field = HEADER_MAP[header];
+      if (field) colIndexMap.set(field, colNumber);
+    });
+    console.log('[TourGuide.importExcel] colIndexMap:', {
+      name: colIndexMap.get('name'),
+      phone: colIndexMap.get('phone'),
+      email: colIndexMap.get('email'),
+    });
+
+    // Không tìm được cột bắt buộc => báo rõ để user biết do header file
+    if (
+      !colIndexMap.get('name') ||
+      !colIndexMap.get('phone') ||
+      !colIndexMap.get('email')
+    ) {
+      console.warn('[TourGuide.importExcel] Missing required headers.', {
+        headerRowIndex,
+        headers: debugHeaders,
+        colIndexMap: {
+          name: colIndexMap.get('name'),
+          phone: colIndexMap.get('phone'),
+          email: colIndexMap.get('email'),
+        },
+      });
+      throw new BadRequestException(
+        'Không nhận diện được cột bắt buộc (Họ tên / Số điện thoại / Email). Vui lòng kiểm tra header file Excel.',
+      );
+    }
+
+    const getCellRaw = (
+      row: ExcelJS.Row,
+      field: keyof ImportTourGuideRowDto,
+    ) => {
+      const col = colIndexMap.get(field);
+      if (!col) return undefined;
+      const val = row.getCell(col).value;
+      if (val === null || val === undefined || val === '') return undefined;
+      return val;
+    };
+
+    const getCellText = (
+      row: ExcelJS.Row,
+      field: keyof ImportTourGuideRowDto,
+    ) => {
+      const col = colIndexMap.get(field);
+      if (!col) return undefined;
+      const text = row.getCell(col).text?.trim();
+      if (!text) return undefined;
+      return text;
+    };
+
+    const parseDate = (val: any): Date | undefined => {
+      if (!val) return undefined;
+      if (val instanceof Date) return val;
+      // ExcelJS returns dates as Date objects or serial numbers
+      if (typeof val === 'number') {
+        // Excel date serial
+        const d = new Date((val - 25569) * 86400 * 1000);
+        return isNaN(d.getTime()) ? undefined : d;
+      }
+      const d = new Date(String(val));
+      return isNaN(d.getTime()) ? undefined : d;
+    };
+
+    const parseGender = (val: any): string | undefined => {
+      if (!val) return undefined;
+      const v = String(val).trim().toLowerCase();
+      if (v === 'nam' || v === 'male') return 'MALE';
+      if (v === 'nữ' || v === 'nu' || v === 'female') return 'FEMALE';
+      return String(val).trim();
+    };
+
+    const parseNumber = (val: any): number | undefined => {
+      if (val === null || val === undefined || val === '') return undefined;
+      const n = typeof val === 'number' ? val : Number(String(val).trim());
+      return Number.isFinite(n) ? n : undefined;
+    };
+
+    const errors: { row: number; reason: string }[] = [];
+    let success = 0;
+    let failed = 0;
+    let totalDataRows = 0; // đếm theo dòng dữ liệu thực (bỏ qua dòng trống)
+
+    const dataStartRow = headerRowIndex + 1;
+    for (
+      let rowNumber = dataStartRow;
+      rowNumber <= sheet.rowCount;
+      rowNumber++
+    ) {
+      const row = sheet.getRow(rowNumber);
+
+      // Bỏ qua dòng trống
+      const isEmptyRow = !row.hasValues;
+      if (isEmptyRow) continue;
+      totalDataRows++;
+
+      const name = getCellText(row, 'name') ?? '';
+      const phone = getCellText(row, 'phone') ?? '';
+      const email = getCellText(row, 'email') ?? '';
+
+      // Validate bắt buộc
+      if (!name || !phone || !email) {
+        failed++;
+        errors.push({
+          row: rowNumber,
+          reason:
+            `Thiếu thông tin bắt buộc: ${!name ? 'Họ tên' : ''} ${!phone ? 'Số điện thoại' : ''} ${!email ? 'Email' : ''}`
+              .replace(/\s+/g, ' ')
+              .trim(),
+        });
+        continue;
+      }
+
+      // Kiểm tra trùng
+      try {
+        await this.checkPhoneAndEmail({ phone, email });
+      } catch (err: any) {
+        failed++;
+        errors.push({ row: rowNumber, reason: err.message });
+        continue;
+      }
+
+      try {
+        const tourGuide = new TourGuideEntity();
+        tourGuide.id = uuidv4();
+        tourGuide.code = this.genCodeTourGuide();
+        tourGuide.name = name;
+        tourGuide.phone = phone;
+        tourGuide.email = email;
+        tourGuide.slug = coreHelper.generateSlug(name);
+
+        // Xử lý slug trùng
+        const existing = await this.repo.findOne({
+          where: { slug: tourGuide.slug },
+        });
+        if (existing) {
+          tourGuide.slug = `${tourGuide.slug}-${customAlphabet('0123456789', 4)()}`;
+        }
+
+        tourGuide.gender = parseGender(getCellText(row, 'gender'));
+        tourGuide.birthday =
+          parseDate(getCellRaw(row, 'birthday')) ?? new Date();
+        tourGuide.address = getCellText(row, 'address') || undefined;
+        tourGuide.nationality = getCellText(row, 'nationality') || undefined;
+        tourGuide.identityCard = getCellText(row, 'identityCard') || undefined;
+        tourGuide.passportNumber =
+          getCellText(row, 'passportNumber') || undefined;
+        tourGuide.licenseNumber =
+          getCellText(row, 'licenseNumber') || undefined;
+        tourGuide.licenseIssuedDate = parseDate(
+          getCellRaw(row, 'licenseIssuedDate'),
+        );
+        tourGuide.licenseExpiryDate = parseDate(
+          getCellRaw(row, 'licenseExpiryDate'),
+        );
+        tourGuide.licenseIssuedBy =
+          getCellText(row, 'licenseIssuedBy') || undefined;
+        tourGuide.yearsOfExperience = parseNumber(
+          getCellRaw(row, 'yearsOfExperience'),
+        );
+        tourGuide.baseSalary = parseNumber(getCellRaw(row, 'baseSalary'));
+        tourGuide.commissionRate = parseNumber(
+          getCellRaw(row, 'commissionRate'),
+        );
+        tourGuide.bankAccountNumber =
+          getCellText(row, 'bankAccountNumber') || undefined;
+        tourGuide.bankName = getCellText(row, 'bankName') || undefined;
+        tourGuide.bankAccountName =
+          getCellText(row, 'bankAccountName') || undefined;
+        tourGuide.shortBio = getCellText(row, 'shortBio') || undefined;
+        tourGuide.isAvailable = true;
+        tourGuide.createdBy = user.id;
+        tourGuide.createdAt = new Date();
+
+        await this.repo.insert(tourGuide);
+
+        // Tạo tài khoản user cho hướng dẫn viên
+        const newUser = new UserEntity();
+        newUser.id = uuidv4();
+        newUser.username = tourGuide.phone;
+        newUser.password = '123456';
+        newUser.email = tourGuide.email;
+        newUser.isActive = true;
+        newUser.isAdmin = false;
+        newUser.tourGuideId = tourGuide.id;
+        newUser.createdBy = user.id;
+        newUser.createdAt = new Date();
+        await this.userRepo.insert(newUser);
+
+        success++;
+      } catch (err: any) {
+        failed++;
+        errors.push({
+          row: rowNumber,
+          reason: err?.message ?? 'Lỗi không xác định',
+        });
+      }
+    }
+
+    return {
+      message: `Import hoàn tất: ${success}/${totalDataRows} thành công`,
+      total: totalDataRows,
+      success,
+      failed,
+      errors,
     };
   }
 }
