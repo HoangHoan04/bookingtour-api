@@ -57,8 +57,7 @@ export class NewsService {
   async pagination(data: PaginationDto) {
     const whereCon: FindOptionsWhere<NewsEntity> = {};
 
-    if (data.where.titleVI) whereCon.titleVI = ILike(`%${data.where.titleVI}%`);
-    if (data.where.titleEN) whereCon.titleEN = ILike(`%${data.where.titleEN}%`);
+    if (data.where.title) whereCon.title = ILike(`%${data.where.title}%`);
     if (data.where.type) whereCon.type = ILike(`%${data.where.type}%`);
     if ([true, false].includes(data.where.isDeleted))
       whereCon.isDeleted = data.where.isDeleted;
@@ -85,12 +84,9 @@ export class NewsService {
     const news = new NewsEntity();
     news.id = uuidv4();
     news.code = this.genCodeNew();
-    news.titleVI = createDto.titleVI;
-    news.titleEN = createDto.titleEN;
-    news.contentVI = createDto.contentVI;
-    news.contentEN = createDto.contentEN;
+    news.title = createDto.title;
+    news.content = createDto.content;
     news.type = createDto.type;
-    news.url = createDto.url;
     news.effectiveStartDate = createDto.effectiveStartDate;
     news.effectiveEndDate = createDto.effectiveEndDate;
     news.status = enumData.NEW_STATUS.FRESHLY_CREATED.code;
@@ -124,7 +120,7 @@ export class NewsService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Tạo mới New: ${news.titleVI}`,
+      description: `Tạo mới New: ${news.title}`,
       oldData: '{}',
       newData: JSON.stringify(news),
     };
@@ -149,12 +145,9 @@ export class NewsService {
       updatedAt: new Date(),
     };
 
-    if (data.titleVI) newsUpdateData.titleVI = data.titleVI;
-    if (data.titleEN) newsUpdateData.titleEN = data.titleEN;
+    if (data.title) newsUpdateData.title = data.title;
     if (data.type) newsUpdateData.type = data.type;
-    if (data.url !== undefined) newsUpdateData.url = data.url;
-    if (data.contentVI) newsUpdateData.contentVI = data.contentVI;
-    if (data.contentEN) newsUpdateData.contentEN = data.contentEN;
+    if (data.content) newsUpdateData.content = data.content;
     if (data.code) newsUpdateData.code = data.code;
     if (data.rank !== undefined) newsUpdateData.rank = data.rank;
     if (data.isVisible !== undefined) newsUpdateData.isVisible = data.isVisible;
@@ -194,7 +187,7 @@ export class NewsService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Cập nhật New: ${news.titleVI}`,
+      description: `Cập nhật New: ${news.title}`,
       oldData: oldNewData,
       newData: JSON.stringify(updatedNew),
     };
@@ -224,7 +217,7 @@ export class NewsService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Ngừng hoạt động New với tiêu đề: ${news.titleVI}`,
+      description: `Ngừng hoạt động New với tiêu đề: ${news.title}`,
       oldData: JSON.stringify(news),
       newData: JSON.stringify({
         ...news,
@@ -256,7 +249,7 @@ export class NewsService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Kích hoạt New với tiêu đề: ${news.titleVI}`,
+      description: `Kích hoạt New với tiêu đề: ${news.title}`,
       oldData: JSON.stringify(news),
       newData: JSON.stringify({
         ...news,
@@ -293,11 +286,8 @@ export class NewsService {
       whereCon.type = data.where.type;
     }
 
-    if (data.where.titleVI) {
-      whereCon.titleVI = ILike(`%${data.where.titleVI}%`);
-    }
-    if (data.where.titleEN) {
-      whereCon.titleEN = ILike(`%${data.where.titleEN}%`);
+    if (data.where.title) {
+      whereCon.title = ILike(`%${data.where.title}%`);
     }
 
     const [news, total] = await this.repo.findAndCount({
@@ -549,22 +539,12 @@ export class NewsService {
     const [news, total] = await this.repo.findAndCount({
       where: [
         {
-          titleVI: ILike(`%${keyword}%`),
+          title: ILike(`%${keyword}%`),
           isDeleted: false,
           isVisible: true,
         },
         {
-          titleEN: ILike(`%${keyword}%`),
-          isDeleted: false,
-          isVisible: true,
-        },
-        {
-          contentVI: ILike(`%${keyword}%`),
-          isDeleted: false,
-          isVisible: true,
-        },
-        {
-          contentEN: ILike(`%${keyword}%`),
+          content: ILike(`%${keyword}%`),
           isDeleted: false,
           isVisible: true,
         },

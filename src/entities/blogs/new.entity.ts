@@ -17,39 +17,14 @@ export class NewsEntity extends BaseEntity {
     length: 255,
     nullable: false,
   })
-  titleVI: string;
-
-  @ApiProperty({ description: 'Tiêu đề tin tức ' })
-  @Column({
-    type: 'varchar',
-    comment: 'Tiêu đề tin tức ',
-    length: 255,
-    nullable: false,
-  })
-  titleEN: string;
+  title: string;
 
   @ApiProperty({ description: 'Nội dung tin tức ' })
   @Column({
     type: 'text',
     comment: 'Nội dung tin tức ',
   })
-  contentVI: string;
-
-  @ApiProperty({ description: 'Nội dung tin tức ' })
-  @Column({
-    type: 'text',
-    comment: 'Nội dung tin tức ',
-  })
-  contentEN: string;
-
-  @ApiProperty({ description: 'Link bài viết' })
-  @Column({
-    type: 'varchar',
-    nullable: true,
-    comment: 'Link bài viết',
-    unique: false,
-  })
-  url: string;
+  content: string;
 
   @ApiProperty({ description: 'Loại tin tức' })
   @Column({
