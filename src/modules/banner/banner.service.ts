@@ -56,7 +56,6 @@ export class BannerService {
     const whereCon: FindOptionsWhere<BannerEntity> = {};
 
     if (data.where.title) whereCon.title = ILike(`%${data.where.title}%`);
-    if (data.where.titleEn) whereCon.titleEn = ILike(`%${data.where.titleEn}%`);
     if (data.where.type) whereCon.type = ILike(`%${data.where.type}%`);
     if ([true, false].includes(data.where.isDeleted))
       whereCon.isDeleted = data.where.isDeleted;
@@ -78,9 +77,7 @@ export class BannerService {
     const banner = new BannerEntity();
     banner.id = uuidv4();
     banner.title = createDto.title;
-    banner.titleEn = createDto.titleEn;
     banner.type = createDto.type;
-    banner.url = createDto.url;
     banner.displayOrder = createDto.displayOrder || 0;
     banner.isVisible = createDto.isVisible;
     banner.effectiveStartDate = createDto.effectiveStartDate;
@@ -140,9 +137,7 @@ export class BannerService {
     };
 
     if (updateDto.title) bannerUpdateData.title = updateDto.title;
-    if (updateDto.titleEn) bannerUpdateData.titleEn = updateDto.titleEn;
     if (updateDto.type) bannerUpdateData.type = updateDto.type;
-    if (updateDto.url !== undefined) bannerUpdateData.url = updateDto.url;
     if (updateDto.displayOrder !== undefined)
       bannerUpdateData.displayOrder = updateDto.displayOrder;
     if (updateDto.isVisible !== undefined)

@@ -6,19 +6,10 @@ export class CreateNewsDto {
   code: string;
 
   @ApiProperty({ description: 'Tiêu đề tin tức' })
-  titleVI: string;
-
-  @ApiProperty({ description: 'Tiêu đề tin tức' })
-  titleEN: string;
+  title: string;
 
   @ApiProperty({ description: 'Nội dung tin tức' })
-  contentVI: string;
-
-  @ApiProperty({ description: 'Nội dung tin tức' })
-  contentEN: string;
-
-  @ApiProperty({ description: 'Link bài viết' })
-  url: string;
+  content: string;
 
   @ApiProperty({ description: 'Loại tin tức' })
   type: string;

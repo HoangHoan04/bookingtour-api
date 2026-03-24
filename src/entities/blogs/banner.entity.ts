@@ -13,10 +13,6 @@ export class BannerEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: false })
   title: string;
 
-  @ApiProperty({ description: 'Tiêu đề banner (EN)' })
-  @Column({ type: 'varchar', nullable: true })
-  titleEn: string;
-
   @ApiProperty({ description: 'Thứ tự hiển thị banner' })
   @Column({ type: 'int', nullable: true, default: 0 })
   displayOrder: number;
