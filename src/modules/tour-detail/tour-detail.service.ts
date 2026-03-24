@@ -150,7 +150,7 @@ export class TourDetailService {
 
   async activateTourDetail(user: UserDto, id: string) {
     const tourDetail = await this.tourDetailRepository.findOne({
-      where: { id, isDeleted: false },
+      where: { id, isDeleted: true },
     });
 
     if (!tourDetail) {
@@ -159,6 +159,7 @@ export class TourDetailService {
 
     await this.tourDetailRepository.update(id, {
       isDeleted: false,
+      status: enumData.TOUR_DETAIL_STATUS.ACTIVE.code,
       updatedAt: new Date(),
       updatedBy: user.id,
     });
@@ -175,6 +176,7 @@ export class TourDetailService {
       newData: JSON.stringify({
         ...tourDetail,
         isDeleted: false,
+        status: enumData.TOUR_DETAIL_STATUS.ACTIVE.code,
       }),
     };
     await this.actionLogService.create(actionLogDto);
@@ -195,13 +197,14 @@ export class TourDetailService {
 
     await this.tourDetailRepository.update(id, {
       isDeleted: true,
+      status: enumData.TOUR_DETAIL_STATUS.INACTIVE.code,
       updatedAt: new Date(),
       updatedBy: user.id,
     });
 
     const actionLogDto: ActionLogCreateDto = {
       functionId: tourDetail.id,
-      functionType: 'Tour Detail  ',
+      functionType: 'Tour Detail',
       type: enumData.ActionLogType.DEACTIVATE.code,
       createdBy: user.id,
       createdById: user.id,
@@ -211,6 +214,7 @@ export class TourDetailService {
       newData: JSON.stringify({
         ...tourDetail,
         isDeleted: true,
+        status: enumData.TOUR_DETAIL_STATUS.INACTIVE.code,
       }),
     };
     await this.actionLogService.create(actionLogDto);

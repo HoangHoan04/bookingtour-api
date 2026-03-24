@@ -121,7 +121,7 @@ export class AdminTourController {
   // ==================== UTILITY ====================
 
   @ApiOperation({ summary: 'Lấy selectbox tour' })
-  @Get('select-box')
+  @Post('select-box')
   async selectBox() {
     return await this.service.selectBoxTour();
   }
