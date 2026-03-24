@@ -1,7 +1,17 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAuthGuard, PermissionGuard } from 'src/common/guards';
+import { xlsxMulterOptions } from 'src/common/upload/xlsx-upload.util';
 import { IdDto, PaginationDto, UserDto } from 'src/dto';
 import {
   ChangePasswordTourGuideDto,
@@ -16,6 +26,29 @@ import { TourGuideService } from '../tour-guide.service';
 @Controller('tour-guide')
 export class AdminTourGuideController {
   constructor(private readonly service: TourGuideService) {}
+
+  @ApiOperation({ summary: 'Import hướng dẫn viên từ Excel (.xlsx)' })
+  @Post('import-excel')
+  @UseInterceptors(FileInterceptor('file', xlsxMulterOptions()))
+  async importExcel(
+    @CurrentUser() user: UserDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('Vui lòng upload file Excel (.xlsx)');
+    }
+    return await this.service.importExcel(user, file.buffer, {
+      mimetype: file.mimetype,
+      originalname: file.originalname,
+      size: file.size,
+    });
+  }
+
+  @ApiOperation({ summary: 'Export hướng dẫn viên từ Excel (.xlsx)' })
+  @Post('export-excel')
+  async exportExcel(@CurrentUser() user: UserDto) {
+    return await this.service.exportExcel();
+  }
 
   @ApiOperation({ summary: 'Tạo mới hướng dẫn viên' })
   @Post('create')

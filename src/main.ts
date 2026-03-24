@@ -68,12 +68,12 @@ async function bootstrap() {
   await app.listen(port, host);
 
   console.log('='.repeat(50));
-  console.log(`🚀 Application started successfully!`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Listening on: ${host}:${port}`);
-  console.log(`💚 Health Check: http://${host}:${port}/health`);
-  console.log(`📚 API Docs: http://${host}:${port}/api-docs`);
-  console.log(`🔗 API Endpoints: http://${host}:${port}/api/*`);
+  console.log(`Application started successfully!`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Listening on: ${host}:${port}`);
+  console.log(`Health Check: http://${host}:${port}/health`);
+  console.log(`API Docs: http://${host}:${port}/api-docs`);
+  console.log(`API Endpoints: http://${host}:${port}/api/*`);
   console.log('='.repeat(50));
 }
 
