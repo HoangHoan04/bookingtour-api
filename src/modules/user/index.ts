@@ -31,6 +31,8 @@ import { UserTourController } from '../tour/controller/user-tour.controller';
 import { TourModule } from '../tour/tour.module';
 import { UserTravelHintController } from '../travel-hint/controller/user-travel-hint.controller';
 import { TravelHintModule } from '../travel-hint/travel-hint.module';
+import { UserTourDetailController } from '../tour-detail/controller/user-tour-detail.controller';
+import { TourDetailModule } from '../tour-detail/tour-detail.module';
 
 @ChildModule({
   prefix: PREFIX_MODULE.user,
@@ -41,6 +43,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     UserTourController,
     UserTourItinerariesController,
     UserTourPriceController,
+    UserTourDetailController,
     UserBookingController,
     UserPaymentController,
     UserBlogController,
@@ -57,6 +60,7 @@ import { TravelHintModule } from '../travel-hint/travel-hint.module';
     NotificationModule,
     TourModule,
     TourPriceModule,
+    TourDetailModule,
     TourItinerariesModule,
     BookingModule,
     PaymentModule,
