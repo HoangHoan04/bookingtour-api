@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { customAlphabet } from 'nanoid';
 import slugify from 'slugify';
 import { enumData } from 'src/common/constants';
 import { PaginationDto, UserDto } from 'src/dto';
@@ -53,7 +52,9 @@ export class TourService {
     const tour = await this.repo.findOne({
       where: { slug, isDeleted: false },
       relations: {
-        tourDetails: true,
+        tourDetails: {
+          tourPrice: true,
+        },
         reviews: true,
         tourDestinations: true,
       },
@@ -120,6 +121,11 @@ export class TourService {
     const tours = await this.repo.find({
       where: whereCondition,
       order: { createdAt: 'DESC' },
+      relations: {
+        tourDetails: {
+          tourPrice: true,
+        },
+      },
     });
     return tours;
   }
@@ -154,7 +160,11 @@ export class TourService {
       skip: data.skip,
       take: data.take,
       order: { createdAt: 'DESC' },
-      relations: ['tourDetails'],
+      relations: {
+        tourDetails: {
+          tourPrice: true,
+        },
+      },
     });
 
     return {

@@ -117,6 +117,7 @@ export class TourDetailService {
     return this.tourDetailRepository.find({
       where: { tourId },
       relations: {
+        tour: true,
         tourPrice: true,
         tourItinerarie: true,
       },

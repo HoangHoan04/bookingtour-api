@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { TourPriceService } from '../tour-price.service';
 import { CreateTourPriceDto, UpdateTourPriceDto } from '../dto';
-import { UserDto } from 'src/dto/user.dto';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAuthGuard } from 'src/common/guards';
 
