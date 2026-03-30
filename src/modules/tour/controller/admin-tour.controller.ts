@@ -48,7 +48,6 @@ export class AdminTourController {
     return await this.service.pagination(body);
   }
 
-  // ==================== STATUS MANAGEMENT ====================
 
   @ApiOperation({ summary: 'Kích hoạt tour' })
   @Post('activate')
@@ -77,7 +76,6 @@ export class AdminTourController {
     return await this.service.updateRatingStats(body.id);
   }
 
-  // ==================== SEARCH & FILTER ====================
 
   @ApiOperation({ summary: 'Tìm kiếm tours nâng cao' })
   @Post('search')
@@ -118,7 +116,6 @@ export class AdminTourController {
     return await this.service.findByTags(body.tags);
   }
 
-  // ==================== UTILITY ====================
 
   @ApiOperation({ summary: 'Lấy selectbox tour' })
   @Post('select-box')

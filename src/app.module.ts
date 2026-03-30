@@ -8,7 +8,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
-// import { redisStore } from 'cache-manager-ioredis-yet';
 
 import { ContextMiddleware, LoggerMiddleware } from 'src/middlewares';
 import * as allModules from 'src/modules';
@@ -16,17 +15,6 @@ import { AppController } from './app.controller';
 import { CustomThrottlerGuard } from './common/guards';
 
 const globalModules = [
-  // ❌ Tắt Redis Cache
-  // CacheModule.registerAsync({
-  //   useFactory: async () => ({
-  //     store: redisStore,
-  //     host: process.env.REDIS_HOST,
-  //     port: Number(process.env.REDIS_PORT),
-  //     ttl: 60 * 1000,
-  //   }),
-  // }),
-
-  // Throttler vẫn giữ, không cần redis
   ThrottlerModule.forRoot([
     {
       name: 'short',
@@ -50,7 +38,6 @@ const modules = Object.values(allModules);
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      // Tự động load file môi trường dựa vào NODE_ENV
       envFilePath:
         process.env.NODE_ENV === 'production'
           ? '.env.prod'
@@ -65,10 +52,6 @@ const modules = Object.values(allModules);
       provide: APP_GUARD,
       useClass: CustomThrottlerGuard,
     },
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CustomCacheInterceptor,
-    // },
   ],
 })
 export class AppModule implements NestModule {

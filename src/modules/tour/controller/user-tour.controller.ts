@@ -32,7 +32,6 @@ export class UserTourController {
     return await this.service.pagination(data);
   }
 
-  // ==================== SEARCH & FILTER ====================
 
   @ApiOperation({ summary: 'Tìm kiếm tours' })
   @Post('search')
@@ -51,7 +50,6 @@ export class UserTourController {
       limit?: number;
     },
   ) {
-    // Chỉ cho phép search tours active
     return await this.service.searchTours({
       ...params,
       status: 'ACTIVE',
@@ -85,7 +83,6 @@ export class UserTourController {
     );
   }
 
-  // ==================== POPULAR & FEATURED TOURS ====================
 
   @ApiOperation({ summary: 'Lấy tours phổ biến nhất' })
   @Get('popular')
@@ -120,7 +117,6 @@ export class UserTourController {
     return await this.service.getRelatedTours(id, limit || 5);
   }
 
-  // ==================== UTILITY & METADATA ====================
 
   @ApiOperation({ summary: 'Lấy tất cả categories' })
   @Get('categories')

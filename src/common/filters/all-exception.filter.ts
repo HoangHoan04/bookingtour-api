@@ -42,7 +42,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
 
       if (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         status === HttpStatus.BAD_REQUEST &&
         name === 'BadRequestException' &&
         message === 'Bad Request Exception'

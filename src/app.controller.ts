@@ -13,7 +13,6 @@ export class AppController {
     };
   }
 
-  // Health check endpoint for Railway/Render/K8s
   @Get('health')
   health() {
     return {
@@ -25,7 +24,6 @@ export class AppController {
     };
   }
 
-  // Alternative health check
   @Get('api/health')
   apiHealth() {
     return this.health();

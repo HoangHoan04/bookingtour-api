@@ -916,9 +916,6 @@ export class TourGuideService {
     };
   }
 
-  // ──────────────────────────────────────────────────────────
-  //  EXPORT EXCEL
-  // ──────────────────────────────────────────────────────────
   async exportExcel(): Promise<Buffer> {
     const tourGuides = await this.repo.find({
       where: { isDeleted: false },
@@ -935,7 +932,6 @@ export class TourGuideService {
       views: [{ state: 'frozen', ySplit: 1 }],
     });
 
-    // ── Định nghĩa các cột ──
     const COLUMNS: {
       header: string;
       key: string;
@@ -972,7 +968,6 @@ export class TourGuideService {
 
     sheet.columns = COLUMNS;
 
-    // ── Style header ──
     const headerRow = sheet.getRow(1);
     headerRow.eachCell((cell) => {
       cell.fill = {
@@ -998,7 +993,6 @@ export class TourGuideService {
     const formatDate = (d?: Date | null) =>
       d ? new Date(d).toLocaleDateString('vi-VN') : '';
 
-    // ── Dữ liệu ──
     tourGuides.forEach((tg, index) => {
       const row = sheet.addRow({
         stt: index + 1,
@@ -1035,7 +1029,6 @@ export class TourGuideService {
         status: tg.isDeleted ? 'Đã khóa' : 'Đang hoạt động',
       });
 
-      // Zebra striping
       const fill: ExcelJS.Fill = {
         type: 'pattern',
         pattern: 'solid',
@@ -1058,9 +1051,6 @@ export class TourGuideService {
     return Buffer.from(buffer);
   }
 
-  // ──────────────────────────────────────────────────────────
-  //  IMPORT EXCEL
-  // ──────────────────────────────────────────────────────────
   async importExcel(
     user: UserDto,
     fileBuffer: Buffer,
@@ -1074,7 +1064,6 @@ export class TourGuideService {
   }> {
     assertXlsxFile(fileMeta);
     const workbook = new ExcelJS.Workbook();
-    // ExcelJS typings may not accept Node's generic Buffer<T> in newer @types/node
     await workbook.xlsx.load(Buffer.from(fileBuffer) as any);
 
     const sheet = workbook.worksheets[0];
@@ -1088,15 +1077,12 @@ export class TourGuideService {
       String(s ?? '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
-        // remove markers like "*", "(*)", ":"...
         .replace(/[^a-zA-Z0-9\s]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()
         .toLowerCase();
 
-    // ── Map header (normalized) -> column index ──
     const HEADER_MAP: Record<string, keyof ImportTourGuideRowDto> = {
-      // Bắt buộc
       [normalizeHeader('Họ và tên')]: 'name',
       [normalizeHeader('Họ tên')]: 'name',
       [normalizeHeader('Tên')]: 'name',
@@ -1106,7 +1092,6 @@ export class TourGuideService {
       [normalizeHeader('Phone')]: 'phone',
       [normalizeHeader('Email')]: 'email',
       [normalizeHeader('E-mail')]: 'email',
-      // Không bắt buộc
       [normalizeHeader('Địa chỉ')]: 'address',
       [normalizeHeader('Giới tính')]: 'gender',
       [normalizeHeader('Ngày sinh')]: 'birthday',
@@ -1130,7 +1115,6 @@ export class TourGuideService {
       [normalizeHeader('Giới thiệu ngắn')]: 'shortBio',
     };
 
-    // Header có thể không nằm ở dòng 1 (file có title ở trên)
     let headerRowIndex = 1;
     for (let i = 1; i <= Math.min(10, sheet.rowCount); i++) {
       const r = sheet.getRow(i);
@@ -1153,7 +1137,6 @@ export class TourGuideService {
     }
 
     const headerRow = sheet.getRow(headerRowIndex);
-    // Debug: log detected header row and headers
     const debugHeaders: { col: number; raw: string }[] = [];
     headerRow.eachCell((cell, colNumber) => {
       const raw = normalizeHeader(cell.text ?? '');
@@ -1174,7 +1157,6 @@ export class TourGuideService {
       email: colIndexMap.get('email'),
     });
 
-    // Không tìm được cột bắt buộc => báo rõ để user biết do header file
     if (
       !colIndexMap.get('name') ||
       !colIndexMap.get('phone') ||
@@ -1219,9 +1201,7 @@ export class TourGuideService {
     const parseDate = (val: any): Date | undefined => {
       if (!val) return undefined;
       if (val instanceof Date) return val;
-      // ExcelJS returns dates as Date objects or serial numbers
       if (typeof val === 'number') {
-        // Excel date serial
         const d = new Date((val - 25569) * 86400 * 1000);
         return isNaN(d.getTime()) ? undefined : d;
       }
@@ -1246,7 +1226,7 @@ export class TourGuideService {
     const errors: { row: number; reason: string }[] = [];
     let success = 0;
     let failed = 0;
-    let totalDataRows = 0; // đếm theo dòng dữ liệu thực (bỏ qua dòng trống)
+    let totalDataRows = 0;
 
     const dataStartRow = headerRowIndex + 1;
     for (
@@ -1256,7 +1236,6 @@ export class TourGuideService {
     ) {
       const row = sheet.getRow(rowNumber);
 
-      // Bỏ qua dòng trống
       const isEmptyRow = !row.hasValues;
       if (isEmptyRow) continue;
       totalDataRows++;
@@ -1265,7 +1244,6 @@ export class TourGuideService {
       const phone = getCellText(row, 'phone') ?? '';
       const email = getCellText(row, 'email') ?? '';
 
-      // Validate bắt buộc
       if (!name || !phone || !email) {
         failed++;
         errors.push({
@@ -1278,7 +1256,6 @@ export class TourGuideService {
         continue;
       }
 
-      // Kiểm tra trùng
       try {
         await this.checkPhoneAndEmail({ phone, email });
       } catch (err: any) {
@@ -1296,7 +1273,6 @@ export class TourGuideService {
         tourGuide.email = email;
         tourGuide.slug = coreHelper.generateSlug(name);
 
-        // Xử lý slug trùng
         const existing = await this.repo.findOne({
           where: { slug: tourGuide.slug },
         });
@@ -1340,8 +1316,6 @@ export class TourGuideService {
         tourGuide.createdAt = new Date();
 
         await this.repo.insert(tourGuide);
-
-        // Tạo tài khoản user cho hướng dẫn viên
         const newUser = new UserEntity();
         newUser.id = uuidv4();
         newUser.username = tourGuide.phone;
