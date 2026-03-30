@@ -32,12 +32,6 @@ export class AdminTourDetailController {
     return await this.tourDetailService.findById(body.id);
   }
 
-  @Post('find-by-tour')
-  @ApiOperation({ summary: 'Lấy chi tiết tour theo tourId' })
-  async findByTour(@Body() body: TourIdDto) {
-    return await this.tourDetailService.findByTour(body.tourId);
-  }
-
   @ApiOperation({ summary: 'Kích hoạt chi tiết tour' })
   @Post('activate')
   async activate(@Body() body: IdDto, @CurrentUser() user: UserDto) {
