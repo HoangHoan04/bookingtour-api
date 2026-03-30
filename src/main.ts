@@ -7,20 +7,14 @@ import express, { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters';
 
-// Cache cho serverless function (Cold Start optimization)
 let cachedServer: express.Application;
-
-// Bootstrap function cho local development
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-
-  // Set global prefix 'api' but exclude health check endpoint
   app.setGlobalPrefix('api', {
     exclude: ['health', '/'],
   });
 
-  // CORS Configuration for multi-subdomain support
   app.enableCors({
     origin: [
       'https://himlamtourist.xyz',
@@ -36,12 +30,14 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'tokenid', // Custom header for token authentication
-      'x-api-key', // For AI service integration
-    ],
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'tokenid',      
+    'x-api-key',
+    'x-lang',       
+    'tokenId',      
+  ],
   });
 
   app.use(json({ limit: '10mb' }));
@@ -58,12 +54,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api-docs', app, document);
 
-  // Railway provides PORT via environment variable
   const port = parseInt(
     process.env.PORT || configService.get('PORT') || '4300',
     10,
   );
-  const host = '0.0.0.0'; // Always bind to 0.0.0.0 in production/Railway
+  const host = '0.0.0.0';
 
   await app.listen(port, host);
 
@@ -77,7 +72,6 @@ async function bootstrap() {
   console.log('='.repeat(50));
 }
 
-// Bootstrap function cho Vercel serverless
 async function bootstrapServer() {
   if (!cachedServer) {
     const expressApp = express();
@@ -85,13 +79,9 @@ async function bootstrapServer() {
       AppModule,
       new ExpressAdapter(expressApp),
     );
-
-    // Set global prefix 'api' but exclude health check endpoint
     app.setGlobalPrefix('api', {
       exclude: ['health', '/'],
     });
-
-    // CORS Configuration for multi-subdomain support
     app.enableCors({
       origin: [
         'https://himlamtourist.xyz',
@@ -106,20 +96,21 @@ async function bootstrapServer() {
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'X-Requested-With',
-        'tokenid', // Custom header for token authentication
-        'x-api-key', // For AI service integration
-      ],
+     allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'tokenid',      
+      'x-api-key',  
+      'x-lang',       
+      'tokenId',      
+    ],
     });
     app.use(json({ limit: '10mb' }));
     app.use(urlencoded({ extended: true, limit: '10mb' }));
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new AllExceptionsFilter());
 
-    // Swagger setup cho Vercel
     const options = new DocumentBuilder()
       .setTitle('BookingTour API')
       .setVersion('1.0.0')
@@ -135,7 +126,6 @@ async function bootstrapServer() {
   return cachedServer;
 }
 
-// Chạy bootstrap nếu không phải môi trường Vercel
 if (require.main === module) {
   bootstrap().catch((err) => {
     console.error('Error starting application:', err);
@@ -143,7 +133,6 @@ if (require.main === module) {
   });
 }
 
-// Export handler cho Vercel
 export default async (req: any, res: any) => {
   const server = await bootstrapServer();
   server(req, res);
