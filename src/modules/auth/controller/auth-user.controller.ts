@@ -74,4 +74,13 @@ export class AuthUserController {
   async logout(@CurrentUser() user: UserDto) {
     return await this.service.logout(user);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('update-avatar')
+  async updateAvatar(
+    @Body('avatarUrl') avatarUrl: string,
+    @CurrentUser() user: UserDto,
+  ) {
+    return await this.service.updateAvatar(user, avatarUrl);
+  }
 }
