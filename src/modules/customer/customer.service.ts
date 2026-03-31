@@ -366,77 +366,72 @@ export class CustomerService {
   }
 
   async update(user: UserDto, updateDto: UpdateCustomerDto) {
-    const customer = await this.repo.findOne({ where: { id: updateDto.id } });
+    const customer = await this.repo.findOne({
+      where: { id: updateDto.id },
+      relations: { avatar: true },
+    });
+
     if (!customer) {
       throw new NotFoundException('Không tìm thấy khách hàng');
     }
 
-    const customerUser = await this.userRepo.findOne({
-      where: { customerId: updateDto.id },
-    });
-    if (!customerUser) {
-      throw new NotFoundException('Không tìm thấy tài khoản khách hàng');
-    }
-
     const dataCheck: Partial<CheckPhoneEmailCustomerDto> = {};
-    if (updateDto.phone !== customer.phone) dataCheck.phone = updateDto.phone;
-    if (updateDto.email !== customer.email) dataCheck.email = updateDto.email;
+    if (updateDto.phone && updateDto.phone !== customer.phone)
+      dataCheck.phone = updateDto.phone;
+    if (updateDto.email && updateDto.email !== customer.email)
+      dataCheck.email = updateDto.email;
 
-    if (dataCheck.phone || dataCheck.email) {
+    if (Object.keys(dataCheck).length > 0) {
       await this.checkPhoneAndEmail(dataCheck as CheckPhoneEmailCustomerDto, {
         customerId: customer.id,
       });
     }
 
-    const oldCustomerData = JSON.stringify(customer);
-    const oldUserData = JSON.stringify({ ...customerUser, password: '***' });
-
-    const customerUpdateData: any = {
-      updatedBy: user.id,
-      updatedAt: new Date(),
-    };
-
-    if (updateDto.name) customerUpdateData.name = updateDto.name;
-    if (updateDto.phone) customerUpdateData.phone = updateDto.phone;
-    if (updateDto.gender) customerUpdateData.gender = updateDto.gender;
-    if (updateDto.email !== undefined)
-      customerUpdateData.email = updateDto.email;
-    if (updateDto.address !== undefined)
-      customerUpdateData.address = updateDto.address;
-    if (updateDto.birthday) customerUpdateData.birthday = updateDto.birthday;
-    if (updateDto.nationality !== undefined)
-      customerUpdateData.nationality = updateDto.nationality;
-    if (updateDto.identityCard !== undefined)
-      customerUpdateData.identityCard = updateDto.identityCard;
-    if (updateDto.passportNumber !== undefined)
-      customerUpdateData.passportNumber = updateDto.passportNumber;
-    if (updateDto.description !== undefined)
-      customerUpdateData.description = updateDto.description;
-
-    if (Object.prototype.hasOwnProperty.call(updateDto, 'avatar')) {
-      await this.fileArchivalRepo.delete({ customerId: updateDto.id });
-
+    if (updateDto.avatar !== undefined) {
+      await this.fileArchivalRepo.delete({ customerId: customer.id });
       const avatarData = Array.isArray(updateDto.avatar)
         ? updateDto.avatar[0]
         : updateDto.avatar;
-      if (avatarData?.fileUrl && avatarData?.fileName) {
-        const fileArchival = new FileArchivalCreateDto();
-        fileArchival.createdBy = user.id;
-        fileArchival.fileUrl = avatarData.fileUrl;
-        fileArchival.fileName = avatarData.fileName;
-        fileArchival.fileRelationName = 'customerId';
-        fileArchival.fileRelationId = customer.id;
-        await this.fileArchivalService.create(fileArchival);
+
+      if (avatarData) {
+        const fileUrl =
+          typeof avatarData === 'string' ? avatarData : avatarData.fileUrl;
+        const fileName =
+          typeof avatarData === 'string'
+            ? `avatar_${customer.code}`
+            : avatarData.fileName;
+
+        if (fileUrl) {
+          const fileArchivalDto: FileArchivalCreateDto = {
+            fileUrl,
+            fileName: fileName || 'avatar.jpg',
+            fileType: 'CUSTOMER_AVATAR',
+            fileRelationName: 'customerId',
+            fileRelationId: customer.id,
+            createdBy: user.id,
+            createdAt: new Date().toISOString(),
+          };
+          await this.fileArchivalService.create(fileArchivalDto);
+        }
       }
     }
+
+    const { avatar, id, ...restUpdateData } = updateDto;
+
+    const customerUpdateData: any = {
+      ...restUpdateData,
+      updatedBy: user.id,
+      updatedAt: new Date(),
+    };
 
     await this.repo.update(customer.id, customerUpdateData);
 
     const updatedCustomer = await this.repo.findOne({
       where: { id: customer.id },
-    });
-    const updatedUser = await this.userRepo.findOne({
-      where: { id: customerUser.id },
+      relations: {
+        avatar: true,
+        user: true,
+      },
     });
 
     const actionLogDto: ActionLogCreateDto = {
@@ -446,20 +441,17 @@ export class CustomerService {
       createdBy: user.id,
       createdById: user.id,
       createdByName: user.username,
-      description: `Cập nhật khách hàng: ${customer.code} - ${customer.name}`,
-      oldData: JSON.stringify({ customer: oldCustomerData, user: oldUserData }),
-      newData: JSON.stringify({
-        customer: updatedCustomer,
-        user: { ...updatedUser, password: '***' },
-      }),
+      description: `Cập nhật thông tin khách hàng: ${customer.code}`,
+      oldData: JSON.stringify(customer),
+      newData: JSON.stringify(updatedCustomer),
     };
     await this.actionLogService.create(actionLogDto);
 
     return {
       message: 'Cập nhật khách hàng thành công',
+      data: transformKeys(updatedCustomer),
     };
   }
-
   async deactivate(user: UserDto, id: string) {
     const customer = await this.repo.findOne({ where: { id } });
     if (!customer) {
