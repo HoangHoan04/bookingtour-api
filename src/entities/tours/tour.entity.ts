@@ -69,7 +69,7 @@ export class TourEntity extends BaseEntity {
 
   @ApiProperty({ description: 'Tags tìm kiếm' })
   @Column({ type: 'text', nullable: true })
-  tags?: string[];
+  tags?: string;
 
   @ApiProperty({ description: 'Trạng thái tour' })
   @Column({ type: 'varchar', length: 50, nullable: false })
