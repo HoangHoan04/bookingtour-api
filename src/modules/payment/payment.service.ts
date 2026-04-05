@@ -44,8 +44,6 @@ export class PaymentService {
       CodeType.PAYMENT,
       this.paymentRepo,
     );
-    const txnRef = `${booking.id}$${Date.now()}`;
-
     const paymentData = this.paymentRepo.create({
       code: paymentCode,
       amount: booking.finalPrice,
@@ -59,6 +57,8 @@ export class PaymentService {
     if (!payment.id) {
       throw new BadRequestException('Failed to create payment record');
     }
+
+    const txnRef = payment.code;
 
     const actionLogDto: ActionLogCreateDto = {
       functionId: payment.id,
@@ -76,45 +76,44 @@ export class PaymentService {
     const vnpParams = {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
-      vnp_TmnCode: process.env.VNP_TMNCODE,
+      vnp_TmnCode: this.configService.get<string>('VNP_TMNCODE'),
       vnp_Amount: Number(payment.amount) * 100,
       vnp_CurrCode: 'VND',
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: payment.code,
+      vnp_OrderInfo: booking.id,
       vnp_OrderType: 'other',
       vnp_Locale: 'vn',
-      vnp_ReturnUrl: process.env.VNP_RETURN_URL,
+      vnp_ReturnUrl: this.configService.get<string>('VNP_RETURN_URL'),
       vnp_IpAddr: '127.0.0.1',
       vnp_CreateDate: moment().tz('Asia/Ho_Chi_Minh').format('YYYYMMDDHHmmss'),
     };
 
     const signedParams = this.signVnpayParams(vnpParams) as Record<string, any>;
-    signedParams.vnp_SecureHashType = 'SHA512';
-
     const paymentUrl =
-      this.configService.get('VNP_URL') + '?' + qs.stringify(signedParams);
+      this.configService.get<string>('VNP_URL') +
+      '?' +
+      qs.stringify(signedParams, { encode: false });
 
     return { paymentUrl };
   }
 
   async handleVnpayIPN(query: any) {
     const secureHash = query.vnp_SecureHash;
-    delete query.vnp_SecureHash;
-    delete query.vnp_SecureHashType;
+    const inputData = { ...query };
+    delete inputData.vnp_SecureHash;
+    delete inputData.vnp_SecureHashType;
 
-    const signedParams = this.signVnpayParams(query, true) as Record<
-      string,
-      any
-    >;
+    const signedParams = this.signVnpayParams(inputData) as Record<string, any>;
 
-    if (secureHash !== signedParams.vnp_SecureHash) {
+    if (
+      String(secureHash || '').toLowerCase() !==
+      String(signedParams.vnp_SecureHash || '').toLowerCase()
+    ) {
       return { RspCode: '97', Message: 'Invalid checksum' };
     }
 
-    const bookingId = query.vnp_TxnRef.split('$')[0];
-
     const payment = await this.paymentRepo.findOne({
-      where: { bookingId },
+      where: { code: query.vnp_TxnRef },
       order: { createdAt: 'DESC' },
     });
 
@@ -127,7 +126,7 @@ export class PaymentService {
     }
 
     const booking = await this.bookingRepo.findOne({
-      where: { id: bookingId },
+      where: { id: payment.bookingId },
     });
 
     if (!booking) {
@@ -161,26 +160,35 @@ export class PaymentService {
   handleVnpayReturn(query: any) {
     return {
       success: query.vnp_ResponseCode === '00',
-      bookingId: query.vnp_TxnRef?.split('$')[0],
+      paymentCode: query.vnp_TxnRef,
+      bookingId: query.vnp_OrderInfo,
     };
   }
 
-  private signVnpayParams(params: any, includeHash = true) {
-    const sortedParams = Object.keys(params)
+  private signVnpayParams(params: any) {
+    const sortedEncoded: Record<string, string> = {};
+
+    Object.keys(params)
+      .filter((key) => params[key] !== undefined && params[key] !== null)
       .sort()
-      .reduce((acc, key) => {
-        acc[key] = params[key];
-        return acc;
-      }, {});
+      .forEach((key) => {
+        sortedEncoded[key] = encodeURIComponent(String(params[key])).replace(
+          /%20/g,
+          '+',
+        );
+      });
 
-    const signData = qs.stringify(sortedParams, { encode: true });
-    const hmac = crypto.createHmac('sha512', process.env.VNP_HASH_SECRET || '');
-    const secureHash = hmac.update(signData).digest('hex');
+    const signData = qs.stringify(sortedEncoded, { encode: false });
+    const hmac = crypto.createHmac(
+      'sha512',
+      this.configService.get<string>('VNP_HASH_SECRET') || '',
+    );
+    const secureHash = hmac.update(signData, 'utf-8').digest('hex');
 
-    if (includeHash) {
-      sortedParams['vnp_SecureHash'] = secureHash;
-    }
-
-    return sortedParams;
+    return {
+      ...sortedEncoded,
+      vnp_SecureHashType: 'SHA512',
+      vnp_SecureHash: secureHash,
+    };
   }
 }
