@@ -54,11 +54,10 @@ export class CreateTourDto {
   @IsString()
   category?: string;
 
-  @ApiProperty({ description: 'Tags', required: false, type: [String] })
+  @ApiProperty({ description: 'Tags', required: false })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
+  @IsString()
+  tags?: string;
 
   @ApiProperty({
     description: 'Trạng thái tour',

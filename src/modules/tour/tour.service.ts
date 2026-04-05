@@ -197,7 +197,7 @@ export class TourService {
     tour.included = dto.included || undefined;
     tour.excluded = dto.excluded || undefined;
     tour.category = dto.category || undefined;
-    tour.tags = dto.tags || [];
+    tour.tags = dto.tags || undefined;
     tour.status = enumData.TOUR_STATUS.ACTIVE.code;
     tour.rating = 0;
     tour.reviewCount = 0;
