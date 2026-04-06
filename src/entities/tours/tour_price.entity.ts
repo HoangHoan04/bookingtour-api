@@ -29,6 +29,10 @@ export class TourPriceEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   currency: string;
 
+  @ApiProperty({ description: 'Trạng thái' })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  status?: string;
+
   @ApiProperty({ description: 'Chi tiết đặt chỗ' })
   @OneToMany(() => BookingDetailEntity, (bd) => bd.tourPrice)
   bookingDetails: Promise<BookingDetailEntity[]>;

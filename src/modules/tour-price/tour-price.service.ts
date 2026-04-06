@@ -2,12 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { TourDetailRepository, TourPriceRepository } from 'src/repositories';
 import { CreateTourPriceDto, UpdateTourPriceDto } from './dto';
 import { TourPriceEntity } from 'src/entities';
-import { UserDto } from 'src/dto';
+import { PaginationDto, UserDto } from 'src/dto';
 import { ActionLogCreateDto } from '../actionLog/dto';
 import { enumData } from 'src/common/constants/enumData';
 import { ActionLogService } from '../actionLog/actionLog.service';
 import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
 import { CodeType } from 'src/helpers/generateCode.config';
+import { FindOptionsWhere, ILike } from 'typeorm';
 
 @Injectable()
 export class TourPriceService {
@@ -31,12 +32,13 @@ export class TourPriceService {
       CodeType.PRICE,
       this.tourPriceRepo,
     );
-    price.priceType = dto.priceType ?? enumData.Tour_Price_Type.ADULT.code;
+    price.priceType = dto.priceType ?? enumData.TOUR_PRICE_TYPE.ADULT.code;
 
     price.price = dto.price;
     price.currency = dto.currency || 'VND';
     price.tourDetail = tourDetail;
     price.createdBy = user.id;
+    price.status = enumData.TOUR_PRICE_STATUS.ACTIVE.code;
 
     await this.tourPriceRepo.save(price);
     const actionLog: ActionLogCreateDto = {
@@ -110,5 +112,25 @@ export class TourPriceService {
     if (!result.affected) {
       throw new NotFoundException('Tour price not found');
     }
+  }
+
+  async pagination(data: PaginationDto) {
+    const whereCon: FindOptionsWhere<TourPriceEntity> = {};
+
+    if (data.where.code) whereCon.code = ILike(`%${data.where.code}%`);
+    if ([true, false].includes(data.where.isDeleted))
+      whereCon.isDeleted = data.where.isDeleted;
+
+    const [tourPrices, total] = await this.tourPriceRepo.findAndCount({
+      where: whereCon,
+      skip: data.skip,
+      take: data.take,
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      data: tourPrices,
+      total,
+    };
   }
 }

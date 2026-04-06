@@ -171,11 +171,9 @@ export const enumData = {
     ACTIVE: { code: 'ACTIVE', name: 'Đang hoạt động' },
     INACTIVE: { code: 'INACTIVE', name: 'Ngưng hoạt động' },
   },
-  Tour_Price_Type: {
+  TOUR_PRICE_TYPE: {
     ADULT: { code: 'ADULT', name: 'Người lớn' },
     CHILD: { code: 'CHILD', name: 'Trẻ em' },
-    INFANT: { code: 'INFANT', name: 'Em bé' },
-    VIP: { code: 'VIP', name: 'VIP' },
   },
   BANNER_STATUS: {
     FRESHLY_CREATED: { code: 'FRESHLY_CREATED', name: 'Mới tạo' },
