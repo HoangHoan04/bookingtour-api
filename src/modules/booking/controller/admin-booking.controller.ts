@@ -8,10 +8,7 @@ import { UserDto } from 'src/dto';
 
 @Controller('bookings')
 export class AdminBookingController {
-  constructor(
-    private readonly bookingRepository: BookingRepository,
-    private readonly bookingService: BookingService,
-  ) {}
+  constructor(private readonly bookingService: BookingService) {}
   @Post('/pagination')
   async pagination(@Body() dto: PaginationDto) {
     return this.bookingService.pagination(dto);

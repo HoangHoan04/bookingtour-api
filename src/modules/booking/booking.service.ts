@@ -70,6 +70,9 @@ export class BookingService {
       where: whereCon,
       skip: data.skip,
       take: data.take,
+      relations: {
+        bookingDetails: true,
+      },
       order: { createdAt: 'DESC' },
     });
 
