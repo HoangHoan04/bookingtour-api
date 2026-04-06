@@ -57,6 +57,14 @@ export class AdminTourDetailController {
     );
   }
 
+  @ApiOperation({
+    summary: 'Lấy danh sách chi tiết tour để hiển thị trong select box',
+  })
+  @Post('select-box')
+  async selectBox() {
+    return await this.tourDetailService.selectBoxTourDetail();
+  }
+
   @ApiOperation({ summary: 'Phân trang chi tiết tour' })
   @Post('pagination')
   async pagination(@Body() data: PaginationDto) {

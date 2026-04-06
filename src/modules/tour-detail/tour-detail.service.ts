@@ -258,4 +258,16 @@ export class TourDetailService {
       message: 'Thay đổi trạng thái chi tiết tour thành công',
     };
   }
+
+  async selectBoxTourDetail() {
+    const tourDetails = await this.tourDetailRepository.find({
+      where: { isDeleted: false },
+      select: {
+        id: true,
+        code: true,
+        startDay: true,
+      },
+    });
+    return tourDetails;
+  }
 }
