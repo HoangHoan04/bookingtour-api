@@ -10,7 +10,7 @@ export class CreateTourPriceDto {
 
   @ApiProperty({
     description: 'Loại giá (người lớn, trẻ em, VIP...)',
-    default: enumData.Tour_Price_Type.ADULT.code,
+    default: enumData.TOUR_PRICE_TYPE.ADULT.code,
   })
   @IsString()
   @IsOptional()
