@@ -30,14 +30,14 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'tokenid',      
-    'x-api-key',
-    'x-lang',       
-    'tokenId',      
-  ],
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'tokenid',
+      'x-api-key',
+      'x-lang',
+      'tokenId',
+    ],
   });
 
   app.use(json({ limit: '10mb' }));
@@ -96,15 +96,15 @@ async function bootstrapServer() {
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-     allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'tokenid',      
-      'x-api-key',  
-      'x-lang',       
-      'tokenId',      
-    ],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'tokenid',
+        'x-api-key',
+        'x-lang',
+        'tokenId',
+      ],
     });
     app.use(json({ limit: '10mb' }));
     app.use(urlencoded({ extended: true, limit: '10mb' }));

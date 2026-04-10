@@ -722,51 +722,51 @@ export class AuthService {
   }
 
   async getUserInfo(user: UserDto) {
-  const currentUser = await this.userRepo.findOne({
-    where: { id: user.id, isDeleted: false },
-    relations: {
+    const currentUser = await this.userRepo.findOne({
+      where: { id: user.id, isDeleted: false },
+      relations: {
+        customer: {
+          avatar: true,
+        },
+        userRoles: {
+          role: true,
+        },
+      },
+    });
+
+    if (!currentUser) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+    const customerData = currentUser.customer;
+    let avatarUrl = '';
+    const avatars = await customerData?.avatar;
+
+    if (avatars && avatars.length > 0) {
+      avatarUrl = avatars[0].fileUrl;
+    }
+
+    const userInfo = {
+      id: currentUser.id,
+      username: currentUser.username,
+      email: currentUser.email,
+      isAdmin: currentUser.isAdmin,
+      isActive: currentUser.isActive,
+      lastLogin: currentUser.lastLogin,
+      createdAt: currentUser.createdAt,
+      loginProvider: currentUser.loginProvider,
+      isVerified: currentUser.isVerified,
       customer: {
-        avatar: true,
+        ...customerData,
+        avatar: avatarUrl,
       },
-      userRoles: {
-        role: true,
-      },
-    },
-  });
+      roles: currentUser.userRoles?.map((ur) => ur.role),
+    };
 
-  if (!currentUser) {
-    throw new NotFoundException('Người dùng không tồn tại');
+    return {
+      user: userInfo,
+      message: 'Lấy thông tin người dùng thành công',
+    };
   }
-  const customerData = currentUser.customer;
-  let avatarUrl = '';
-  const avatars = await customerData?.avatar; 
-  
-  if (avatars && avatars.length > 0) {
-    avatarUrl = avatars[0].fileUrl;
-  }
-
-  const userInfo = {
-    id: currentUser.id,
-    username: currentUser.username,
-    email: currentUser.email,
-    isAdmin: currentUser.isAdmin,
-    isActive: currentUser.isActive,
-    lastLogin: currentUser.lastLogin,
-    createdAt: currentUser.createdAt,
-    loginProvider: currentUser.loginProvider,
-    isVerified: currentUser.isVerified,
-    customer: {
-      ...customerData,
-      avatar: avatarUrl, 
-    },
-    roles: currentUser.userRoles?.map((ur) => ur.role),
-  };
-
-  return {
-    user: userInfo,
-    message: 'Lấy thông tin người dùng thành công',
-  };
-}
 
   async logout(user: UserDto) {
     await this.userRepo.update(user.id, {
@@ -780,41 +780,40 @@ export class AuthService {
     };
   }
 
+  async updateAvatar(user: UserDto, avatarUrl: string) {
+    const currentUser = await this.userRepo.findOne({
+      where: { id: user.id, isDeleted: false },
+      relations: { customer: true },
+    });
 
-async updateAvatar(user: UserDto, avatarUrl: string) {
-  const currentUser = await this.userRepo.findOne({
-    where: { id: user.id, isDeleted: false },
-    relations: { customer: true },
-  });
+    if (!currentUser || !currentUser.customerId) {
+      throw new NotFoundException(
+        'Không tìm thấy thông tin khách hàng để cập nhật ảnh đại diện',
+      );
+    }
 
-  if (!currentUser || !currentUser.customerId) {
-    throw new NotFoundException('Không tìm thấy thông tin khách hàng để cập nhật ảnh đại diện');
-  }
+    const customerId = currentUser.customerId;
 
-  const customerId = currentUser.customerId;
+    try {
+      await this.fileArchivalService.delete('customerId', customerId);
 
-  try {
-    await this.fileArchivalService.delete('customerId', customerId);
+      const fileArchivalDto: FileArchivalCreateDto = {
+        fileUrl: avatarUrl,
+        fileName: `avatar_${currentUser.username || customerId}`,
+        fileType: 'CUSTOMER_AVATAR',
+        fileRelationName: 'customerId',
+        fileRelationId: customerId,
+        createdBy: user.id,
+        createdAt: new Date().toISOString(),
+      };
 
-    const fileArchivalDto: FileArchivalCreateDto = {
-      fileUrl: avatarUrl,
-      fileName: `avatar_${currentUser.username || customerId}`,
-      fileType: 'CUSTOMER_AVATAR',
-      fileRelationName: 'customerId',
-      fileRelationId: customerId,
-      createdBy: user.id,
-      createdAt: new Date().toISOString(),
-    };
-
-    await this.fileArchivalService.create(fileArchivalDto);
-    return {
-      message: 'Cập nhật ảnh đại diện thành công',
-      avatar: avatarUrl,
-    };
-  } catch (error) {
-    throw new BadRequestException('Lỗi khi cập nhật ảnh đại diện');
+      await this.fileArchivalService.create(fileArchivalDto);
+      return {
+        message: 'Cập nhật ảnh đại diện thành công',
+        avatar: avatarUrl,
+      };
+    } catch (error) {
+      throw new BadRequestException('Lỗi khi cập nhật ảnh đại diện');
+    }
   }
 }
-}
-
-
