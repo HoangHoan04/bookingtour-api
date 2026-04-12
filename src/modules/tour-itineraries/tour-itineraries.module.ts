@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import {
+  FileArchivalRepository,
   ReviewRepository,
   TourDetailRepository,
   TourItinerarieRepository,
@@ -20,6 +21,7 @@ import { TourItinerarieService } from './tour-inineraries.service';
       TourPriceRepository,
       TourItinerarieRepository,
       ReviewRepository,
+      FileArchivalRepository,
     ]),
     ActionLogModule,
     FileArchivalModule,
