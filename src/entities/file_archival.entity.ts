@@ -5,7 +5,7 @@ import { BlogPostEntity, DestinationEntity } from './blogs';
 import { BannerEntity } from './blogs/banner.entity';
 import { NewsEntity } from './blogs/new.entity';
 import { TravelHintEntity } from './blogs/travel_hint.entity';
-import { ReviewEntity } from './tours';
+import { ReviewEntity, TourEntity } from './tours';
 import { CustomerEntity } from './user/customer.entity';
 import { TourGuideEntity } from './user/tour_guide.entity';
 
@@ -65,6 +65,13 @@ export class FileArchivalEntity extends BaseEntity {
   @OneToOne(() => BannerEntity, (p) => p.image)
   @JoinColumn({ name: 'bannerId' })
   banner: Promise<BannerEntity>;
+
+  /** Id Tour */
+  @Column({ type: 'varchar', nullable: true })
+  tourId: string;
+  @OneToOne(() => TourEntity, (p) => p.image)
+  @JoinColumn({ name: 'tourId' })
+  tour: Promise<TourEntity>;
 
   /** Id blog post */
   @Column({ type: 'varchar', nullable: true })
