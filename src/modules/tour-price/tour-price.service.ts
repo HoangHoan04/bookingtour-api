@@ -65,8 +65,25 @@ export class TourPriceService {
     if (!price) {
       throw new NotFoundException('Tour price không tồn tại');
     }
-    const updatedPrice = Object.assign(price, dto);
 
+    if (dto.price) price.price = dto.price;
+    if (dto.currency) price.currency = dto.currency;
+    if (dto.priceType) price.priceType = dto.priceType;
+    if (dto.tourDetailId) {
+      const tourDetail = await this.tourDetailRepo.findOne({
+        where: { id: dto.tourDetailId },
+      });
+      if (!tourDetail) {
+        throw new NotFoundException('Chi tiết tour không tồn tại');
+      }
+      price.tourDetail = tourDetail;
+      price.tourDetailId = tourDetail.id;
+    }
+
+    price.updatedBy = user.id;
+    price.updatedAt = new Date();
+
+    const updatedPrice = await this.tourPriceRepo.save(price);
     const actionLog: ActionLogCreateDto = {
       functionId: price.id,
       functionType: 'Tour Price',
@@ -75,11 +92,10 @@ export class TourPriceService {
       createdById: user.id,
       createdByName: user.username,
       description: `Cập nhật giá tour: ${price.code}`,
-      oldData: JSON.stringify(price),
-      newData: JSON.stringify(updatedPrice),
+      oldData: JSON.stringify(updatedPrice),
+      newData: JSON.stringify(price),
     };
 
-    await this.tourPriceRepo.save(price);
     await this.actionLogService.create(actionLog);
     return {
       message: 'Cập nhật giá tour thành công',
