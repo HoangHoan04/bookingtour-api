@@ -3,7 +3,6 @@ import { BookingService } from '../booking.service';
 import { CurrentUser } from 'src/common/decorators';
 import { UserDto } from 'src/dto/user.dto';
 import { CreateBookingDto } from '../dto';
-import { BookingRepository } from 'src/repositories';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('bookings')
