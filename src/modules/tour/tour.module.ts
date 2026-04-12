@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import {
   BookingRepository,
+  FileArchivalRepository,
   ReviewRepository,
   TourDetailRepository,
   TourRepository,
@@ -17,6 +18,7 @@ import { TourService } from './tour.service';
       TourDetailRepository,
       ReviewRepository,
       BookingRepository,
+      FileArchivalRepository,
     ]),
     ActionLogModule,
     FileArchivalModule,

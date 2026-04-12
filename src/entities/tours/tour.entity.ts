@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ReviewEntity } from './review.entity';
 import { TourDestinationEntity } from './tour_destination.entity';
 import { TourDetailEntity } from './tour_details.entity';
+import { FileArchivalEntity } from '../file_archival.entity';
 
 @Entity('tours')
 export class TourEntity extends BaseEntity {
@@ -86,4 +87,8 @@ export class TourEntity extends BaseEntity {
   @ApiProperty({ description: 'Review của khách hàng' })
   @OneToMany(() => ReviewEntity, (p) => p.booking)
   reviews: Promise<ReviewEntity[]>;
+
+  @ApiProperty({ description: 'ảnh đại diện của tour' })
+  @OneToOne(() => FileArchivalEntity, (file) => file.tour)
+  image: FileArchivalEntity;
 }

@@ -8,6 +8,7 @@ import { enumData } from 'src/common/constants';
 import { PaginationDto, UserDto } from 'src/dto';
 import { TourDetailEntity, TourEntity } from 'src/entities';
 import {
+  FileArchivalRepository,
   ReviewRepository,
   TourDetailRepository,
   TourRepository,
@@ -19,14 +20,18 @@ import { CreateTourDto } from './dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
 import { GenerateCodeHelper } from 'src/helpers/generateCodeHelper';
 import { CodeType } from 'src/helpers/generateCode.config';
+import { FileArchivalCreateDto } from '../file-archival/dto';
+import { FileArchivalService } from '../file-archival/file-archival.service';
 
 @Injectable()
 export class TourService {
   constructor(
     private readonly repo: TourRepository,
     private readonly tourDetailRepo: TourDetailRepository,
+    private readonly fileArchivalRepo: FileArchivalRepository,
     private readonly actionLogService: ActionLogService,
     private readonly reviewRepo: ReviewRepository,
+    private readonly fileArchivalService: FileArchivalService,
   ) {}
 
   async findById(id: string) {
@@ -39,6 +44,7 @@ export class TourService {
         tourDetails: true,
         reviews: true,
         tourDestinations: true,
+        image: true,
       },
     });
 
@@ -164,6 +170,7 @@ export class TourService {
         tourDetails: {
           tourPrice: true,
         },
+        image: true,
       },
     });
 
@@ -234,6 +241,20 @@ export class TourService {
       }
     }
 
+    const images = Array.isArray(dto.image) ? dto.image[0] : dto.image;
+    if (images?.fileUrl && images?.fileName) {
+      const fileArchival: FileArchivalCreateDto = {
+        fileUrl: images.fileUrl,
+        fileName: images.fileName,
+        fileType: 'TOUR IMAGE',
+        createdBy: user.id,
+        createdAt: new Date().toISOString(),
+        fileRelationName: 'tourId',
+        fileRelationId: savedTour.id,
+      };
+      await this.fileArchivalService.create(fileArchival);
+    }
+
     // Log action
     const actionLogDto: ActionLogCreateDto = {
       functionId: savedTour.id,
@@ -301,6 +322,21 @@ export class TourService {
 
     tour.updatedBy = user.id;
     tour.updatedAt = new Date();
+
+    if (Object.prototype.hasOwnProperty.call(dto, 'image')) {
+      await this.fileArchivalRepo.delete({ tourId: dto.id });
+
+      const imageData = Array.isArray(dto.image) ? dto.image[0] : dto.image;
+      if (imageData?.fileUrl && imageData?.fileName) {
+        const fileArchival = new FileArchivalCreateDto();
+        fileArchival.createdBy = user.id;
+        fileArchival.fileUrl = imageData.fileUrl;
+        fileArchival.fileName = imageData.fileName;
+        fileArchival.fileRelationName = 'tourId';
+        fileArchival.fileRelationId = tour.id;
+        await this.fileArchivalService.create(fileArchival);
+      }
+    }
 
     const updatedTour = await this.repo.save(tour);
 

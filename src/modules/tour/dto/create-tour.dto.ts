@@ -66,11 +66,6 @@ export class CreateTourDto {
   @IsOptional()
   status?: string;
 
-  @ApiProperty({ description: 'Hình ảnh tour' })
-  @IsOptional()
-  @IsString()
-  images?: FileDto[];
-
   @ApiProperty({
     description: 'Danh sách chi tiết tour (các chuyến đi cụ thể)',
     type: [CreateTourDetailDto],
@@ -81,4 +76,8 @@ export class CreateTourDto {
   @ValidateNested({ each: true })
   @Type(() => CreateTourDetailDto)
   tourDetails?: CreateTourDetailDto[];
+
+  @ApiProperty({ description: 'Danh sách ảnh của tour' })
+  @IsOptional()
+  image?: FileDto[];
 }
